@@ -166,5 +166,12 @@
    </extension>
 
    
-   
+  <extension
+         point="org.osate.pluginsupport.aadlcontribution">
+      <aadlcontribution
+            file="resources/security_properties.aadl"
+            id="edu.cmu.aaspe.security_properties"
+            name="Security Properties">
+      </aadlcontribution>
+   </extension>   
 </plugin>

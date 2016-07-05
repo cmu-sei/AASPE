@@ -1,0 +1,91 @@
+package drone::integration
+public
+
+	with drone::datatypes;
+	with drone::drone;
+	with drone::platform;
+	with security_properties;
+	
+	--
+	--  The phone that connects to the system. It shares
+	--  a wireless connection. We have two variations
+	--  of the phone: one secure and one insecure.
+	--  The difference is just the physical exposure, and
+	--  it is done to demonstrate the impact of physical
+	--  exposure on the overall system.
+	--
+	device phone
+	features
+		wifi    : requires bus access drone::platform::wifi;
+		request : out data port drone::datatypes::application_request_t.i;
+		reply   : in data port drone::datatypes::application_reply_t.i;
+	end phone;
+	
+	--
+   --  Here, we have a secure phone, such as one that enforces
+   --  real isolation across applications.
+	
+	device implementation phone.secure
+	properties
+	  security_properties::exposure => 0;
+	end phone.secure;
+	
+	device implementation phone.standard
+   properties
+     security_properties::exposure => 90;
+   end phone.standard;
+	 
+	
+	system integration
+	end integration;
+	
+	--
+   --  In the secure version, we use an encryption/authentication
+   --  algorithm to communicate between the components.
+   --
+	system implementation integration.secure
+	subcomponents
+		phone    : device phone;
+		drone    : system drone::drone::drone.secure;
+		wireless : bus drone::platform::wifi;
+		auth     : virtual bus drone::platform::basic_authentication;
+		ssl      : virtual bus drone::platform::ssl;
+	connections
+		wifi_phone : bus access wireless <-> phone.wifi;
+		wifi_drone : bus access wireless <-> drone.wifi;
+		phone_to_drone : port phone.request -> drone.from_phone;
+		drone_to_phone : port drone.to_phone -> phone.reply;
+	properties
+	   --
+	   --  Here, we make sure the connection from the phone to the drone
+	   --  is encrypted and is using authentication.
+	   --
+		actual_connection_binding => (reference (ssl)) applies to auth;
+		actual_connection_binding => (reference (wireless)) applies to ssl;
+		actual_connection_binding => (reference (auth)) applies to phone_to_drone, drone_to_phone;
+	end integration.secure;
+	
+	
+	--
+	--  In the insecure version, the connection pass over wifi
+	--  without authentication/encryption
+	--
+   system implementation integration.insecure
+   subcomponents
+      phone    : device phone;
+      drone    : system drone::drone::drone.insecure;
+      wireless : bus drone::platform::wifi;
+      auth     : virtual bus drone::platform::basic_authentication;
+      ssl      : virtual bus drone::platform::ssl;
+   connections
+      wifi_phone : bus access wireless <-> phone.wifi;
+      wifi_drone : bus access wireless <-> drone.wifi;
+      phone_to_drone : port phone.request -> drone.from_phone;
+      drone_to_phone : port drone.to_phone -> phone.reply;
+   properties
+      --
+      --  We do not use any encryption or authentication techniques.
+      --  This should be reported by the analysis tools.
+      actual_connection_binding => (reference (wireless)) applies to phone_to_drone, drone_to_phone;
+   end integration.insecure;
+end drone::integration;

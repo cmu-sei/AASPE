@@ -1,0 +1,86 @@
+package sel4_ping_pong_event
+public
+  with software;
+  with deployment;
+  with sei;
+  
+---------------
+-- processor --
+---------------
+
+virtual processor runtime
+end runtime;
+
+processor the_processor  
+properties
+	Deployment::Execution_Platform => sel4; 
+end the_processor;
+
+
+---------------
+-- processes -- 
+---------------
+
+process producer
+features
+  out_port : out event data port software::simple_type;
+end producer;
+
+process implementation producer.impl
+subcomponents
+  pinger        : thread software::producer_event_thread.impl;
+connections
+  c0 : port pinger.data_source -> out_port;
+end producer.impl;
+
+process consumer
+features
+  in_port  : in event data port software::simple_type;
+end consumer;
+
+process implementation consumer.impl
+subcomponents
+  ping_me        : thread software::consumer_sporadic_thread.impl;
+connections
+  c0 : port in_port -> ping_me.data_sink;
+end consumer.impl;
+
+
+system ping
+end ping;
+
+system implementation ping.impl
+subcomponents
+  prod : process producer.impl;
+  cons : process consumer.impl;
+
+  cpu : processor the_processor;
+ 
+  runtime_prod : virtual processor runtime;
+  runtime_cons : virtual processor runtime;
+connections
+  c0 : port prod.out_port -> cons.in_port;
+properties
+  actual_processor_binding => (reference (runtime_prod)) applies to prod;
+  actual_processor_binding => (reference (cpu)) applies to runtime_prod;
+  actual_processor_binding => (reference (runtime_cons)) applies to cons;
+  actual_processor_binding => (reference (cpu)) applies to runtime_cons;
+end ping.impl;
+
+system implementation ping.beaglebone extends ping.impl
+properties
+	sei::platform => "beaglebone" applies to cpu;
+end ping.beaglebone;
+
+
+system implementation ping.kzm extends ping.impl
+properties
+	sei::platform => "kzm" applies to cpu;
+end ping.kzm;
+
+system implementation ping.x86 extends ping.impl
+properties
+	sei::platform => "x86" applies to cpu;
+end ping.x86;
+
+end sel4_ping_pong_event;

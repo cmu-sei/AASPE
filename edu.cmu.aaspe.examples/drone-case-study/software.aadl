@@ -1,0 +1,50 @@
+package drone::software
+public
+
+	with drone::datatypes;
+
+	subprogram spg_missiondata
+		features
+			missiondata: in parameter drone::datatypes::missiondata_t.i;
+			app_request: in parameter drone::datatypes::application_request_t.i;
+			app_reply: out parameter drone::datatypes::application_reply_t.i;
+		properties
+			source_language => (c);
+			source_name => "simulate_missiondata";
+			source_text => ("missiondata.c", "utils.c");
+	end spg_missiondata;
+
+	subprogram spg_filter
+		features
+			missiondata: out parameter drone::datatypes::missiondata_t.i;
+			navdata: in parameter drone::datatypes::navdata_t;
+			cmdin: in parameter drone::datatypes::boardcmd_reply_t.i;
+			cmdout: out parameter drone::datatypes::boardcmd_request_t.i;
+		properties
+			source_language => (c);
+			source_name => "filter";
+			source_text => ("filter.c", "utils.c");
+	end spg_filter;
+
+	subprogram spg_navigation
+		features
+			navdata: out parameter drone::datatypes::navdata_t;
+		properties
+			source_language => (c);
+			source_name => "navigation";
+			source_text => ("navigation.c", "utils.c");
+	end spg_navigation;
+
+	subprogram spg_serial_driver
+		features
+			from_filter: in parameter drone::datatypes::boardcmd_request_t.i;
+			to_filter: out parameter drone::datatypes::boardcmd_reply_t.i;
+			from_outside: in parameter drone::datatypes::boardcmd_reply_t.i;
+			to_outside: out parameter drone::datatypes::boardcmd_request_t.i;
+		properties
+			source_language => (c);
+			source_name => "handle_serial";
+			source_text => ("serial-driver.c", "utils.c");
+	end spg_serial_driver;
+
+end drone::software;

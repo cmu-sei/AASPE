@@ -1,0 +1,62 @@
+package drone::drone
+public
+
+	with drone::platform;
+	with drone::missionboard;
+	with drone::cmdboard;
+	with drone::datatypes;
+	with security_properties;
+	
+	system drone
+	features
+		wifi          : requires bus access drone::platform::wifi;
+		from_phone    : in data port drone::datatypes::application_request_t.i;
+		to_phone      : out data port drone::datatypes::application_reply_t.i;
+	end drone;
+
+	system implementation drone.generic
+	subcomponents
+		missionboard : system drone::missionboard::board.generic;
+		serial       : bus drone::platform::serial;
+		cmdboard     : system drone::cmdboard::board.i;
+	connections
+		serial_to_mission : bus access serial <-> missionboard.com;
+		serial_to_cmd     : bus access serial <-> cmdboard.com;
+		
+		cmd_to_mission    : port cmdboard.cmdout -> missionboard.cmdin;
+		cmd_to_board      : port missionboard.cmdout -> cmdboard.cmdin;
+		
+		from_phone_to_mission : port from_phone -> missionboard.app_request;
+		to_phone_from_mission : port missionboard.app_reply -> to_phone;
+		
+		wifi_linuxboard    : bus access wifi <-> missionboard.wifi;
+	properties
+		actual_connection_binding => (reference (serial)) applies to cmd_to_board;
+		actual_connection_binding => (reference (serial)) applies to cmd_to_mission;
+	end drone.generic;
+	
+	
+	--
+	--  In the secure version, we assume that the drone is physically
+	--  isolated. In other words, nobody can access physically the drone
+	--  it is locked in a safe box.
+	--
+	
+	system implementation drone.secure extends drone.generic
+	subcomponents
+	  missionboard : refined to system drone::missionboard::board.secure;
+	properties
+	  security_properties::exposure => 0;
+	end drone.secure;
+	
+	--
+	--  In the insecure version of the drone, 
+	
+   system implementation drone.insecure extends drone.generic
+   subcomponents
+     missionboard : refined to system drone::missionboard::board.insecure;
+   properties
+     security_properties::exposure => 90;
+   end drone.insecure;	
+
+end drone::drone;

@@ -1,0 +1,81 @@
+package drone::datatypes
+public
+
+with base_types;
+with data_model;
+
+data direction_t
+properties
+	data_model::data_representation => enum;
+	data_model::enumerators => ("up", "down", "left", "right");
+end direction_t;
+
+--
+--  Internal communication between
+--  the board and the serial/filter partitions.
+---
+data boardcmd_request_t
+end boardcmd_request_t;
+
+data implementation boardcmd_request_t.i
+subcomponents
+	get_temp : data base_types::boolean;
+	get_light : data base_types::boolean;
+	get_sound : data base_types::boolean;
+	direction : data direction_t;
+end boardcmd_request_t.i;
+
+data boardcmd_reply_t
+end boardcmd_reply_t;
+
+data implementation boardcmd_reply_t.i 
+subcomponents
+	temp : data base_types::unsigned_8;
+	light : data base_types::unsigned_8;
+	sound : data base_types::unsigned_8;
+end boardcmd_reply_t.i;
+
+-- 
+--  Mission data received from the board
+--
+data missiondata_t
+end missiondata_t;
+
+data implementation missiondata_t.i
+subcomponents
+	temp : data base_types::unsigned_8;
+	light : data base_types::unsigned_8;
+	sound : data base_types::unsigned_8;
+end missiondata_t.i;
+
+--
+--  Navigation data sent by the navigation partition
+--
+data navdata_t extends direction_t
+end navdata_t;
+
+--
+--  Application request: what to show on the application
+--  phone.
+--
+data application_request_t
+end application_request_t;
+
+data implementation application_request_t.i
+subcomponents
+	get_temp : data base_types::boolean;
+	get_light : data base_types::boolean;
+	get_sound : data base_types::boolean;
+end application_request_t.i;
+
+data application_reply_t
+end application_reply_t;
+
+data implementation application_reply_t.i
+subcomponents
+	temp : data base_types::unsigned_8;
+	light : data base_types::unsigned_8;
+	sound : data base_types::unsigned_8;
+end application_reply_t.i;
+
+end drone::datatypes;

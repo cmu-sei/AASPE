@@ -1,0 +1,50 @@
+package sel4_hello_world
+public
+  with software;
+  with deployment;
+  
+---------------
+-- processor --
+---------------
+
+virtual processor runtime
+end runtime;
+
+processor the_processor  
+properties
+	Deployment::Execution_Platform => sel4;
+end the_processor;
+
+
+---------------
+-- processes -- 
+---------------
+
+process hellopr
+end hellopr;
+
+process implementation hellopr.impl
+subcomponents
+  printer        : thread software::hello_thread.impl;
+end hellopr.impl;
+
+
+system hello
+end hello; 
+
+system implementation hello.impl
+subcomponents
+  hello1 : process hellopr.impl;
+  hello2 : process hellopr.impl;
+  cpu : processor the_processor;
+ 
+  runtime_hello1 : virtual processor runtime;
+  runtime_hello2 : virtual processor runtime;
+properties
+  actual_processor_binding => (reference (runtime_hello1)) applies to hello1;
+  actual_processor_binding => (reference (cpu)) applies to runtime_hello1;
+  actual_processor_binding => (reference (runtime_hello2)) applies to hello2;
+  actual_processor_binding => (reference (cpu)) applies to runtime_hello2;
+end hello.impl;
+
+end sel4_hello_world;

@@ -1,0 +1,48 @@
+package security_cwe311
+public
+
+	with security_properties;
+
+
+	system sender
+	features
+		dataout : out event port;
+	end sender;
+
+
+	system receiver
+	features
+		datain : in event port;
+	end receiver;
+
+	system main
+	annex resolute {** 
+		prove (check_cwe311 ())
+	**};
+	end main;
+ 
+
+	system implementation main.i
+	subcomponents
+		s : system sender;
+		r : system receiver;
+	connections
+		c0 : port s.dataout -> r.datain;
+	end main.i;
+	
+	system implementation main.success1 extends main.i
+	properties
+		security_properties::security_levels => (100) applies to s;
+	end main.success1;
+	
+	system implementation main.success2 extends main.i
+	properties
+		security_properties::security_levels => (10) applies to s;
+	end main.success2;
+	
+	system implementation main.failure1 extends main.i
+	properties
+		security_properties::security_levels => (10) applies to s;
+	end main.failure1;
+
+end security_cwe311;

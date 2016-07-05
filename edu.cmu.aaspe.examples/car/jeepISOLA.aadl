@@ -1,0 +1,175 @@
+package case_study::automotive::jeep
+public
+
+with security_properties;
+with aaspe::case_study::aumotive::library;
+
+system attacker
+prototypes
+	network : bus;
+features
+	connection : requires bus access network;
+end attacker;
+
+device router
+prototypes
+	routertype : bus ;
+features
+	socket   : requires bus access routertype;
+	internet : requires bus access aaspe::case_study::aumotive::library::internet;
+end router;
+
+
+
+system function
+features
+	can_socket : requires bus access aaspe::case_study::aumotive::library::can;
+end function;
+
+system radio
+features
+	can_ihs_socket : requires bus access aaspe::case_study::aumotive::library::can;
+	can_c_socket   : requires bus access aaspe::case_study::aumotive::library::can;
+	wifi_access    : requires bus access aaspe::case_study::aumotive::library::wifi;
+	--cellular_access : requires bus access aaspe::case_study::aumotive::library::cellular;
+end radio;
+
+system radio_cellular extends radio
+features
+	cellular_access : requires bus access aaspe::case_study::aumotive::library::cellular;
+end radio_cellular;
+
+
+system car
+features
+	--cellular_access : requires bus access aaspe::case_study::aumotive::library::cellular;
+	wifi_access     : provides bus access aaspe::case_study::aumotive::library::wifi;
+end car;
+
+system car_cellular extends car
+features
+	cellular_access : requires bus access aaspe::case_study::aumotive::library::cellular;
+	--wifi_access     : provides bus access aaspe::case_study::aumotive::library::wifi;
+end car_cellular;
+
+
+system implementation car.cherokee
+subcomponents
+    --  The radio system - connected to the wireless, cellular
+    --  and two cans networks.
+	radio : system radio {security_properties::security_levels => (security_properties::secret,security_properties::unclassified);
+		Classifier_Substitution_Rule => Type_Extension;
+	};
+	 
+	--  The CAN buses: IHS is connected to non-critical
+	--  systems, the C is connected to critical equipments.
+	can_ihs      : bus aaspe::case_study::aumotive::library::can {security_properties::security_levels => (security_properties::unclassified);};
+	can_c        : bus aaspe::case_study::aumotive::library::can {security_properties::security_levels => (security_properties::secret);};
+	
+	--  The wifi provided by the car to connect to the car
+	wifi        : bus aaspe::case_study::aumotive::library::wifi;
+	
+	-- Functions on the IHS (non-critical) bus
+	--  temperature control
+	hvac        : system function {security_properties::security_levels => (security_properties::unclassified);};  
+	
+	--  radio amplifier
+	amplifier  	: system function {security_properties::security_levels => (security_properties::unclassified);};  
+	--  body control module
+	bcm         : system function {security_properties::security_levels => (security_properties::unclassified);}; 
+	--  heated seats 
+	hsm         : system function {security_properties::security_levels => (security_properties::unclassified);};  
+	
+	-- Functions on the C (critical) bus
+	--  braking
+	abs : system function {security_properties::security_levels => (security_properties::secret);};
+	--  adaptive cruise control
+	acc : system function {security_properties::security_levels => (security_properties::secret);};
+	--  electric power steering  
+	eps : system function {security_properties::security_levels => (security_properties::secret);};
+	--  electric parking brake
+	epb : system function {security_properties::security_levels => (security_properties::secret);};    
+connections
+    -- Connections for all the non-critical functions on the IHS bus
+	ihs_radio      : bus access can_ihs <-> radio.can_ihs_socket;
+	ihs_hvac       : bus access can_ihs <-> hvac.can_socket;
+	ihs_amplifier  : bus access can_ihs <-> amplifier.can_socket;
+	ihs_bcm        : bus access can_ihs <-> bcm.can_socket;
+	ihs_hsm        : bus access can_ihs <-> hsm.can_socket;
+	
+	-- Connections for all the critical function on the C bus
+	c_radio : bus access can_c <-> radio.can_c_socket;
+	c_abs   : bus access can_c <-> abs.can_socket;
+	c_acc   : bus access can_c <-> acc.can_socket;
+	c_eps   : bus access can_c <-> eps.can_socket;
+	c_epb   : bus access can_c <-> epb.can_socket;
+	
+	wifi_radio      : bus access wifi <-> radio.wifi_access;
+	wifi_outside    : bus access wifi <-> wifi_access;
+	--cellular_radio  : bus access cellular_access <-> radio.cellular_access;
+annex resolute {**
+	prove (check_mils_policy())
+**};
+end car.cherokee;
+
+
+system implementation car_cellular.cherokee extends car.cherokee
+	subcomponents
+		radio : refined to system radio_cellular;
+	connections
+		cellular_radio  : bus access cellular_access <-> radio.cellular_access;
+end car_cellular.cherokee;
+
+--
+--  Generic integration component
+--
+
+system integration
+end integration;
+
+system implementation integration.only_car
+subcomponents
+	car         : system car.cherokee {Classifier_Substitution_Rule => Type_Extension;};	
+end integration.only_car;
+
+--
+--  Integration of the system with its operating environment and car that models cellular
+--
+system implementation integration.with_cellular extends integration.only_car
+subcomponents
+	car         : refined to system car_cellular.cherokee;
+	router_cel  : device router (routertype => bus aaspe::case_study::aumotive::library::cellular);
+	cellular    : bus aaspe::case_study::aumotive::library::cellular;
+	internet    : bus aaspe::case_study::aumotive::library::internet;
+connections
+	car_cel      : bus access cellular <-> car.cellular_access;
+	
+	--  The router is connected to the internet AND the cellular
+	routercel    : bus access cellular <-> router_cel.socket;
+	routercelint : bus access internet <-> router_cel.internet;
+end integration.with_cellular;
+
+--
+--  This model adds attackers that would then be able to attack
+--  the system. We connect these persons to the shared resources.
+--
+
+system implementation integration.attack extends integration.with_cellular
+subcomponents
+	attacker_cel      : system attacker (network => bus aaspe::case_study::aumotive::library::cellular)
+						{security_properties::security_levels => (100);};
+	attacker_wifi     : system attacker (network => bus aaspe::case_study::aumotive::library::wifi)
+						{security_properties::security_levels => (100);};
+	attacker_internet : system attacker (network => bus aaspe::case_study::aumotive::library::internet)
+						{security_properties::security_levels => (100);};
+connections
+	attacker_to_internet : bus access attacker_internet.connection <-> internet;
+	attacker_to_cel      : bus access attacker_cel.connection <-> cellular;
+	attacker_to_wifi     : bus access attacker_wifi.connection <-> car.wifi_access;
+annex resolute {**
+	prove (check_mils_policy ())
+**};
+end integration.attack;
+
+
+end case_study::automotive::jeep;

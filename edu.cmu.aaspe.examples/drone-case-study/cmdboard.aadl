@@ -1,0 +1,17 @@
+package drone::cmdboard
+public
+
+	with drone::datatypes;
+	with drone::platform;
+
+	system board
+	features
+		cmdin  : in data port drone::datatypes::boardcmd_request_t.i;
+		cmdout : out data port drone::datatypes::boardcmd_reply_t.i;
+		com    : requires bus access drone::platform::serial;
+	end board;
+	
+	system implementation board.i
+	end board.i;
+end drone::cmdboard;
+ 

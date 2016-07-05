@@ -1,0 +1,423 @@
+package aaspe::case_study::aumotive::prius
+public
+
+with aaspe::case_study::aumotive::library;
+with security_properties;
+
+system certification_ecu extends aaspe::case_study::aumotive::library::ecu_1lin1can
+features
+	rkebus : requires bus access aaspe::case_study::aumotive::library::rke;
+end certification_ecu;
+
+system navigation_receiver extends aaspe::case_study::aumotive::library::ecu_1avc1can
+features
+	bluetooth : requires bus access aaspe::case_study::aumotive::library::bluetooth;
+	radio : requires bus access aaspe::case_study::aumotive::library::radio;
+end navigation_receiver;
+
+system prius
+
+end prius;
+
+system implementation prius.model_2014
+subcomponents
+   lin_power_windows : bus aaspe::case_study::aumotive::library::lin;
+   lin_smartkey : bus aaspe::case_study::aumotive::library::lin;
+   lin_ac : bus aaspe::case_study::aumotive::library::lin;
+   
+   can_power_mgmt : bus aaspe::case_study::aumotive::library::can;
+   can_v2 : bus aaspe::case_study::aumotive::library::can;
+   can_v1 : bus aaspe::case_study::aumotive::library::can;
+   can_parking : bus aaspe::case_study::aumotive::library::can;
+   avc_lan : bus aaspe::case_study::aumotive::library::avc;
+
+   -- external bus - the ones we interface with
+   
+   rke : bus aaspe::case_study::aumotive::library::rke;
+   tpms: bus aaspe::case_study::aumotive::library::tpms;
+   bluetooth : bus aaspe::case_study::aumotive::library::bluetooth;
+   radio : bus aaspe::case_study::aumotive::library::radio;
+   cellular : bus aaspe::case_study::aumotive::library::cellular;
+   
+   --
+   --  No lin_advanced_parking
+   --  This component is available in the 2010 model but not
+   --  in the 2014 model. 
+   --  lin_advanced_parking : bus aaspe::case_study::aumotive::library::lin;
+   
+   -- telematics ECU - isolated from the rest
+   telematics : system aaspe::case_study::aumotive::library::ecu_1cellular;
+   
+	-- functions for lin advanced parking
+	parking_assist : system aaspe::case_study::aumotive::library::ecu_1lin;
+	ultra_sonic_sensor : system aaspe::case_study::aumotive::library::ecu_1lin;
+	
+	-- functions for lin air conditioning
+	air_conditioning_amplifier : system aaspe::case_study::aumotive::library::ecu_1lin1can;
+	air_conditioning_control : system aaspe::case_study::aumotive::library::ecu_1lin;
+	
+	-- functions for lin smart key
+	power_mgmt : system aaspe::case_study::aumotive::library::ecu_1lin3can;
+	transmission_control : system aaspe::case_study::aumotive::library::ecu_1lin1can;
+	immobiliser_code : system aaspe::case_study::aumotive::library::ecu_1lin;
+	certification : system certification_ecu;
+
+	-- functions for avclan
+	stereo_amplifier : system aaspe::case_study::aumotive::library::ecu_1avc;
+	xm_satellite : system aaspe::case_study::aumotive::library::ecu_1avc;
+	navigation_receiver : system navigation_receiver;
+	
+	-- functions for can parking assist
+	driver_support_ecu : system aaspe::case_study::aumotive::library::ecu_2can;
+	lane_recognition : system aaspe::case_study::aumotive::library::ecu_1can;
+	millimeter_wave : system aaspe::case_study::aumotive::library::ecu_1can;
+	
+	-- functions for can v1
+	main_body : system aaspe::case_study::aumotive::library::ecu_1lin1can;
+	ecm : system aaspe::case_study::aumotive::library::ecu_1lin2can;
+	power_steering : system aaspe::case_study::aumotive::library::ecu_1can;
+	yaw_rate_acceleration : system aaspe::case_study::aumotive::library::ecu_1lin1can;
+	airbag : system aaspe::case_study::aumotive::library::ecu_1can;
+	steering_angle : system aaspe::case_study::aumotive::library::ecu_1can;
+	skid_control : system aaspe::case_study::aumotive::library::ecu_2can;
+	dlc3 : system aaspe::case_study::aumotive::library::ecu_1can;
+	combination_meter : system aaspe::case_study::aumotive::library::ecu_1can;
+	tire_pressure : system aaspe::case_study::aumotive::library::ecu_1tpms1can;
+	
+	--  functions for can v2
+	seat_belt : system aaspe::case_study::aumotive::library::ecu_1can;
+	
+	--  functions for lin power windows and sliding roof
+	power_window_regulation0 : system aaspe::case_study::aumotive::library::ecu_1lin;
+	power_window_regulation1 : system aaspe::case_study::aumotive::library::ecu_1lin;
+	power_window_regulation2 : system aaspe::case_study::aumotive::library::ecu_1lin;
+	power_window_regulation3 : system aaspe::case_study::aumotive::library::ecu_1lin;
+	sliding_roof : system aaspe::case_study::aumotive::library::ecu_1lin;
+	master_switch : system aaspe::case_study::aumotive::library::ecu_1lin;
+	
+	
+connections
+	cellular0 : bus access cellular <-> telematics.cellaccess;
+	
+	rke0 : bus access rke <-> certification.rkebus;
+	
+	bluetooth0 : bus access bluetooth <-> navigation_receiver.bluetooth;
+	
+	radio0 : bus access radio <-> navigation_receiver.radio;
+
+
+	lin_power_windows0 : bus access lin_power_windows <-> power_window_regulation0.linbus;
+	lin_power_windows1 : bus access lin_power_windows <-> power_window_regulation1.linbus;
+	lin_power_windows2 : bus access lin_power_windows <-> power_window_regulation2.linbus;
+	lin_power_windows3 : bus access lin_power_windows <-> power_window_regulation3.linbus;
+	lin_power_windows4 : bus access lin_power_windows <-> sliding_roof.linbus;
+	lin_power_windows5 : bus access lin_power_windows <-> master_switch.linbus;
+	lin_power_windows6 : bus access lin_power_windows <-> main_body.linbus;
+	
+	-- connections for can_v1
+
+	can_v1_0  : bus access can_v1 <-> navigation_receiver.can;
+	can_v1_1  : bus access can_v1 <-> power_mgmt.canbus0;
+	can_v1_2  : bus access can_v1 <-> certification.canbus0;
+	can_v1_3  : bus access can_v1 <-> main_body.canbus0;
+	can_v1_4  : bus access can_v1 <-> ecm.canbus0;
+	can_v1_5  : bus access can_v1 <-> yaw_rate_acceleration.canbus0;
+	can_v1_6  : bus access can_v1 <-> airbag.canbus;
+	can_v1_7  : bus access can_v1 <-> steering_angle.canbus;
+	can_v1_8  : bus access can_v1 <-> skid_control.canbus1;
+	can_v1_9  : bus access can_v1 <-> dlc3.canbus;
+	can_v1_10 : bus access can_v1 <-> combination_meter.canbus;
+	can_v1_11 : bus access can_v1 <-> transmission_control.canbus0;
+	can_v1_12 : bus access can_v1 <-> navigation_receiver.can;
+	can_v1_13 : bus access can_v1 <-> tire_pressure.can0;
+
+	can_v2_0 : bus access can_v2 <-> driver_support_ecu.canbus2;
+	can_v2_1 : bus access can_v2 <-> power_mgmt.canbus2; 
+	can_v2_2 : bus access can_v2 <-> seat_belt.canbus;
+
+	can_parking0 : bus access can_parking <-> driver_support_ecu.canbus1;
+	can_parking1 : bus access can_parking <-> lane_recognition.canbus;
+	can_parking2 : bus access can_parking <-> millimeter_wave.canbus;
+	
+	--  connections for can power mgmt
+	can_power_mgmt0 : bus access can_power_mgmt <-> power_mgmt.canbus1;
+	can_power_mgmt1 : bus access can_power_mgmt <-> ecm.canbus1;
+	can_power_mgmt2 : bus access can_power_mgmt <-> air_conditioning_amplifier.canbus0;
+	can_power_mgmt3 : bus access can_power_mgmt <-> skid_control.canbus2;
+	
+	avc_lan0 : bus access avc_lan <-> stereo_amplifier.avcbus;
+	avc_lan1 : bus access avc_lan <-> xm_satellite.avcbus;
+	avc_lan2 : bus access avc_lan <-> navigation_receiver.avcbus;
+
+	lin_smartkey0 : bus access lin_smartkey <-> power_mgmt.linbus;
+	lin_smartkey1 : bus access lin_smartkey <-> transmission_control.linbus;
+	lin_smartkey2 : bus access lin_smartkey <-> immobiliser_code.linbus;
+	lin_smartkey3 : bus access lin_smartkey <-> certification.linbus;
+
+	lin_ac0 : bus access lin_ac <-> air_conditioning_amplifier.linbus;
+	lin_ac1 : bus access lin_ac <-> air_conditioning_control.linbus;
+	
+	tpms0 : bus access tpms <-> tire_pressure.tpms0;
+	
+	--
+	--  We just delete the connections
+	--  related to the advanced parking feature
+	--
+	--  lin_advanced_parking0 : bus access lin_advanced_parking <-> parking_assist.linbus;
+	--  lin_advanced_parking1 : bus access lin_advanced_parking <-> ultra_sonic_sensor.linbus;
+end prius.model_2014;
+
+system implementation prius.model_2010
+subcomponents
+	--  internal buses
+	lin_power_windows : bus aaspe::case_study::aumotive::library::lin {security_properties::exposure => 0;};
+	can_power_mgmt : bus aaspe::case_study::aumotive::library::can {security_properties::exposure => 0;};
+	can_v2 : bus aaspe::case_study::aumotive::library::can {security_properties::exposure => 0;};
+	can_v1 : bus aaspe::case_study::aumotive::library::can {security_properties::exposure => 0;};
+	can_parking : bus aaspe::case_study::aumotive::library::can {security_properties::exposure => 0;};
+	avc_lan : bus aaspe::case_study::aumotive::library::avc {security_properties::exposure => 0;};
+	lin_smartkey : bus aaspe::case_study::aumotive::library::lin {security_properties::exposure => 0;};
+	lin_ac : bus aaspe::case_study::aumotive::library::lin {security_properties::exposure => 0;};
+	lin_advanced_parking : bus aaspe::case_study::aumotive::library::lin {security_properties::exposure => 0;};
+	
+	-- external bus - the ones we interface with
+    
+    rke : bus aaspe::case_study::aumotive::library::rke;
+    tpms: bus aaspe::case_study::aumotive::library::tpms;
+    bluetooth : bus aaspe::case_study::aumotive::library::bluetooth;
+    radio : bus aaspe::case_study::aumotive::library::radio;
+    cellular : bus aaspe::case_study::aumotive::library::cellular;
+	
+	-- telematics ECU - isolated from the rest
+   telematics : system aaspe::case_study::aumotive::library::ecu_1cellular;
+	
+	-- functions for lin advanced paring
+	parking_assist : system aaspe::case_study::aumotive::library::ecu_1lin {security_properties::domains => ("parking");
+	                                                                        security_properties::exposure => 0;
+	};
+	ultra_sonic_sensor : system aaspe::case_study::aumotive::library::ecu_1lin {security_properties::domains => ("parking"); security_properties::exposure => 0;};
+	
+	-- functions for lin air conditioning
+	air_conditioning_amplifier : system aaspe::case_study::aumotive::library::ecu_1lin1can {security_properties::domains => ("comfort");  security_properties::exposure => 0;};
+	air_conditioning_control : system aaspe::case_study::aumotive::library::ecu_1lin {security_properties::domains => ("comfort");  security_properties::exposure => 0;};
+	
+	-- functions for lin smart key
+	power_mgmt : system aaspe::case_study::aumotive::library::ecu_1lin3can {security_properties::domains => ("driving");  security_properties::exposure => 0;};
+	transmission_control : system aaspe::case_study::aumotive::library::ecu_1lin1can {security_properties::domains => ("driving");  security_properties::exposure => 0;};
+	immobiliser_code : system aaspe::case_study::aumotive::library::ecu_1lin {security_properties::domains => ("driving");  security_properties::exposure => 0;};
+	certification : system certification_ecu {security_properties::domains => ("driving");  security_properties::exposure => 0;};
+
+	-- functions for avclan
+	stereo_amplifier : system aaspe::case_study::aumotive::library::ecu_1avc {security_properties::domains => ("entertainment"); security_properties::exposure => 0;};
+	xm_satellite : system aaspe::case_study::aumotive::library::ecu_1avc {security_properties::domains => ("entertainment"); security_properties::exposure => 0;};
+	navigation_receiver : system navigation_receiver {security_properties::domains => ("entertainment"); security_properties::exposure => 0;};
+	
+	-- functions for can parking assist
+	driver_support_ecu : system aaspe::case_study::aumotive::library::ecu_2can {security_properties::domains => ("parking"); security_properties::exposure => 0;};
+	lane_recognition : system aaspe::case_study::aumotive::library::ecu_1can {security_properties::domains => ("parking"); security_properties::exposure => 0;};
+	millimeter_wave : system aaspe::case_study::aumotive::library::ecu_1can {security_properties::domains => ("parking"); security_properties::exposure => 0;};
+	
+	-- functions for can v1
+	main_body : system aaspe::case_study::aumotive::library::ecu_1lin1can {security_properties::domains => ("driving"); security_properties::exposure => 0;};
+	ecm : system aaspe::case_study::aumotive::library::ecu_1lin2can {security_properties::domains => ("driving"); security_properties::exposure => 0;};
+	power_steering : system aaspe::case_study::aumotive::library::ecu_1can {security_properties::domains => ("driving"); security_properties::exposure => 0;};
+	yaw_rate_acceleration : system aaspe::case_study::aumotive::library::ecu_1lin1can {security_properties::domains => ("driving"); security_properties::exposure => 0;};
+	airbag : system aaspe::case_study::aumotive::library::ecu_1can {security_properties::domains => ("driving"); security_properties::exposure => 0;};
+	steering_angle : system aaspe::case_study::aumotive::library::ecu_1can {security_properties::domains => ("driving"); security_properties::exposure => 0;};
+	skid_control : system aaspe::case_study::aumotive::library::ecu_2can {security_properties::domains => ("driving"); security_properties::exposure => 0;};
+	dlc3 : system aaspe::case_study::aumotive::library::ecu_1can {security_properties::domains => ("driving"); security_properties::exposure => 0;};
+	combination_meter : system aaspe::case_study::aumotive::library::ecu_1can {security_properties::domains => ("driving"); security_properties::exposure => 0;};
+   tire_pressure : system aaspe::case_study::aumotive::library::ecu_1tpms1can;
+   
+	--  functions for can v2
+	seat_belt : system aaspe::case_study::aumotive::library::ecu_1can { security_properties::exposure => 0;};
+	
+	--  functions for lin power windows and sliding roof
+	power_window_regulation0 : system aaspe::case_study::aumotive::library::ecu_1lin{ security_properties::exposure => 0;};
+	power_window_regulation1 : system aaspe::case_study::aumotive::library::ecu_1lin{ security_properties::exposure => 0;};
+	power_window_regulation2 : system aaspe::case_study::aumotive::library::ecu_1lin{ security_properties::exposure => 0;};
+	power_window_regulation3 : system aaspe::case_study::aumotive::library::ecu_1lin{ security_properties::exposure => 0;};
+	sliding_roof : system aaspe::case_study::aumotive::library::ecu_1lin{ security_properties::exposure => 0;};
+	master_switch : system aaspe::case_study::aumotive::library::ecu_1lin{ security_properties::exposure => 0;};
+connections
+
+   cellular0 : bus access cellular <-> telematics.cellaccess;
+
+	rke0 : bus access rke <-> certification.rkebus;
+	bluetooth0 : bus access bluetooth <-> navigation_receiver.bluetooth;
+	radio0 : bus access radio <-> navigation_receiver.radio;
+
+	lin_power_windows0 : bus access lin_power_windows <-> power_window_regulation0.linbus;
+	lin_power_windows1 : bus access lin_power_windows <-> power_window_regulation1.linbus;
+	lin_power_windows2 : bus access lin_power_windows <-> power_window_regulation2.linbus;
+	lin_power_windows3 : bus access lin_power_windows <-> power_window_regulation3.linbus;
+	lin_power_windows4 : bus access lin_power_windows <-> sliding_roof.linbus;
+	lin_power_windows5 : bus access lin_power_windows <-> master_switch.linbus;
+	lin_power_windows6 : bus access lin_power_windows <-> main_body.linbus;
+	
+	-- connections for can_v1
+
+	can_v1_0  : bus access can_v1 <-> navigation_receiver.can;
+	can_v1_1  : bus access can_v1 <-> power_mgmt.canbus0;
+	can_v1_2  : bus access can_v1 <-> certification.canbus0;
+	can_v1_3  : bus access can_v1 <-> main_body.canbus0;
+	can_v1_4  : bus access can_v1 <-> ecm.canbus0;
+	can_v1_5  : bus access can_v1 <-> yaw_rate_acceleration.canbus0;
+	can_v1_6  : bus access can_v1 <-> airbag.canbus;
+	can_v1_7  : bus access can_v1 <-> steering_angle.canbus;
+	can_v1_8  : bus access can_v1 <-> skid_control.canbus1;
+	can_v1_9  : bus access can_v1 <-> dlc3.canbus;
+	can_v1_10 : bus access can_v1 <-> combination_meter.canbus;
+	can_v1_11 : bus access can_v1 <-> transmission_control.canbus0;
+   can_v1_13 : bus access can_v1 <-> tire_pressure.can0;
+
+	can_v2_0 : bus access can_v2 <-> driver_support_ecu.canbus2;
+	can_v2_1 : bus access can_v2 <-> power_mgmt.canbus2;
+	can_v2_2 : bus access can_v2 <-> seat_belt.canbus;
+
+	can_parking0 : bus access can_parking <-> driver_support_ecu.canbus1;
+	can_parking1 : bus access can_parking <-> lane_recognition.canbus;
+	can_parking2 : bus access can_parking <-> millimeter_wave.canbus;
+	
+	--  connections for can power mgmt
+	can_power_mgmt0 : bus access can_power_mgmt <-> power_mgmt.canbus1;
+	can_power_mgmt1 : bus access can_power_mgmt <-> ecm.canbus1;
+	can_power_mgmt2 : bus access can_power_mgmt <-> air_conditioning_amplifier.canbus0;
+	can_power_mgmt3 : bus access can_power_mgmt <-> skid_control.canbus2;
+	
+	avc_lan0 : bus access avc_lan <-> stereo_amplifier.avcbus;
+	avc_lan1 : bus access avc_lan <-> xm_satellite.avcbus;
+	avc_lan2 : bus access avc_lan <-> navigation_receiver.avcbus;
+
+ 
+	lin_smartkey0 : bus access lin_smartkey <-> power_mgmt.linbus;
+	lin_smartkey1 : bus access lin_smartkey <-> transmission_control.linbus;
+	lin_smartkey2 : bus access lin_smartkey <-> immobiliser_code.linbus;
+	lin_smartkey3 : bus access lin_smartkey <-> certification.linbus;
+
+
+	lin_ac0 : bus access lin_ac <-> air_conditioning_amplifier.linbus;
+	lin_ac1 : bus access lin_ac <-> air_conditioning_control.linbus;
+	
+	lin_advanced_parking0 : bus access lin_advanced_parking <-> parking_assist.linbus;
+	lin_advanced_parking1 : bus access lin_advanced_parking <-> ultra_sonic_sensor.linbus;
+	
+   tpms0 : bus access tpms <-> tire_pressure.tpms0;
+end prius.model_2010;
+
+system gateway
+features
+	bean: requires bus access aaspe::case_study::aumotive::library::bean;
+	avc: requires bus access aaspe::case_study::aumotive::library::avc;
+	can : requires bus access aaspe::case_study::aumotive::library::can;	
+end gateway;
+
+system transponder_key extends aaspe::case_study::aumotive::library::ecu_1bean
+features
+	rke : requires bus access aaspe::case_study::aumotive::library::rke;
+end transponder_key;
+
+system tire_pressure extends aaspe::case_study::aumotive::library::ecu_1bean
+features
+	tpms : requires bus access aaspe::case_study::aumotive::library::tpms;
+end tire_pressure;
+
+system navigation extends aaspe::case_study::aumotive::library::ecu_1avc
+features
+	bluetooth : requires bus access aaspe::case_study::aumotive::library::bluetooth;
+	radio : requires bus access aaspe::case_study::aumotive::library::radio;
+end navigation;
+
+system implementation prius.model_2006
+subcomponents
+	bean: bus aaspe::case_study::aumotive::library::bean;
+	avc: bus aaspe::case_study::aumotive::library::avc;
+	can : bus aaspe::case_study::aumotive::library::can;
+	
+	gateway : system gateway {security_properties::domains => ("carmgmt", "driving", "entertainment");};
+	
+	
+	--  external buses
+	rke : bus aaspe::case_study::aumotive::library::rke;
+	tpms : bus aaspe::case_study::aumotive::library::tpms;
+	bluetooth : bus aaspe::case_study::aumotive::library::bluetooth;
+	radio : bus aaspe::case_study::aumotive::library::radio;
+	
+	-- all functions connected to the can bus
+	ecm : system aaspe::case_study::aumotive::library::ecu_1can {security_properties::domains => ("driving");};
+	hv : system aaspe::case_study::aumotive::library::ecu_1can {security_properties::domains => ("driving");};
+	yaw_rate_decel : system aaspe::case_study::aumotive::library::ecu_1can {security_properties::domains => ("driving");};
+	battery : system aaspe::case_study::aumotive::library::ecu_1can {security_properties::domains => ("driving");};
+	abs : system aaspe::case_study::aumotive::library::ecu_1can {security_properties::domains => ("driving");};
+	power_steering : system aaspe::case_study::aumotive::library::ecu_1can {security_properties::domains => ("driving");};
+	angle_sensor : system aaspe::case_study::aumotive::library::ecu_1can {security_properties::domains => ("driving");};
+	dlc3 : system aaspe::case_study::aumotive::library::ecu_1can {security_properties::domains => ("driving");};
+
+	--  all functions connected to the BEAN bus
+	power_source_control : system aaspe::case_study::aumotive::library::ecu_1bean {security_properties::domains => ("carmgmt");};
+	combination_meter : system aaspe::case_study::aumotive::library::ecu_1bean {security_properties::domains => ("carmgmt");};
+	tire_pressure : system tire_pressure {security_properties::domains => ("carmgmt");};
+	certification : system aaspe::case_study::aumotive::library::ecu_1bean {security_properties::domains => ("carmgmt");};
+	transmission_control : system aaspe::case_study::aumotive::library::ecu_1bean {security_properties::domains => ("carmgmt");};
+	transponder_key : system transponder_key {security_properties::domains => ("carmgmt");};
+	driver_side : system aaspe::case_study::aumotive::library::ecu_1bean {security_properties::domains => ("carmgmt");};
+	ac : system aaspe::case_study::aumotive::library::ecu_1bean {security_properties::domains => ("carmgmt");};
+	
+	-- all functions connected to the AVC
+	navigation : system navigation {security_properties::domains => ("entertainment");};
+	audio_amplifier : system aaspe::case_study::aumotive::library::ecu_1avc {security_properties::domains => ("entertainment");};
+	radio_player : system aaspe::case_study::aumotive::library::ecu_1avc {security_properties::domains => ("entertainment");};
+	multi_display : system aaspe::case_study::aumotive::library::ecu_1avc {security_properties::domains => ("entertainment");};
+connections
+	-- connections to the external
+	radio0 : bus access radio <-> navigation.radio;
+	bluetooth0 : bus access bluetooth <-> navigation.bluetooth;
+	tpms0 : bus access tpms <-> tire_pressure.tpms;
+	rke0 : bus access rke <-> transponder_key.rke;
+
+    --  Connections on the gateway
+	gateway0 : bus access bean <-> gateway.bean;
+	gateway1 : bus access can <-> gateway.can;
+	gateway2 : bus access avc <-> gateway.avc;
+	
+	--  Connections to AVC
+	
+	avc0 : bus access avc <-> navigation.avcbus;
+	avc1 : bus access avc <-> audio_amplifier.avcbus;
+	avc2 : bus access avc <-> radio_player.avcbus;
+	avc3 : bus access avc <-> multi_display.avcbus;
+	
+	--  Connections to the BEAN
+	bean0 : bus access bean <-> power_source_control.beanbus;
+	bean1 : bus access bean <-> combination_meter.beanbus;
+	bean2 : bus access bean <-> tire_pressure.beanbus;
+	bean3 : bus access bean <-> certification.beanbus;
+	bean4 : bus access bean <-> transmission_control.beanbus;
+	bean5 : bus access bean <-> transponder_key.beanbus;
+	bean6 : bus access bean <-> driver_side.beanbus;
+	bean7 : bus access bean <-> power_source_control.beanbus;
+	bean8 : bus access bean <-> ac.beanbus;
+	
+	--  Connections to the CAN
+	can0 : bus access can <-> ecm.canbus;
+	can1 : bus access can <-> hv.canbus;
+	can2 : bus access can <-> yaw_rate_decel.canbus;
+	can3 : bus access can <-> battery.canbus;
+	can4 : bus access can <-> abs.canbus;
+	can5 : bus access can <-> power_steering.canbus;
+	can6 : bus access can <-> angle_sensor.canbus;
+	can7 : bus access can <-> dlc3.canbus;
+properties
+	security_properties::trust => 100 applies to gateway;
+	security_properties::exposure => 0 applies to bean;
+	security_properties::exposure => 0 applies to avc;
+	security_properties::exposure => 0 applies to can;
+	security_properties::exposure => 0 applies to ecm,hv,yaw_rate_decel,battery,abs,power_source_control,power_steering, angle_sensor,dlc3;
+	security_properties::exposure => 0 applies to combination_meter, tire_pressure, certification, transmission_control, transponder_key, driver_side,ac; 
+	security_properties::exposure => 0 applies to navigation,audio_amplifier,radio_player,multi_display;
+end prius.model_2006;
+
+
+
+
+end aaspe::case_study::aumotive::prius;

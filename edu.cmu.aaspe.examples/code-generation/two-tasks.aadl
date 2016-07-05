@@ -1,0 +1,70 @@
+package sel4_two_tasks
+public
+  with software;
+  with deployment;
+  with sei;
+  
+---------------
+-- processor --
+---------------
+
+virtual processor runtime
+end runtime;
+
+processor the_processor  
+properties
+	Deployment::Execution_Platform => sel4; 
+end the_processor;
+
+
+---------------
+-- processes -- 
+---------------
+
+process hello
+end hello;
+
+process implementation hello.impl
+subcomponents
+  thr        : thread software::hello_thread.impl;
+end hello.impl;
+
+
+system twotasks
+end twotasks;
+
+system implementation twotasks.impl
+subcomponents
+  hello1 : process hello.impl;
+  hello2 : process hello.impl;
+
+  cpu : processor the_processor;
+ 
+  runtime_prod : virtual processor runtime;
+  runtime_cons : virtual processor runtime;
+properties
+  period => 1000 ms applies to hello1.thr;
+  period => 2000 ms applies to hello2.thr;
+  actual_processor_binding => (reference (runtime_prod)) applies to hello1;
+  actual_processor_binding => (reference (cpu)) applies to runtime_prod;
+  actual_processor_binding => (reference (runtime_cons)) applies to hello2;
+  actual_processor_binding => (reference (cpu)) applies to runtime_cons;
+end twotasks.impl;
+
+system implementation twotasks.beaglebone extends twotasks.impl
+properties
+	sei::platform => "beaglebone" applies to cpu;
+end twotasks.beaglebone;
+
+
+system implementation twotasks.kzm extends twotasks.impl
+properties
+	sei::platform => "kzm" applies to cpu;
+end twotasks.kzm;
+
+system implementation twotasks.x86 extends twotasks.impl
+properties
+	sei::platform => "x86" applies to cpu;
+end twotasks.x86;
+
+end sel4_two_tasks;

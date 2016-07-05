@@ -1,0 +1,116 @@
+package aaspe::case_study::aumotive::library
+public
+
+with security_properties;
+
+
+bus internet
+end internet;
+
+bus can
+end can;
+
+bus avc
+end avc;
+
+bus bean
+end bean;
+
+bus bluetooth
+properties
+	security_properties::exposure => 100;
+end bluetooth;
+
+bus rke
+properties
+	security_properties::exposure => 100;
+end rke;
+
+bus tpms
+properties
+	security_properties::exposure => 100;
+end tpms;
+
+bus cellular
+properties
+	security_properties::exposure => 100;
+end cellular;
+
+bus radio
+properties
+	security_properties::exposure => 100;
+end radio;
+
+
+bus lin
+end lin;
+
+bus wifi
+end wifi;
+
+
+system ecu_1tpms1can
+features
+   tpms0 : requires bus access tpms;
+   can0 : requires bus access can;
+end ecu_1tpms1can;
+
+system ecu_1lin
+features
+   linbus : requires bus access lin;
+end ecu_1lin;
+
+system ecu_1lin1can
+features
+   linbus : requires bus access lin;
+   canbus0 : requires bus access can;
+end ecu_1lin1can;
+
+system ecu_1lin2can
+features
+   linbus : requires bus access lin;
+   canbus0 : requires bus access can;
+   canbus1 : requires bus access can;
+end ecu_1lin2can;
+
+system ecu_1lin3can
+features
+   linbus : requires bus access lin;
+   canbus0 : requires bus access can;
+   canbus1 : requires bus access can;
+   canbus2 : requires bus access can;
+end ecu_1lin3can;
+
+system ecu_1bean
+features
+   beanbus : requires bus access bean;
+end ecu_1bean;
+
+system ecu_1avc
+features
+   avcbus : requires bus access avc;
+end ecu_1avc;
+
+system ecu_1avc1can
+features
+   avcbus : requires bus access avc;
+   can : requires bus access can;
+end ecu_1avc1can;
+
+system ecu_1can
+features
+   canbus : requires bus access can;
+end ecu_1can;
+
+system ecu_2can
+features
+   canbus1 : requires bus access can;
+   canbus2 : requires bus access can;
+end ecu_2can;
+
+system ecu_1cellular
+features
+   cellaccess : requires bus access cellular;
+end ecu_1cellular;
+
+end aaspe::case_study::aumotive::library;

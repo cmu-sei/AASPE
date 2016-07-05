@@ -1,0 +1,103 @@
+property set security_properties is
+
+	--
+	--  The security_levels property indicates what is the levels of a component.
+	--  This is a list because a component can handle more than one level. Also,
+	--  when using several levels, the component is said MLS (Multiple Level of Security).
+	--  We assume that the highest number (100) means low security level (e.g. unclassified) while
+	--  low numbers are high security (e.g. top-secret).
+	--
+	security_levels : list of aadlinteger => (100) applies to (all);
+
+   --  The following are constants we can use as security levels. The intent
+   --  is to be able to use natual language when adding security levels.
+	top_secret      : constant aadlinteger => 10;
+	secret          : constant aadlinteger => 40;
+	unclassified    : constant aadlinteger => 100;
+
+	--
+	--  The domains property indicates all the domain a component or a data can handle.
+	--  The domain separate the concern of the component (on what he is working).
+	--  Separation of domains is important (components handle only the domains)
+	--  they are associated with.
+	--
+	domains : list of aadlstring applies to (all);
+
+	--
+	--  The trust property captures how much confidence can be put into
+	--  a component. The 0 value means that the component cannot be trusted
+	--  at all. On the other hand, a value of 100 means that the component
+	--  has been designed and implemented with sound techniques that
+	--  take care of many security issues.
+	--
+	trust : aadlinteger 0 .. 100 => 0 applies to (all);
+
+	--  exposure is a property that indicates how much a component is accessible
+	--  and exposed to external threats. Examples are an ethernet network
+	--  of a wifi network. For a ethernet network, we could then assume
+	--  that it is more difficult because there is a physical access required.
+	--  For the wireless, it is exposed to everybody, so, this is more difficult
+	--  to protect. Thus, the exposure for the wireless should be greater than
+	--  the ethernet.
+	--
+	--  The exposure can be applied to:
+	--    * a bus           - physical access to the wire. Depending
+	--                        on the location and protocol, it might
+	--                        be higher or not (e.g. cable vs. wireless)
+	--    * a virtual bus   - exposure of the data (lack of protection)
+	--    * processor       - physical access to the processor, potential
+	--                        flash of the chip
+	--    * memory          - physical access to a storage unit - can flash it
+	--    * device          - can replace the device with another device
+	--    * system          - the system is exposed physically and attackers
+	--                        can attack its content
+	exposure : aadlinteger => 100 applies to (bus, virtual bus, processor, device, system, memory);
+
+	--
+	--  Encryption property indicate the encryption mechanism for a port
+	--  or a virtual bus. The property is attached to the port/bus/virtual bus
+	--  to specify is the data is encryption and if yes, what protocol it uses.
+	encryption : security_properties::encryption_type applies to (port, virtual bus, bus, memory, access);
+
+	encryption_type : type record (
+		--  Do we need to distinguish the method from the algorithm?
+		--  It might be useful to define the method without having
+		--  to specify the algorithm.
+		--
+		--  On the other hand, it is possible to deduce the method
+		--  from the algorithm.
+		--
+		method 				: security_properties::supported_encryption_method;
+		algorithm 			: security_properties::supported_encryption_algorithm;
+		private_key 		: aadlstring;
+		private_key 		: aadlstring;
+		key             	: aadlstring;
+		operation_mode 		: security_properties::supported_operation_mode;
+	);
+
+	supported_encryption_method     : type enumeration (symetric, assymetric, clear);
+	supported_encryption_algorithm  : type enumeration (tripledes, des, rsa, blowfish, aes, clear);
+
+
+    --  Operation mode for block cipher algorithms.
+    --  See. https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation
+	supported_operation_mode : type enumeration (ecb, cbc, pcbc, cfb, ofb, ctr);
+
+	--
+	--  The supported_communication_protocol is an enumeration of potential protocols
+	--  used on bus and virtual buses. They are used with the property
+	--  security_properties::protocol
+	--
+	supported_communication_protocols: type enumeration (http, ethernet, ftp);
+
+	protocol : security_properties::supported_communication_protocols applies to (bus, virtual bus);
+
+	--
+	--  The supported_authentication_methods represents the different type of authentication
+	--  available for modeling communication.
+	--
+	supported_authentication_methods: type enumeration (shared_password, user_password, key, ipaddr);
+
+	authentication_method : list of security_properties::supported_authentication_methods applies to (bus, virtual bus);
+
+end security_properties;

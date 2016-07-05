@@ -1,0 +1,184 @@
+package security_r7
+public
+	with security_properties;
+	
+	
+	virtual bus ssl
+	properties
+		security_properties::encryption => 
+		[ method 	=> symetric;
+			algorithm => des; 
+		];
+	end ssl;
+	
+	virtual bus http
+	end http;
+	
+	bus transport
+	end transport;
+	
+	system sender
+	features
+		dataout : out data port;
+	flows
+		f0 : flow source dataout;
+	properties
+		security_properties::security_levels => (1);
+ 
+	end sender;
+	
+
+	system intermediate
+	features
+		datain : in data port;
+		dataout : out data port;
+	flows
+		f0 : flow path datain -> dataout;
+	properties
+		security_properties::security_levels => (2);
+	end intermediate;
+	
+	system receiver
+	features
+		datain : in data port;
+	flows
+		f0 : flow sink datain;
+	properties
+		security_properties::security_levels => (1);
+	end receiver;
+
+
+	
+	system integration
+	end integration;
+	
+	system implementation integration.i
+	subcomponents
+		sender : system sender;
+		intermediate : system intermediate;
+		receiver : system receiver;
+		thebus1 : bus transport;
+		thebus2 : bus transport;
+	connections
+		c0 : port sender.dataout -> intermediate.datain;
+		c1 : port intermediate.dataout -> receiver.datain;
+	flows
+		f0 : end to end flow sender.f0 -> c0 -> intermediate.f0 -> c1 -> receiver.f0;
+	annex resolute {**
+		prove check_exposed_components ()
+	**};
+	end integration.i;
+	
+	system implementation integration.success1 extends integration.i
+	subcomponents
+		http1 	: virtual bus http;
+		ssl1 	: virtual bus ssl;
+		http0 	: virtual bus http;
+		ssl0 	: virtual bus ssl;
+	properties
+		actual_connection_binding	 		=> (reference (http0)) applies to c0;
+		actual_connection_binding 			=> (reference (http1)) applies to c1;
+		
+		actual_connection_binding	 		=> (reference (ssl0)) applies to http0;
+		actual_connection_binding 			=> (reference (ssl1)) applies to http1;
+		
+		actual_connection_binding	 		=> (reference (thebus1)) applies to ssl0;
+		actual_connection_binding 			=> (reference (thebus2)) applies to ssl1;
+		security_properties::exposure 		=> 50 applies to thebus1;
+		security_properties::exposure 		=> 50 applies to thebus2;
+	end integration.success1;
+
+	system implementation integration.success2 extends integration.i
+	subcomponents
+		ssl1 	: virtual bus ssl;
+		ssl0 	: virtual bus ssl;
+	properties
+		actual_connection_binding	 		=> (reference (ssl0)) applies to c0;
+		actual_connection_binding 			=> (reference (ssl1)) applies to c1;
+		
+		actual_connection_binding	 		=> (reference (thebus1)) applies to ssl0;
+		actual_connection_binding 			=> (reference (thebus2)) applies to ssl1;
+		
+		security_properties::exposure 		=> 0 applies to thebus1;
+		security_properties::exposure 		=> 0 applies to thebus2;
+	end integration.success2;
+
+--	system implementation integration.success3 extends integration.i
+--	subcomponents
+--		http1 	: virtual bus http;
+--		http0 	: virtual bus http;
+--	properties
+--		actual_connection_binding	 		=> (reference (http0)) applies to c0;
+--		actual_connection_binding 			=> (reference (http1)) applies to c1;
+--		
+--		actual_connection_binding	 		=> (reference (thebus1)) applies to http0;
+--		actual_connection_binding 			=> (reference (thebus2)) applies to http1;
+--		
+--		security_properties::exposure 		=> 0 applies to thebus1;
+--		security_properties::exposure 		=> 0 applies to thebus2;
+--	end integration.success3;
+--
+	system implementation integration.success4 extends integration.i
+	properties
+		actual_connection_binding	 		=> (reference (thebus1)) applies to c0;
+		actual_connection_binding 			=> (reference (thebus2)) applies to c1;
+		
+		security_properties::exposure 		=> 0 applies to thebus1;
+		security_properties::exposure 		=> 0 applies to thebus2;
+	end integration.success4;
+	
+	system implementation integration.fail1 extends integration.i
+	properties
+		actual_connection_binding	 		=> (reference (thebus1)) applies to c0;
+		actual_connection_binding 			=> (reference (thebus2)) applies to c1;
+		security_properties::exposure 		=> 0 applies to thebus1;
+		security_properties::exposure 		=> 0 applies to thebus2;
+	end integration.fail1;
+	
+	system implementation integration.fail2 extends integration.i
+	subcomponents
+		http1 	: virtual bus http;
+		http0 	: virtual bus http;
+	properties
+		actual_connection_binding	 		=> (reference (http0)) applies to c0;
+		actual_connection_binding 			=> (reference (http1)) applies to c1;
+		
+		actual_connection_binding	 		=> (reference (thebus1)) applies to http0;
+		actual_connection_binding 			=> (reference (thebus2)) applies to http1;
+		
+		security_properties::exposure 		=> 0 applies to thebus1;
+		security_properties::exposure 		=> 50 applies to thebus2;
+	end integration.fail2;
+
+
+	system implementation integration.fail3
+	subcomponents
+		http1 	: virtual bus http;
+		http0 	: virtual bus http;
+		sender : system sender;
+		intermediate : system intermediate;
+		receiver : system receiver;
+		thebus1 : bus transport;
+		thebus2 : bus transport;
+	connections
+		c0 : port sender.dataout -> intermediate.datain;
+		c1 : port intermediate.dataout -> receiver.datain;
+	flows
+		f0 : end to end flow sender.f0 -> c0 -> intermediate.f0 -> c1 -> receiver.f0;
+	properties
+		actual_connection_binding	 		=> (reference (http0)) applies to c0;
+		actual_connection_binding 			=> (reference (http1)) applies to c1;
+		
+		actual_connection_binding	 		=> (reference (thebus1)) applies to http0;
+		actual_connection_binding 			=> (reference (thebus2)) applies to http1;
+		
+		security_properties::exposure 		=> 0 applies to thebus1;
+		security_properties::exposure 		=> 50 applies to thebus2;
+	annex resolute {**
+		prove check_exposed_components ()
+	**};
+	end integration.fail3;
+
+
+end security_r7;
+

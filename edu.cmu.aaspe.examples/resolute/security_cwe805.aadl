@@ -1,0 +1,180 @@
+package security_cwe805
+public
+
+	with data_model;
+	
+	data int1 extends int2
+	properties
+		Data_Model::Data_Representation => Integer;
+		Data_Model::Number_Representation => Signed;
+		Data_Model::Integer_Range => 0 .. 100;
+		data_model::Data_Digits => 5;
+		data_model::data_scale => 3;
+	end int1;
+	 
+	data int2
+	properties
+		Data_Model::Data_Representation => Integer;
+		Data_Model::Number_Representation => Signed;
+		Data_Model::Integer_Range => 0 .. 100;
+		data_model::Data_Digits => 5;
+		data_model::data_scale => 3;
+	end int2;
+	
+	data real1 extends real2
+	properties
+		Data_Model::Data_Representation => Float;
+		Data_Model::Number_Representation => Signed;
+		Data_Model::Real_Range => 0.0 .. 100.0;
+		data_model::Data_Digits => 5;
+		data_model::data_scale => 3;
+	end real1;
+	
+	data real2 
+	properties
+		Data_Model::Data_Representation => Float;
+		Data_Model::Number_Representation => Unsigned;
+		Data_Model::Real_Range => 0.0 .. 100.0;
+		data_model::Data_Digits => 5;
+		data_model::data_scale => 3;
+	end real2;
+	
+	data array1 extends array2
+	properties
+		Data_Model::Data_Representation => Array;
+		Data_Model::MyDimension => 2;
+	end array1;
+	
+	data array2 
+	properties
+		Data_Model::Data_Representation => Array;
+		Data_Model::MyDimension => 4;
+	end array2;	
+
+	system sender_int1
+	features
+		dataout : out data port int1;
+	end sender_int1;
+
+   system sender_int2
+   features
+      dataout : out data port int2;
+   end sender_int2;
+
+	system receiver_int1
+	features
+		datain : in data port int1;
+	end receiver_int1;
+	
+	system receiver_int2
+   features
+      datain : in data port int2;
+   end receiver_int2;
+
+
+   system sender_real1
+   features
+      dataout : out data port real1;
+   end sender_real1;
+
+   system sender_real2
+   features
+      dataout : out data port real2;
+   end sender_real2;
+
+   system receiver_real1
+   features
+      datain : in data port real1;
+   end receiver_real1;
+   
+   system receiver_real2
+   features
+      datain : in data port real2;
+   end receiver_real2;
+   
+   
+   system sender_array1
+   features
+      dataout : out data port array1;
+   end sender_array1;
+
+   system sender_array2
+   features
+      dataout : out data port array2;
+   end sender_array2;
+
+   system receiver_array1
+   features
+      datain : in data port array1;
+   end receiver_array1;
+   
+   system receiver_array2
+   features
+      datain : in data port array2;
+   end receiver_array2;   
+
+
+
+	system main
+	annex resolute {** 
+		prove (check_cwe805 ())
+	**};
+	end main;
+ 
+
+	system implementation main.success_int
+	subcomponents 
+		s : system sender_int1;
+		r : system receiver_int1;
+--      s : system sender1;
+--      r : system receiver1;
+	connections
+		c0 : port s.dataout <-> r.datain;
+	end main.success_int;
+	
+		system implementation main.failure_int
+	subcomponents 
+		s : system sender_int1;
+		r : system receiver_int2;
+	connections
+		c0 : port s.dataout <-> r.datain {Classifier_Matching_Rule => Type_Extension;};
+	end main.failure_int;
+	
+	
+	system implementation main.success_float
+	subcomponents 
+		s : system sender_real1;
+		r : system receiver_real1;
+	connections
+		c0 : port s.dataout <-> r.datain;
+	end main.success_float;
+	
+	system implementation main.failure_float
+	subcomponents 
+		s : system sender_real1;
+		r : system receiver_real2;
+	connections
+		c0 : port s.dataout <-> r.datain {Classifier_Matching_Rule => Type_Extension;};
+	end main.failure_float;
+	
+	
+	
+	system implementation main.success_array
+	subcomponents 
+		s : system sender_array1;
+		r : system receiver_array1;
+	connections
+		c0 : port s.dataout <-> r.datain;
+	end main.success_array;
+	
+	system implementation main.failure_array
+	subcomponents 
+		s : system sender_array1;
+		r : system receiver_array2;
+	connections
+		c0 : port s.dataout <-> r.datain{Classifier_Matching_Rule => Type_Extension;};
+	end main.failure_array;
+ 
+
+
+end security_cwe805;

@@ -1,0 +1,309 @@
+package security_resolute_mnam
+public
+with Resolute_Stdlib;
+
+annex resolute {**
+
+	
+
+	-------------------------------------------------------------
+	--  General security rules
+	-------------------------------------------------------------
+	check_mils_general_rules_mnam () <=
+	** "Check general security rules" ** 
+	--check_buses_connections_same_security_level () and
+	check_ports_connections_same_security_level() and
+	--check_memory_same_security_level () and
+	--check_runtime_separation_same_security_level () and
+	--check_threads_level_same_security_level () and
+	check_mls_components_definition () --and
+	--check_bouncer () --and 
+	--check_exposed_components ()
+	
+	--
+	--  Rule R0: check that components sharing
+	--  a bus have the same security level.
+	
+	--check_buses_connections_same_security_level () <=
+	--** "R0: Components sharing a bus have the same security level" ** 
+	--forall (c : component ) . true
+	--=> check_buses_connections_component (c) 
+	
+	--check_buses_connections_component (comp : component) <=
+	--** "Check that component " comp " does not share a bus with a component at a different criticality level" ** 
+	--forall (src : subcomponents(comp)) . 
+	--	forall (dst : subcomponents(comp)) . 
+	--		forall (connsrc : connections(src)) .
+	--			forall (conndst : connections(dst)) .
+	--				forall (thebus : subcomponents(comp)) .
+	--				connected_to_bus (thebus,connsrc,src) and
+	--				connected_to_bus (thebus,conndst,dst) and
+	--				(src <> dst)
+					
+	--        =>	        
+	--	check_security_level (src,dst)  
+		
+	check_buses_connections_same_security_level_mnam (thebus : bus) <=
+	** "R0:  Check that components does not share a bus with a component at a different criticality level" ** 
+	forall (src : component) (dst : component) . 
+			is_connected_to_bus (src,thebus) and is_connected_to_bus (dst,thebus) and (src <> dst)
+	        =>	        
+		check_security_level (src,dst)  
+	
+	--
+	--  Rule R1: check that components connected through ports
+	--  share the same security level.
+	check_ports_connections_same_security_level () <=
+	** "R1: Inter-connected components have the same security levels" **
+	forall (comp : component) . 
+		forall  (conn : connections (comp)) .
+		not (property (destination_component (conn), security_properties::trust) = 100) and
+		not (property (source_component (conn), security_properties::trust) = 100)
+		=> check_conn_security_level (conn)
+		 
+		
+	check_conn_security_level (conn : connection) <=
+	** "Check connection " conn **
+	   check_security_level (parent (source(conn)), parent (destination(conn)))
+		
+	--
+	--  Rule R2: Processes on the same processor and the same memory component have the same
+	--           security level.
+	--
+	--check_memory_same_security_level () <=
+	--** "R2: Check that processes with different security levels are on separate memories" **
+	--forall (pr1 : component) (pr2 : component) (cpu : processor) (mem : memory) .
+	--	is_bound_to (pr1, cpu) and is_bound_to (pr1, mem) and
+	--	is_bound_to (pr2, cpu) and is_bound_to (pr2, mem) =>
+	--	check_security_level (pr1,pr2)
+		
+	check_memory_same_security_level_mnam (mem : memory) <=
+	** "R2: Check that processes with different security levels are on separate memories" **
+	forall (pr1 : component) (pr2 : component) (cpu : processor) .
+		is_bound_to (pr1, cpu) and is_bound_to (pr1, mem) and
+		is_bound_to (pr2, cpu) and is_bound_to (pr2, mem) =>
+		check_security_level (pr1,pr2)
+ 
+	--
+	--  Rule R3: Processes with different security levels are on different processor/partitions
+	--
+	--check_runtime_separation_same_security_level () <=
+	--** "R3: Components associated with a processing resource share the same security levels" **
+	--check_processor_separation_same_security_level() and check_virtual_processor_separation_same_security_level ()
+
+	check_processor_separation_same_security_level_mnam (cpu : processor) <=
+	** "R3: Check that processes on the same processor have the same security level" **
+	forall (pr1 : component) (pr2 : component) .
+		is_bound_to (pr1, cpu) and
+		is_bound_to (pr2, cpu) => 
+		check_security_level (pr1,pr2)
+
+
+	check_virtual_processor_separation_same_security_level_mnam (vcpu : virtual_processor) <=
+	** "R3: Check that components sharing a virtual processor have the same security level)" **
+	forall (pr1 : component) (pr2 : component) .
+		is_bound_to (pr1, vcpu) and
+		is_bound_to (pr2, vcpu) =>
+		check_security_level (pr1,pr2)
+
+		
+	--
+	--  Rule R4: all threads for a process have the same security levels unless the process is verified
+	--
+	--check_threads_level_same_security_level () <=
+	--** "R4: Threads inside a process share the same security levels" **
+	--forall (thr1 : thread) (thr2 : thread) (pr : process) .
+	--	property (pr,security_properties::is_verified) = false and
+	--	parent(thr1) = parent(thr2) =>
+	--	check_security_level (thr1,thr2)
+
+    check_threads_level_same_security_level_mnam (pr : process) <=
+	** "R4: Threads inside a process share the same security levels" **
+	forall (thr1 : thread) (thr2 : thread) .
+		property (pr,security_properties::trust) = 100 and
+		parent(thr1) = pr and parent(thr2) = pr	 =>
+		check_security_level (thr1,thr2)
+
+	--
+	--  Rule R5: an MLS components has to explicitly define the security level of its ports
+	--
+	check_mls_components_definition () <=
+	** "R5: Check that MLS components explicitly define security levels of their features" **
+	forall (comp : component) . ((length (property (comp, security_properties::security_levels)) > 0) and (is_verified (comp) = false))
+	=>
+		check_mls_components_definition_comp (comp)
+--		forall (f : features (comp)) . true
+		
+--		length 
+--		(intersect (property (comp, security_properties::security_levels),property (f, security_properties::security_levels))) > 0
+--		
+
+	check_mls_components_definition_comp (comp : component) <=
+	** "R5: Check component: " comp **
+	forall (f : features (comp)) . is_port (f)
+		=>
+		check_security_level (f, comp)
+	
+		
+	--
+	--  Rule R6: check that there is no component that can
+	--  lower a security level if the middle component is not verified
+	--
+	--check_bouncer () <=
+	--** "R6: Check that there is no bouncer component that could relay a message to components with different security levels" ** 
+	--forall (c : component) . true =>
+	--check_bouncer_component (c)
+	
+	
+	
+	--check_bouncer_component (comp : component) <=
+	--** "R6: Check there is no possible bypass within component " comp ** 
+	--forall (src : subcomponents(comp)) (middle : subcomponents(comp)) (dst : subcomponents(comp))
+	--		. (not (is_verified_func (middle))) => forall 
+	--		(connsrc : connections(src)) (conndst : connections(dst)) (connmiddle1 : connections(middle)) 
+	--		(connmiddle2 : connections(middle)) (thebus1 : subcomponents(comp)) (thebus2 : subcomponents(comp))
+	--		. 
+			
+	--		( is_system (src) or is_processor (src)) and
+	--		( is_system (middle) or is_processor (middle)) and
+	--		( is_system (dst) or is_processor (dst)) and
+	--		( is_bus (thebus1)) and
+	--		( is_bus (thebus2))
+	--		=>
+	--		connected_to_bus (thebus1,connsrc,src) and
+	--		connected_to_bus (thebus1,connmiddle1,middle) and
+	--		connected_to_bus (thebus2,conndst,dst) and
+	--		connected_to_bus (thebus2,connmiddle2,middle) and
+	--		(src <> dst) and
+	--		(src <> middle) and
+	--		(middle <> dst) and  
+	--		(thebus1 <> thebus2) 
+	--       =>
+	--	check_security_level (src,dst)
+	
+	
+	check_bouncer_mnam (thebus1 : bus) <=
+	** "R6: Check that there is no bouncer component that could relay a message to components with different security levels" ** 
+	forall (src : component) (middle : component) (dst : component) (thebus2 : bus). 
+			(src <> dst) and (src <> middle) and (middle <> dst) and (thebus1 <> thebus2) and
+			is_connected_to_bus (src,thebus1) and not is_connected_to_bus (src,thebus2) and 
+			is_connected_to_bus (middle,thebus1) and is_connected_to_bus (middle,thebus2) and
+			not is_connected_to_bus (dst,thebus1) and is_connected_to_bus (dst,thebus2) 
+	
+	        =>	        
+		check_security_level (src,dst)  
+	
+	
+	--
+	--  Rule R7: check encryption for exposed buses. When a bus is physically exposed
+	--           connections have to be encrypted.
+	--
+	--check_exposed_components () <=
+	--** "R7: Check that all connections bound to an exposed bus are encrypted" ** 
+	--forall (b : bus) . property (b, security_properties::exposure) > 0 =>
+	--check_exposed_component (b)
+	
+	--check_exposed_component (b : bus) <=
+	--** "Check that all connections bound to " b " are encrypted" ** 
+	--forall (conn : connection) . is_bound_to (conn, b) =>
+	--	check_connection_encrypted (conn)
+	
+	check_exposed_components_mnam (b : bus) <=
+	** "R7: Check that all connections bound to " b " are encrypted" ** 
+	forall (conn : connection) . 
+		(property (b, security_properties::exposure) > 0 and is_bound_to (conn, b))  =>   
+		check_connection_encrypted_mnam (conn)
+	
+	check_connection_encrypted_mnam (c : connection) <=
+	** "Check that connection " c " is using an encryption layer" ** 
+--	property(c, security_properties::is_encrypted) = true
+	exists (vb : virtual_bus) . use_encryption (vb)
+	
+	
+   is_verified(comp : aadl) : bool =
+   property(comp, security_properties::trust) = 100
+	
+	
+	use_encryption (vb : virtual_bus) <=
+	** "Check if communication layer " vb " is using encryption" **
+	has_property (vb, security_properties::encryption)
+	or exists (vb2 : virtual_bus) . is_bound_to (vb, vb2) and use_encryption (vb2)
+
+
+   is_distributed(conn : connection) : bool =
+   if is_system(get_component_source (conn)) and (is_system (get_component_destination(conn))) then
+      true
+   else
+      exists (cpu1 : processor) (cpu2 : processor) . 
+      is_bound_to(get_component_source (conn), cpu1) and is_bound_to(get_component_destination (conn), cpu2) and (cpu1 <> cpu2)
+	
+	--
+	--  Rule R8: check encryption requirements. All connections using encryption
+	--           have their encryption requirements defined.
+	--
+	check_encrypted_connections () <=
+	** "R8: All Encrypted connections define encryption algorithm on ports" ** 
+	forall (conn : connection) . is_distributed(conn) =>
+	check_connection_encrypted (conn)
+	 
+
+	
+
+	--
+	--  Rule R9: if a bus is connected to processors at different security levels
+	--           connections using this bus must be encrypted
+	--
+--	check_bus_connected_components () <=
+--	** "R9: Bus shared with nodes at different criticality levels must be encrypted/protected" ** 
+--	forall (b : bus) (p1 : processor) (p2 : processor) . 
+--		is_connected_to_bus (p1, b) and is_connected_to_bus (p2, b) =>
+--			forall (c1 : component) (c2 : component) .
+--				processor_bound (c1, p1) and processor_bound (c2, p2) =>
+--					check_security_level (
+	
+	
+
+	
+	
+	
+	
+	--
+	--  CWE-805: buffer access with incorrect length value
+	--  For this one, we assume that types used between interacting
+	--  components do not match. So, we add a rule to check
+	--  that data are consistent.
+	--
+	--  This is now implemented for integer and float. Support
+	--  for arrays is included but limited.
+	--
+	--  To be checked, pending on bug #645 in osate
+	--  https://github.com/osate/osate2-core/issues/645
+	--
+	
+	
+	
+	
+
+	
+	
+	  
+--	check_encryption_mechanism (c)
+
+--  The list of potential good/weak encryption mechanisms
+--  are listed here: https://www.owasp.org/index.php/Guide_to_Cryptography#Algorithm_Selection
+
+--	check_encryption_mechanism (c : component) <=
+--	** "Check that encryption mechanisms for component " c " are not weak" **
+--	forall (conn : connections(c)) . true =>
+--	has_property (conn, security_properties::encryption_type)
+	-- To be completed, need to support record in RESOLUTE
+	
+	--
+	--  Utility functions
+	--	 
+	
+	  
+
+		
+**};
+end security_resolute_mnam;

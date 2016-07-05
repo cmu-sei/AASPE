@@ -1,0 +1,372 @@
+package drone::missionboard
+public
+
+	with drone::datatypes;
+	with drone::platform;
+	with security_properties;
+	with drone::software;
+	with sei;
+	
+	------------------------------
+	--  Processor & Partitions  --
+	------------------------------ 
+	
+	virtual processor partition
+	end partition;
+	
+	virtual processor missiondata_partition extends partition
+	features
+	   wifi : requires bus access drone::platform::wifi;  
+	end missiondata_partition;
+	
+	virtual processor serial_partition extends partition
+	features
+	   com : requires bus access drone::platform::serial;  
+	end serial_partition;
+	
+	virtual processor partition_allaccesses extends partition
+   features
+      com : requires bus access drone::platform::serial;
+      wifi : requires bus access drone::platform::wifi;
+	end partition_allaccesses;
+	 
+	processor sel4_cpu
+	end sel4_cpu;
+	
+	
+	------------------------
+   --  Memory component  --
+   ------------------------
+   
+   memory hardware_memory
+   properties
+      Byte_Count => 12; 
+   end hardware_memory; 
+   
+   memory partition_memory
+   end partition_memory; 
+	
+	
+	------------------------------------
+	--  Software Content & Partition  --
+	------------------------------------
+	
+	process missiondata
+	features
+		missiondata : in data port drone::datatypes::missiondata_t.i;
+		app_request : in data port drone::datatypes::application_request_t.i;
+		app_reply   : out data port drone::datatypes::application_reply_t.i;
+	end missiondata;
+	
+	process implementation missiondata.i
+	subcomponents
+		thr : thread thr_missiondata.i;
+	connections
+		c0 : port missiondata -> thr.missiondata;
+		c1 : port app_request -> thr.app_request;
+		c2 : port thr.app_reply -> app_reply;
+	end missiondata.i;
+
+
+	
+	
+	thread thr_missiondata
+	features
+		missiondata : in data port drone::datatypes::missiondata_t.i;
+		app_request : in data port drone::datatypes::application_request_t.i;
+		app_reply   : out data port drone::datatypes::application_reply_t.i;
+	properties
+		Dispatch_Protocol => Periodic;
+		Period => 10 ms;
+		Deadline => 5ms;
+		Compute_Execution_Time => 1 ms .. 2 ms;
+     security_properties::trust => 100;
+	end thr_missiondata;
+	
+	thread implementation thr_missiondata.i
+	calls
+		call1 : { call : subprogram drone::software::spg_missiondata;};
+	connections
+		c0 : parameter missiondata -> call.missiondata;
+		c1 : parameter app_request -> call.app_request; 
+		c2 : parameter call.app_reply -> app_reply;
+	end thr_missiondata.i;
+
+	--
+	--  Software for the filter
+	--  Remember that the filter is verified. It is verified for the
+	--  secure and insecure variation of the system. The main difference
+	--  we will have is how it is deployed.
+	--
+	
+	thread thr_filter
+	features
+		missiondata : out data port drone::datatypes::missiondata_t.i;
+		navdata     : in  data port drone::datatypes::navdata_t;
+		cmdin : in data port drone::datatypes::boardcmd_reply_t.i;
+		cmdout : out data port drone::datatypes::boardcmd_request_t.i;
+	properties
+		Dispatch_Protocol => Periodic;
+		Period => 10 ms;
+		Deadline => 5ms;
+		Compute_Execution_Time => 1 ms .. 2 ms;
+     security_properties::trust => 100;
+	end thr_filter;
+	
+	thread implementation thr_filter.i
+	calls
+		call1 : { call : subprogram drone::software::spg_filter;};
+	connections
+		c0 : parameter call.missiondata -> missiondata;
+		c1 : parameter navdata -> call.navdata;
+		c2 : parameter cmdin -> call.cmdin;
+		c3 : parameter call.cmdout -> cmdout;
+	end thr_filter.i;
+
+	
+	process filter
+	features
+		missiondata : out data port drone::datatypes::missiondata_t.i;
+		navdata     : in  data port drone::datatypes::navdata_t;
+		cmdin : in data port drone::datatypes::boardcmd_reply_t.i;
+		cmdout : out data port drone::datatypes::boardcmd_request_t.i;
+	properties
+	  security_properties::trust => 100;
+	end filter;
+	
+	process implementation filter.i
+	subcomponents
+		filter : thread thr_filter.i;
+	connections
+		c0 : port filter.missiondata -> missiondata;
+		c1 : port navdata -> filter.navdata;
+		c2 : port cmdin -> filter.cmdin;
+		c3 : port filter.cmdout -> cmdout; 
+	end filter.i;
+
+	--
+	--  Software for the navigation
+	--
+
+	thread thr_navigation
+	features
+		navdata     : out  data port drone::datatypes::navdata_t;
+	properties
+		Dispatch_Protocol => Periodic;
+		Period => 10 ms;
+		Deadline => 5ms;
+		Compute_Execution_Time => 1 ms .. 2 ms;
+	end thr_navigation;
+
+	thread implementation thr_navigation.i
+	calls
+		call1 : { call : subprogram drone::software::spg_navigation;};
+	connections
+		c0 : parameter call.navdata -> navdata;
+	end thr_navigation.i;
+
+	process navigation
+	features
+		navdata     : out  data port drone::datatypes::navdata_t;
+	end navigation;
+	
+	process implementation navigation.i
+	subcomponents
+		navigation : thread thr_navigation.i;
+	connections
+		c0 : port navigation.navdata -> navdata;
+	end navigation.i;
+
+	--
+	--  Software for the serial driver
+	--
+
+
+	thread thr_serial_driver
+	features
+		from_filter  : in data port drone::datatypes::boardcmd_request_t.i;
+		to_filter    : out data port drone::datatypes::boardcmd_reply_t.i;
+		from_outside : in data port drone::datatypes::boardcmd_reply_t.i;
+		to_outside   : out data port drone::datatypes::boardcmd_request_t.i;
+	end thr_serial_driver;
+	
+	thread implementation thr_serial_driver.i
+	calls
+		call1 : { call : subprogram drone::software::spg_serial_driver;};
+	connections
+		c0 : parameter from_filter -> call.from_filter;
+		c1 : parameter call.to_filter -> to_filter;
+		c2 : parameter from_outside -> call.from_outside;
+		c3 : parameter call.to_outside -> to_outside;
+	properties
+		Dispatch_Protocol => Periodic;
+		Period => 10 ms;
+		Deadline => 5ms;
+		Compute_Execution_Time => 1 ms .. 2 ms;
+	end thr_serial_driver.i; 
+
+	process serial_driver
+	features
+		from_filter  : in data port drone::datatypes::boardcmd_request_t.i;
+		to_filter    : out data port drone::datatypes::boardcmd_reply_t.i;
+		from_outside : in data port drone::datatypes::boardcmd_reply_t.i;
+		to_outside   : out data port drone::datatypes::boardcmd_request_t.i;
+	end serial_driver;
+	
+	process implementation serial_driver.i
+	subcomponents
+		serial_driver : thread thr_serial_driver.i;
+	connections
+	  c0 : port from_filter -> serial_driver.from_filter;
+	  c1 : port serial_driver.to_filter -> to_filter;
+	  c2 : port from_outside -> serial_driver.from_outside;
+	  c3 : port serial_driver.to_outside -> to_outside;
+	end serial_driver.i;
+	
+	-----------------
+	--  The board  --
+	-----------------
+	
+	system board
+	features
+		cmdin       : in data port drone::datatypes::boardcmd_reply_t.i;
+		cmdout      : out data port drone::datatypes::boardcmd_request_t.i;
+		app_request : in data port drone::datatypes::application_request_t.i;
+		app_reply   : out data port drone::datatypes::application_reply_t.i;
+		wifi        : requires bus access drone::platform::wifi;
+		com         : requires bus access drone::platform::serial;
+	end board;
+	
+	
+	--
+	--  Generic version of the system.
+	--  
+	system implementation board.generic
+	subcomponents
+		cpu                   : processor sel4_cpu;
+      missiondata_partition       : process missiondata.i;
+      filter_partition      : process filter.i;
+      controldata_partition         : process navigation.i;
+      serialdrv_partition   : process serial_driver.i;
+	connections
+      cmd_from_outside      : port cmdin -> serialdrv_partition.from_outside;
+      cmd_to_outside        : port serialdrv_partition.to_outside -> cmdout;
+      cmddata               : port filter_partition.missiondata -> missiondata_partition.missiondata;
+      navdata               : port controldata_partition.navdata -> filter_partition.navdata;
+      serialcmdin           : port filter_partition.cmdout -> serialdrv_partition.from_filter; 
+      serialcmdout          : port serialdrv_partition.to_filter -> filter_partition.cmdin;
+      
+      apprequest            : port app_request -> missiondata_partition.app_request;
+      appreply              : port missiondata_partition.app_reply -> app_reply;
+	properties
+      security_properties::domains => ("navigation") applies to controldata_partition;
+      security_properties::domains => ("navigation", "mission") applies to filter_partition;
+      security_properties::domains => ("mission") applies to missiondata_partition;
+	end board.generic;
+	
+	
+	--
+	--  secure variation of the board. uses partitions to put
+	--  the software. We separate the software in different
+	--  partitions according to their security level/domain.
+	--  One partitions handles two domains and is considered
+	--  as verified.
+	--
+	
+	system implementation board.secure extends board.generic
+	subcomponents
+	  missiondata_runtime   : virtual processor missiondata_partition;
+      filter_runtime        : virtual processor partition;
+      controldata_runtime           : virtual processor partition;
+      serialdrv_runtime     : virtual processor serial_partition;
+      missiondata_memory          : memory partition_memory;
+      filter_memory         : memory partition_memory;
+      controldata_memory            : memory partition_memory;
+      serialdrv_memory      : memory partition_memory;
+      hw_memory             : memory hardware_memory;
+	connections
+	   wifi_missiondata            : bus access wifi <-> missiondata_runtime.wifi;
+      serial_drv            : bus access com <-> serialdrv_runtime.com;
+	properties
+	   actual_memory_binding => (reference (missiondata_memory)) applies to missiondata_partition;
+	   actual_memory_binding => (reference (filter_memory)) applies to filter_partition;
+	   actual_memory_binding => (reference (controldata_memory)) applies to controldata_partition;
+	   actual_memory_binding => (reference (serialdrv_memory)) applies to serialdrv_partition;
+	   
+	   actual_memory_binding => (reference (hw_memory)) applies to missiondata_memory; 
+	   actual_memory_binding => (reference (hw_memory)) applies to filter_memory;
+	   actual_memory_binding => (reference (hw_memory)) applies to controldata_memory;
+	   actual_memory_binding => (reference (hw_memory)) applies to serialdrv_memory; 
+	   
+      actual_processor_binding => (reference (cpu)) applies to missiondata_runtime;
+      actual_processor_binding => (reference (cpu)) applies to filter_runtime;
+      actual_processor_binding => (reference (cpu)) applies to controldata_runtime;
+      actual_processor_binding => (reference (cpu)) applies to serialdrv_runtime;
+      
+      actual_processor_binding => (reference (missiondata_runtime)) applies to missiondata_partition;
+      actual_processor_binding => (reference (filter_runtime)) applies to filter_partition;
+      actual_processor_binding => (reference (controldata_runtime)) applies to controldata_partition;
+      actual_processor_binding => (reference (serialdrv_runtime)) applies to serialdrv_partition;
+      
+      security_properties::trust => 100 applies to filter_partition;
+	end board.secure;
+	
+	system implementation board.debug extends board.secure
+	properties
+		period => 100 ms applies to missiondata_partition.thr;
+		period => 150 ms applies to filter_partition.filter;
+		period => 180 ms applies to controldata_partition.navigation;
+		period => 220 ms applies to serialdrv_partition.serial_driver;
+	end board.debug;
+	
+	system implementation board.debug_kzm extends board.debug
+	properties
+		sei::platform => "kzm" applies to cpu;
+	end board.debug_kzm;
+	
+	system implementation board.debug_beagleboard extends board.debug
+	properties
+		sei::platform => "beaglebone" applies to cpu;
+	end board.debug_beagleboard;
+	
+	system implementation board.debug_x86 extends board.debug
+	properties
+		sei::platform => "x86" applies to cpu;
+	end board.debug_x86;	
+
+	system implementation board.debug_tk1 extends board.debug
+	properties
+		sei::platform => "tegrak1" applies to cpu;
+	end board.debug_tk1;		
+	 
+	--
+	--  In the insecure version, we put everything on the same runtime. All
+	--  components are executed in the same address space.
+	--
+	
+	system implementation board.insecure extends board.generic
+	subcomponents
+	  runtime               : virtual processor partition_allaccesses;
+	  runtime_memory        : memory partition_memory;
+     hw_memory             : memory hardware_memory;
+	
+			
+			connections
+	  wifi_missiondata            : bus access wifi <-> runtime.wifi;
+     serial_drv            : bus access com <-> runtime.com;
+	properties
+	  actual_processor_binding => (reference (cpu)) applies to runtime;
+     actual_processor_binding => (reference (runtime)) applies to missiondata_partition;
+     actual_processor_binding => (reference (runtime)) applies to filter_partition;
+     actual_processor_binding => (reference (runtime)) applies to controldata_partition; 
+     actual_processor_binding => (reference (runtime)) applies to serialdrv_partition;
+
+     actual_memory_binding => (reference (runtime_memory)) applies to missiondata_partition;
+     actual_memory_binding => (reference (runtime_memory)) applies to filter_partition;
+     actual_memory_binding => (reference (runtime_memory)) applies to controldata_partition;
+     actual_memory_binding => (reference (runtime_memory)) applies to serialdrv_partition;
+      
+     actual_memory_binding => (reference (hw_memory)) applies to runtime_memory; 
+	end board.insecure; 
+	
+end drone::missionboard;

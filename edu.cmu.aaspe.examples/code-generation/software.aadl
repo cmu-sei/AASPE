@@ -1,0 +1,144 @@
+package software
+public
+
+----------
+-- data --
+----------
+
+data simple_type
+properties
+  source_name => "int"; 
+  source_text => ("ping");
+  data_size => 8 bytes;
+end simple_type;
+
+----------------- 
+-- subprograms --
+-----------------
+
+subprogram do_ping_spg
+features
+  data_source : out parameter simple_type;
+properties
+  source_language => (c);
+  source_name     => "user_do_ping_spg";
+  source_text     => ("ping.c");
+end do_ping_spg;
+
+subprogram ping_spg
+features
+  data_sink : in parameter simple_type;
+properties
+  source_language => (c);
+  source_name     => "user_ping_spg";
+  source_text     => ("ping.c");
+end ping_spg;
+
+
+subprogram hello_spg
+features
+  data_sink : in parameter simple_type;
+properties
+  source_language => (c);
+  source_name     => "user_hello_spg";
+  source_text     => ("hello.c");
+end hello_spg;
+
+-------------
+-- threads --
+-------------
+
+thread producer_thread
+features
+  data_source : out data port simple_type;
+end producer_thread;
+
+thread producer_event_thread
+features
+  data_source : out event data port simple_type;
+end producer_event_thread;
+
+thread implementation producer_thread.impl
+calls 
+mycalls: {
+  p_spg : subprogram do_ping_spg;
+};
+connections
+  c0 : parameter p_spg.data_source -> data_source;
+properties
+  dispatch_protocol                  => periodic;
+  period                             => 1000 ms;
+  deadline                           => 1000 ms;
+  priority                           => 2;
+end producer_thread.impl;
+
+thread implementation producer_event_thread.impl
+calls 
+mycalls: {
+  p_spg : subprogram do_ping_spg;
+};
+connections
+  c0 : parameter p_spg.data_source -> data_source;
+properties
+  dispatch_protocol                  => periodic;
+  period                             => 1000 ms;
+  deadline                           => 1000 ms;
+  priority                           => 2;
+end producer_event_thread.impl;
+
+
+-----------------------
+--  Consumer Thread  --
+-----------------------
+
+thread consumer_thread
+features
+  data_sink : in data port simple_type;
+end consumer_thread;
+
+thread consumer_sporadic_thread
+features
+  data_sink : in event data port simple_type;
+end consumer_sporadic_thread;
+
+thread implementation consumer_thread.impl
+calls 
+mycalls: {
+  q_spg : subprogram ping_spg;
+};
+connections
+  c0 : parameter data_sink -> q_spg.data_sink;
+properties
+  dispatch_protocol                  => periodic;
+  period                             => 2000 ms;
+  deadline                           => 2000 ms;
+  priority                           => 1;
+end consumer_thread.impl;
+
+thread implementation consumer_sporadic_thread.impl
+calls 
+mycalls: {
+  q_spg : subprogram ping_spg;
+};
+connections
+  c0 : parameter data_sink -> q_spg.data_sink;
+properties
+  dispatch_protocol                  => sporadic;
+end consumer_thread.impl;
+ 
+thread hello_thread
+end hello_thread;
+
+thread implementation hello_thread.impl
+calls 
+mycalls: {
+  q_spg : subprogram hello_spg;
+};
+properties
+  dispatch_protocol                  => periodic;
+  period                             => 4000 ms;
+  deadline                           => 4000 ms;
+  priority                           => 1;
+end hello_thread.impl;
+
+end software;

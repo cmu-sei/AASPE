@@ -1,0 +1,25 @@
+package drone::platform
+public
+	with security_properties;
+
+
+bus serial
+end serial;
+
+bus wifi
+end wifi;
+
+virtual bus ssl
+properties
+   security_properties::encryption => 
+      [ method    => symetric;
+        algorithm => rsa;
+      ];
+end ssl;
+
+virtual bus basic_authentication
+properties
+   security_properties::authentication_method => (user_password);
+end basic_authentication;
+
+end drone::platform;
