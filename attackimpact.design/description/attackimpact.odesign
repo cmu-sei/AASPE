@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<description:Group xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:description="http://www.eclipse.org/sirius/description/1.1.0" xmlns:description_1="http://www.eclipse.org/sirius/diagram/description/1.1.0" xmlns:style="http://www.eclipse.org/sirius/diagram/description/style/1.1.0" xmlns:tool="http://www.eclipse.org/sirius/diagram/description/tool/1.1.0" xmlns:tool_1="http://www.eclipse.org/sirius/description/tool/1.1.0" name="attackimpact" version="10.1.0.201507271600">
+  <ownedViewpoints name="AttackImpact" label="Attack Impact" modelFileExtension="attackimpact">
+    <ownedRepresentations xsi:type="description_1:DiagramDescription" name="AttackImpactDiagram" label="Attack Impact Diagram" domainClass="attackimpact.Model" enablePopupBars="true">
+      <defaultLayer name="Default">
+        <nodeMappings name="Node" semanticCandidatesExpression="[eAllContents() /]" doubleClickDescription="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@toolSections.0/@ownedTools[name='DoubleClickNode']" domainClass="attackimpact.Node">
+          <style xsi:type="style:SquareDescription" borderSizeComputationExpression="2" labelPosition="node" resizeKind="NSEW" width="10" height="4">
+            <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
+          </style>
+        </nodeMappings>
+        <nodeMappings name="Vulnerability" semanticCandidatesExpression="[eAllContents()/]" doubleClickDescription="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@toolSections.0/@ownedTools[name='DoubleClickNode']" domainClass="attackimpact.Vulnerability">
+          <style xsi:type="style:EllipseNodeDescription" borderLineStyle="dot" labelPosition="node" resizeKind="NSEW" horizontalDiameterComputationExpression="10" verticalDiameterComputationExpression="5">
+            <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
+          </style>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('timing') /]">
+            <style xsi:type="style:EllipseNodeDescription" borderSizeComputationExpression="2" borderLineStyle="dot" labelPosition="node" resizeKind="NSEW" horizontalDiameterComputationExpression="10" verticalDiameterComputationExpression="5">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='blue']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('isolation') /]">
+            <style xsi:type="style:EllipseNodeDescription" borderSizeComputationExpression="2" borderLineStyle="dot" labelPosition="node" resizeKind="NSEW" horizontalDiameterComputationExpression="10" verticalDiameterComputationExpression="5">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='purple']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('resourceallocation') /]">
+            <style xsi:type="style:EllipseNodeDescription" borderSizeComputationExpression="2" borderLineStyle="dot" labelPosition="node" resizeKind="NSEW" horizontalDiameterComputationExpression="10" verticalDiameterComputationExpression="5">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='yellow']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('exposure') /]">
+            <style xsi:type="style:EllipseNodeDescription" borderSizeComputationExpression="2" borderLineStyle="dot" labelPosition="node" resizeKind="NSEW" horizontalDiameterComputationExpression="10" verticalDiameterComputationExpression="5">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='green']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('authentication') /]">
+            <style xsi:type="style:EllipseNodeDescription" borderSizeComputationExpression="2" borderLineStyle="dot" labelPosition="node" resizeKind="NSEW" horizontalDiameterComputationExpression="10" verticalDiameterComputationExpression="5">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='orange']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('concurrency') /]">
+            <style xsi:type="style:EllipseNodeDescription" borderSizeComputationExpression="2" borderLineStyle="dot" labelPosition="node" resizeKind="NSEW" horizontalDiameterComputationExpression="10" verticalDiameterComputationExpression="5">
+              <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='red']"/>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
+            </style>
+          </conditionnalStyles>
+        </nodeMappings>
+        <edgeMappings name="MappingNodeToNode" label="Node to Node" sourceMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node']" targetMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node']" targetFinderExpression="[self.destinations /]" sourceFinderExpression="[self.eContainer().eContainer() /]" domainClass="attackimpact.Propagation" useDomainElement="true">
+          <style sizeComputationExpression="2">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='red']"/>
+            <centerLabelStyleDescription>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+        <edgeMappings name="VulnerabilityToNode" label="Propagation from Vulnerability to Node" sourceMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Vulnerability']" targetMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node']" targetFinderExpression="[self.eContainer() /]">
+          <style sizeComputationExpression="2">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='red']"/>
+            <centerLabelStyleDescription>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('timing') /]">
+            <style sizeComputationExpression="[ self.severity /]">
+              <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='blue']"/>
+              <centerLabelStyleDescription labelExpression="Timing">
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              </centerLabelStyleDescription>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('isolation') /]">
+            <style sizeComputationExpression="[ self.severity /]">
+              <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='purple']"/>
+              <centerLabelStyleDescription labelExpression="Isolation">
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              </centerLabelStyleDescription>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('resourceallocation') /]">
+            <style sizeComputationExpression="[ self.severity /]">
+              <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='yellow']"/>
+              <centerLabelStyleDescription labelExpression="Resource Allocation">
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              </centerLabelStyleDescription>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('exposure') /]">
+            <style sizeComputationExpression="[ self.severity /]">
+              <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='green']"/>
+              <centerLabelStyleDescription labelExpression="Exposure">
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              </centerLabelStyleDescription>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('authentication') /]">
+            <style sizeComputationExpression="[ self.severity /]">
+              <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='orange']"/>
+              <centerLabelStyleDescription labelExpression="Authentication">
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              </centerLabelStyleDescription>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('concurrency') /]">
+            <style sizeComputationExpression="[ self.severity /]">
+              <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='red']"/>
+              <centerLabelStyleDescription labelExpression="Concurrency">
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              </centerLabelStyleDescription>
+            </style>
+          </conditionnalStyles>
+        </edgeMappings>
+        <edgeMappings name="propagationMappingNodeToNode" label="Propagation from Node to Node" sourceMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node'] //@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Vulnerability']" targetMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node']" targetFinderExpression="[self.destinations /]" sourceFinderExpression="[self.eContainer()/]" domainClass="attackimpact.Propagation" useDomainElement="true">
+          <style lineStyle="dot" sizeComputationExpression="2">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='gray']"/>
+            <centerLabelStyleDescription>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('bus') /]">
+            <style sizeComputationExpression="[ self.severity /]">
+              <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='purple']"/>
+              <centerLabelStyleDescription labelExpression="bus">
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              </centerLabelStyleDescription>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('dataflow') /]">
+            <style sizeComputationExpression="[ self.severity /]">
+              <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='blue']"/>
+              <centerLabelStyleDescription labelExpression="flow">
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              </centerLabelStyleDescription>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('local') /]">
+            <style sizeComputationExpression="[ self.severity /]">
+              <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              <centerLabelStyleDescription labelExpression="local">
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              </centerLabelStyleDescription>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('memory') /]">
+            <style sizeComputationExpression="[ self.severity /]">
+              <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='yellow']"/>
+              <centerLabelStyleDescription labelExpression="memory">
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              </centerLabelStyleDescription>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('processor') /]">
+            <style sizeComputationExpression="[ self.severity /]">
+              <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='orange']"/>
+              <centerLabelStyleDescription labelExpression="processor">
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              </centerLabelStyleDescription>
+            </style>
+          </conditionnalStyles>
+          <conditionnalStyles predicateExpression="[self.type.toString().equalsIgnoreCase('data') /]">
+            <style sizeComputationExpression="2">
+              <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='chocolate']"/>
+              <centerLabelStyleDescription labelExpression="data">
+                <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+              </centerLabelStyleDescription>
+            </style>
+          </conditionnalStyles>
+        </edgeMappings>
+        <toolSections name="AttackImpactSection" label="Attack Impact">
+          <ownedTools xsi:type="tool:NodeCreationDescription" name="createNode" label="Create Node" nodeMappings="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node']">
+            <variable name="container"/>
+            <viewVariable name="containerView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="var:container">
+                <subModelOperations xsi:type="tool_1:CreateInstance" typeName="attackimpact.Node" referenceName="nodes" variableName="newNode">
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="name" valueExpression="New Node"/>
+                </subModelOperations>
+              </firstModelOperations>
+            </initialOperation>
+          </ownedTools>
+          <ownedTools xsi:type="tool_1:ExternalJavaAction" name="CreateVulnerability" label="Create Vulnerability" id="edu.cmu.aaspe.attackimpact.actions.CreateVulnerabilityAction"/>
+          <ownedTools xsi:type="tool:EdgeCreationDescription" name="PropagationCreation" label="New Propagation" forceRefresh="true" edgeMappings="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@edgeMappings[name='VulnerabilityToNode'] //@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@edgeMappings[name='propagationMappingNodeToNode']">
+            <sourceVariable name="source"/>
+            <targetVariable name="target"/>
+            <sourceViewVariable name="sourceView"/>
+            <targetViewVariable name="targetView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="var:source">
+                <subModelOperations xsi:type="tool_1:CreateInstance" typeName="attackimpact.Propagation" referenceName="propagations">
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="destinations" valueExpression="var:target"/>
+                </subModelOperations>
+              </firstModelOperations>
+            </initialOperation>
+          </ownedTools>
+          <ownedTools xsi:type="tool:DoubleClickDescription" name="DoubleClickNode" label="Double Click Node" forceRefresh="true" mappings="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node'] //@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Vulnerability']">
+            <element name="element"/>
+            <elementView name="elementView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="var:element">
+                <subModelOperations xsi:type="tool_1:CreateInstance" typeName="attackimpact.Vulnerability" referenceName="vulnerabilities">
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="name" valueExpression="New Vulnerability"/>
+                </subModelOperations>
+              </firstModelOperations>
+            </initialOperation>
+          </ownedTools>
+          <ownedTools xsi:type="tool:NodeCreationDescription" name="createNode" label="Create Node" nodeMappings="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node']">
+            <variable name="container"/>
+            <viewVariable name="containerView"/>
+            <initialOperation>
+              <firstModelOperations xsi:type="tool_1:ChangeContext" browseExpression="var:container">
+                <subModelOperations xsi:type="tool_1:CreateInstance" typeName="attackimpact.Node" referenceName="nodes" variableName="newNode">
+                  <subModelOperations xsi:type="tool_1:SetValue" featureName="name" valueExpression="New Node"/>
+                </subModelOperations>
+              </firstModelOperations>
+            </initialOperation>
+          </ownedTools>
+          <ownedTools xsi:type="tool_1:ExternalJavaAction" name="ImpactAction" label="Show Impact" id="edu.cmu.aaspe.attackimpact.actions.ImpactAction"/>
+          <ownedTools xsi:type="tool_1:ExternalJavaAction" name="ClearImpactAction" label="Clear Impact" id="edu.cmu.aaspe.attackimpact.actions.ClearImpactAction"/>
+          <ownedTools xsi:type="tool_1:ExternalJavaAction" name="ReverseImpactAction" label="Show Reverse Impact" id="edu.cmu.aaspe.attackimpact.actions.ReverseImpactAction"/>
+          <ownedTools xsi:type="tool_1:ExternalJavaAction" name="GenerateAttackTree" label="Generate Attack Tree" id="edu.cmu.aaspe.attackimpact.actions.GenerateAttackTree"/>
+        </toolSections>
+      </defaultLayer>
+    </ownedRepresentations>
+  </ownedViewpoints>
+</description:Group>

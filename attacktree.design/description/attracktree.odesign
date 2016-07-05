@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<description:Group xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:description="http://www.eclipse.org/sirius/description/1.1.0" xmlns:description_1="http://www.eclipse.org/sirius/diagram/description/1.1.0" xmlns:style="http://www.eclipse.org/sirius/diagram/description/style/1.1.0" name="attracktree" version="10.1.0.201507271600">
+  <ownedViewpoints name="AttackTree" label="Attack Tree" modelFileExtension="attacktree">
+    <ownedRepresentations xsi:type="description_1:DiagramDescription" name="AttackTreeDiagram" domainClass="attacktree.Model" enablePopupBars="true">
+      <defaultLayer name="Default">
+        <nodeMappings name="Node" label="Node" semanticCandidatesExpression="[eAllContents() /]" domainClass="attacktree.Node">
+          <style xsi:type="style:SquareDescription" labelPosition="node" resizeKind="NSEW" width="10" height="5">
+            <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
+          </style>
+        </nodeMappings>
+        <nodeMappings name="Vulnerability" label="Vulnerability" semanticCandidatesExpression="[eAllContents() /]" domainClass="attacktree.Vulnerability">
+          <style xsi:type="style:EllipseNodeDescription" sizeComputationExpression="10" labelPosition="node" resizeKind="NSEW">
+            <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
+          </style>
+        </nodeMappings>
+        <edgeMappings name="NodeToNode" sourceMapping="//@ownedViewpoints[name='AttackTree']/@ownedRepresentations[name='AttackTreeDiagram']/@defaultLayer/@nodeMappings[name='Node']" targetMapping="//@ownedViewpoints[name='AttackTree']/@ownedRepresentations[name='AttackTreeDiagram']/@defaultLayer/@nodeMappings[name='Node']" targetFinderExpression="[self.eContainer() /]">
+          <style sizeComputationExpression="2">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='gray']"/>
+            <centerLabelStyleDescription>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+        <edgeMappings name="NodeToVulnerability" sourceMapping="//@ownedViewpoints[name='AttackTree']/@ownedRepresentations[name='AttackTreeDiagram']/@defaultLayer/@nodeMappings[name='Vulnerability']" targetMapping="//@ownedViewpoints[name='AttackTree']/@ownedRepresentations[name='AttackTreeDiagram']/@defaultLayer/@nodeMappings[name='Node']" targetFinderExpression="[self.eContainer() /]">
+          <style sizeComputationExpression="2">
+            <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='red']"/>
+            <centerLabelStyleDescription>
+              <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='red']"/>
+            </centerLabelStyleDescription>
+          </style>
+        </edgeMappings>
+      </defaultLayer>
+    </ownedRepresentations>
+  </ownedViewpoints>
+</description:Group>
