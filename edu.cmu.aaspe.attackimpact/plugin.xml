@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated attackImpact -->
+      <package
+            uri="http://www.example.org/attackimpact"
+            class="edu.cmu.attackimpact.attackimpactPackage"
+            genModel="model/attackimpact.genmodel"/>
+   </extension>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated attackimpact -->
+      <package
+            uri="http://www.example.org/attackimpact"
+            class="edu.cmu.attackimpact.AttackImpactPackage"
+            genModel="model/attackimpact.genmodel"/>
+   </extension>
+
+</plugin>

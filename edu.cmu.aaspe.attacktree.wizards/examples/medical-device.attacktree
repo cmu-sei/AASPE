@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<attacktree:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:attacktree="http://www.example.org/attacktree" name="MedicalDevice" description="Model of a Compromised Medical Device">
+  <rootNode name="Device">
+    <vulnerabilities name="Exposure" description="Part of the device can be changed and compromised" type="Exposure"/>
+    <subNodes name="wifi" description="Physically accessible network">
+      <vulnerabilities name="encryption" description="The network is not protected and the data transit in clear" type="Exposure"/>
+      <subNodes name="visitor phone">
+        <vulnerabilities name="malicious app" description="The phone has a malicious app that is trying to send bad data to the device"/>
+      </subNodes>
+      <subNodes name="controller" description="Control of the device">
+        <vulnerabilities name="Exposure to the public" description="Anybody can take over the control of the controller, there is no access control" type="Exposure"/>
+      </subNodes>
+    </subNodes>
+  </rootNode>
+</attacktree:Model>

@@ -1,0 +1,116 @@
+<h1 id="eclipse-extensions">Eclipse Extensions</h1>
+<p>Custom attack vulnerability and propagation providers are supplied using Eclipse's extension mechanism. This documentation assumes that the reader is familiar with writing extensions. If not, then the reader is recommended to read through Eclipse's <a href="https://www.google.com/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=1&amp;cad=rja&amp;uact=8&amp;ved=0ahUKEwjyv9e_leTMAhXDox4KHessBDQQFggcMAA&amp;url=http%3A%2F%2Fhelp.eclipse.org%2Fmars%2Ftopic%2Forg.eclipse.platform.doc.isv%2Fguide%2Ffirstplugin.htm&amp;usg=AFQjCNHqkuzcPbsnS69WJL9b7uFLyz1LIQ&amp;sig2=dvtVaWhMpEC2xu518-zUsg">Simple plug-in example</a>.</p>
+<h1 id="attack-vulnerability">Attack Vulnerability</h1>
+<p>To contribute a custom attack vulnerability provider, use the extension point <code>edu.cmu.sei.aaspe.vulnerability</code>. An extention can list multiple <code>vulnerability</code> entries. Each <code>vulnerability</code> must define a value for the <code>class</code> attribute which is a subtype of <code>edu.cmu.sei.aaspe.vulnerabilities.AbstractVulnerability</code>. Here is an example of a vulnerability contribution in a <code>plugin.xml</code> file:</p>
+<div class="sourceCode"><pre class="sourceCode xml"><code class="sourceCode xml"><span class="kw">&lt;extension</span>
+<span class="ot">        point=</span><span class="st">&quot;edu.cmu.sei.aaspe.vulnerability&quot;</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;vulnerability</span>
+<span class="ot">        class=</span><span class="st">&quot;edu.cmu.sei.aaspe.vulnerabilities.Exposition&quot;</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;/vulnerability&gt;</span>
+<span class="kw">&lt;/extension&gt;</span></code></pre></div>
+<p>When generating an attack impact model, the <code>findVulnerabilities(ComponentInstance)</code> method of each contributed vulnerability provider class will be called and the returned vulnerablities will be added to the attack impact model.</p>
+<p>The following is an example of a vulnerability provider:</p>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java"><span class="kw">public</span> <span class="kw">class</span> Authentication <span class="kw">extends</span> AbstractVulnerability {
+    <span class="fu">@Override</span>
+    <span class="kw">public</span> List&lt;Vulnerability&gt; <span class="fu">findVulnerabilities</span>(ComponentInstance component) {
+        List&lt;Vulnerability&gt; vulnerabilities;
+        vulnerabilities = <span class="kw">new</span> ArrayList&lt;Vulnerability&gt; ();
+
+        <span class="co">/**</span>
+<span class="co">         * Check that is the component is connected to another</span>
+<span class="co">         * component through a physical bus, it encrypts the data</span>
+<span class="co">         * sent over the bus.</span>
+<span class="co">         *</span>
+<span class="co">         * We also check if the encryption algorithm is not too weak</span>
+<span class="co">         * in case encryption is used.</span>
+<span class="co">         */</span>
+        <span class="kw">for</span> (ConnectionInstance ci : component.<span class="fu">getConnectionInstances</span>()) {
+            ComponentInstance componentDestination;
+            ComponentInstance componentSource;
+
+            <span class="co">/**</span>
+<span class="co">             * now, we just take care of of port connection</span>
+<span class="co">             */</span>
+            <span class="kw">if</span> (ci.<span class="fu">getKind</span>() != org.<span class="fu">osate</span>.<span class="fu">aadl2</span>.<span class="fu">instance</span>.<span class="fu">ConnectionKind</span>.<span class="fu">PORT_CONNECTION</span>) {
+                <span class="kw">continue</span>;
+            }
+
+            componentSource = ci.<span class="fu">getSource</span>().<span class="fu">getContainingComponentInstance</span>();
+            componentDestination = ci.<span class="fu">getDestination</span>().<span class="fu">getContainingComponentInstance</span>();
+
+            <span class="co">/**</span>
+<span class="co">             * isPhysical is a boolean that details if the connection is associated</span>
+<span class="co">             * with a physical bus.</span>
+<span class="co">             *</span>
+<span class="co">             * isEncrypted specifies if the connection is using an encryption</span>
+<span class="co">             * algorithm. Which means associated with a virtual bus that specifies</span>
+<span class="co">             * an encryption mechanism.</span>
+<span class="co">             */</span>
+            <span class="dt">boolean</span> isPhysical = ComponentUtils.<span class="fu">isPhysical</span> (ci);
+            <span class="dt">boolean</span> useAuthentication = ComponentUtils.<span class="fu">useAuthentication</span>(ci);
+
+
+            <span class="kw">if</span> (isPhysical &amp;&amp; (!useAuthentication ) ) {
+                OsateDebug.<span class="fu">osateDebug</span>(<span class="st">&quot;Authentication&quot;</span>, <span class="st">&quot;connection &quot;</span> + ci.<span class="fu">getName</span>() + <span class="st">&quot; does not use authentication&quot;</span>);
+
+                Vulnerability v = <span class="kw">new</span> <span class="fu">Vulnerability</span>();
+                v.<span class="fu">setType</span>(Vulnerability.<span class="fu">VULNERABILITY_AUTHENTICATION</span>);
+                v.<span class="fu">setName</span> (<span class="st">&quot;Missing Authentication&quot;</span>);
+                v.<span class="fu">setComment</span>(<span class="st">&quot;missing authentication on connection &quot;</span> + ci.<span class="fu">getName</span>());
+                v.<span class="fu">setRelatedElement</span>(componentSource);
+                v.<span class="fu">addPropagations</span>(PropagationModel.<span class="fu">getInstance</span>().<span class="fu">findPropagations</span> (componentDestination));      
+                vulnerabilities.<span class="fu">add</span> (v);
+            }
+
+            <span class="kw">if</span> ( isPhysical &amp;&amp; useAuthentication &amp;&amp; edu.<span class="fu">cmu</span>.<span class="fu">sei</span>.<span class="fu">aaspe</span>.<span class="fu">utils</span>.<span class="fu">Utils</span>.<span class="fu">containsWeakAuthentication</span>(ComponentUtils.<span class="fu">getAuthenticationMethods</span>(ci)))
+            {
+                Vulnerability v = <span class="kw">new</span> <span class="fu">Vulnerability</span>();
+                v.<span class="fu">setType</span>(Vulnerability.<span class="fu">VULNERABILITY_AUTHENTICATION</span>);
+                v.<span class="fu">setName</span> (<span class="st">&quot;Weak Authentication&quot;</span>);
+                v.<span class="fu">setComment</span>(<span class="st">&quot;weak authentication method used on &quot;</span> + ci.<span class="fu">getName</span>());
+                v.<span class="fu">setRelatedElement</span>(componentSource);
+                v.<span class="fu">addPropagations</span>(PropagationModel.<span class="fu">getInstance</span>().<span class="fu">findPropagations</span> (componentDestination));              
+                vulnerabilities.<span class="fu">add</span> (v);
+            }
+        }
+
+        <span class="kw">return</span> vulnerabilities;
+    }
+}</code></pre></div>
+<p>When creating an instance of <code>Vulnerability</code>, it is important to call <code>PropagationModel.getInstance().findPropagations()</code> and pass the result to the new vulnerability's <code>addPropagations</code> method.</p>
+<h1 id="attack-propagation">Attack Propagation</h1>
+<p>To contribute a custom attack propagation provider, use the extension point <code>edu.cmu.sei.aaspe.propagation</code>. An extension can list multiple <code>propagation</code> entries. Each <code>propagation</code> must define a value for the <code>class</code> attribute which is a subtype of <code>edu.cmu.sei.aaspe.propagations.AbstractPropagation</code>. Here is an example of a propagation contribution in a <code>plugin.xml</code> file:</p>
+<div class="sourceCode"><pre class="sourceCode xml"><code class="sourceCode xml"><span class="kw">&lt;extension</span>
+<span class="ot">        point=</span><span class="st">&quot;edu.cmu.sei.aaspe.propagation&quot;</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;propagation</span>
+<span class="ot">        class=</span><span class="st">&quot;edu.cmu.sei.aaspe.propagations.DataFlow&quot;</span><span class="kw">&gt;</span>
+    <span class="kw">&lt;/propagation&gt;</span>
+<span class="kw">&lt;/extension&gt;</span></code></pre></div>
+<p>When generating an attack impact model, the <code>getPropagations(ComponentInstance)</code> method of each contributed propagation provider class will be called and the returned propagations will be added to the attack impact model.</p>
+<p>The following is an example of a propagation provider:</p>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java"><span class="kw">public</span> <span class="kw">class</span> SharedData <span class="kw">extends</span> AbstractPropagation {
+    <span class="fu">@Override</span>
+    <span class="kw">public</span> List&lt;Propagation&gt; <span class="fu">getPropagations</span>(ComponentInstance component)
+    {
+        ArrayList&lt;Propagation&gt; result;
+
+        result = <span class="kw">new</span> ArrayList&lt;Propagation&gt; ();
+
+        <span class="co">/**</span>
+<span class="co">         * If the component impacted is a data, it can affect all components sharing the data.</span>
+<span class="co">         */</span>
+        <span class="kw">if</span> (component.<span class="fu">getCategory</span>() == ComponentCategory.<span class="fu">DATA</span>)
+        {
+            <span class="kw">for</span> (ComponentInstance dataUser : ComponentUtils.<span class="fu">getDataUsers</span>(component))
+            {
+                Propagation newPropagation = <span class="kw">new</span> <span class="fu">Propagation</span>(component, Propagation.<span class="fu">PROPAGATION_DATA</span>, dataUser);
+                <span class="kw">if</span> (! result.<span class="fu">contains</span>(newPropagation))
+                {
+                    result.<span class="fu">add</span>(newPropagation);
+                }
+            }
+        }
+
+        <span class="kw">return</span> result;
+    }
+}</code></pre></div>

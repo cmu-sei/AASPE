@@ -1,0 +1,102 @@
+<h1 id="attack-impact-editor">Attack Impact Editor</h1>
+<h2 id="what-it-is">What it is?</h2>
+<p>An Attack-Impact is a model that represents all the systems of an architecture with their interaction points and potential propagations of vulnerabilities. It is a graph that shows the components with boxes, vulnerabilities using around rounds and finally, connect them together using directed arrows.</p>
+<p>The objective is to show how a vulnerability can propagate through the system architecture. Such a notation ultimately support design decisions by highlighting how security issues impact the system and help designer to detect and fix architecture weaknesses.</p>
+<h2 id="implementation-concerns">Implementation Concerns</h2>
+<p>Our Attack Impact editor relies on an EMF meta-model of an attack tree as well as a Sirius representation for it. The Sirius representation generates the graphical representation (graph) from the meta-model.</p>
+<h2 id="examples-of-attack-impact">Examples of Attack Impact</h2>
+<p>To open an example of an Attack Tree, do the following</p>
+<ul>
+<li>Create a new project by using <em>New</em> -&gt; <em>Project</em>. Select the name of the project and click on <em>Finish</em></li>
+</ul>
+<div class="figure">
+<img src="imgs/new-project.png" title="New Project" alt="Creating a New Project in Eclipse" />
+<p class="caption">Creating a New Project in Eclipse</p>
+</div>
+<ul>
+<li>Right click on the new project and select <em>New</em> -&gt; <em>Other</em> and select</li>
+</ul>
+<div class="figure">
+<img src="imgs/new-project-others.png" title="New Project Other" alt="New Project, Other" />
+<p class="caption">New Project, Other</p>
+</div>
+<ul>
+<li>Select the <em>Attack Impact Wizard</em></li>
+</ul>
+<div class="figure">
+<img src="imgs/attackimpact-wizard1.png" title="Select Attack Impact Wizard" alt="Select Wizard" />
+<p class="caption">Select Wizard</p>
+</div>
+<ul>
+<li>Choose the example you want (webserver or router), indicate a file name and click on Finish.</li>
+</ul>
+<div class="figure">
+<img src="imgs/attackimpact-wizard2.png" title="Select Attack Impact example" alt="Select the Attack Impact example" />
+<p class="caption">Select the Attack Impact example</p>
+</div>
+<h2 id="visualizing-the-attack-impact">Visualizing the Attack Impact</h2>
+<ul>
+<li>Make sure you have your Attack Impact file in your project. The file has the extension <em>attackimpact</em>. See the previous section to create an Attack Impact file example.</li>
+<li>Switch to the Modeling Perspective. Check that the modeling perspective is activated as in the following picture. The icon is on the top right in the eclipse main window.</li>
+</ul>
+<div class="figure">
+<img src="imgs/modeling-perspective.png" title="Opening the Modeling Perspective" alt="Opening Modeling" />
+<p class="caption">Opening Modeling</p>
+</div>
+<ul>
+<li>Make sure the project has the Modeling Nature. Right Click on your project and check the item <em>Configure</em> -&gt; <em>Convert to Modeling Project</em>.</li>
+</ul>
+<div class="figure">
+<img src="imgs/convert-modeling.png" title="Check Modeling Nature" alt="Check Modeling Nature" />
+<p class="caption">Check Modeling Nature</p>
+</div>
+<ul>
+<li>Select the Attack Tree Viewpoint. Right click on te project and select the following menu</li>
+</ul>
+<div class="figure">
+<img src="imgs/viewpoint-selection.png" title="Select Viewpoint" alt="Select Viewpoint" />
+<p class="caption">Select Viewpoint</p>
+</div>
+<ul>
+<li>Select the Attack Impact Viewpoint</li>
+</ul>
+<div class="figure">
+<img src="imgs/viewpoint-selection-attackimpact.png" title="Select Attackimpact Viewpoint" alt="Selecting the Attack Impact Viewpoint" />
+<p class="caption">Selecting the Attack Impact Viewpoint</p>
+</div>
+<ul>
+<li>Finally, open the Attack Impact Representation. Select the model element (the Attack Impact Model EObject) and right click on it. Select <em>New Representation</em> and then <em>new AttackImpactDiagram</em>.</li>
+</ul>
+<div class="figure">
+<img src="imgs/new-attack-impact-diagram.png" title="New Attack Impact" alt="New Attack Impact" />
+<p class="caption">New Attack Impact</p>
+</div>
+<ul>
+<li>You should then get the following diagram.</li>
+</ul>
+<div class="figure">
+<img src="imgs/new-attack-impact-diagram.png" title="New Attack Impact Diagram" alt="New Attack Impact" />
+<p class="caption">New Attack Impact</p>
+</div>
+<h2 id="analyzing-the-attack-impact">Analyzing the Attack Impact</h2>
+<p>The Attack Impact editor includes build-in analysis capabilities. You can visualize the menu that offers the analysis options by doing a right click on a nod ein the Attack Impact diagram. This menu is shown below.</p>
+<div class="figure">
+<img src="imgs/attack-impact-analysis.png" title="Attack Impact Analysis Menu" alt="Attack Impact Analysis Menu" />
+<p class="caption">Attack Impact Analysis Menu</p>
+</div>
+<p>There are the following analysis available:</p>
+<ul>
+<li><strong>Generate Attack Tree</strong>: generate the attack tree from the selected component. The generated attack tree will have a root that is the selected node of the attack tree.</li>
+<li><strong>Show Impact</strong>: shows the impact of this component or vulnerability. It will then color all component being impact by the selected component or vulnerabilities.</li>
+<li><strong>Show Reverse Impact</strong>: do the reserve analysis than the <strong>show impact</strong>: it traverses the model backwards and color all components that contribute to corrupt the selected components.</li>
+<li><strong>Clear Impact</strong>: revert any color change in the model. If the user used the impact or reverse impact analysis, it will then remove the color on every box.</li>
+</ul>
+<h2 id="editing-an-attack-impact">Editing an Attack Impact</h2>
+<p>This section has to be improved and ehanced.</p>
+<h2 id="contact-and-help">Contact and Help</h2>
+<p>For any help and contact, please send an e-mail to Julien Delange <script type="text/javascript">
+<!--
+h='&#x73;&#x65;&#x69;&#46;&#x63;&#x6d;&#x75;&#46;&#x65;&#100;&#x75;';a='&#64;';n='&#106;&#100;&#x65;&#108;&#x61;&#110;&#x67;&#x65;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>&#106;&#100;&#x65;&#108;&#x61;&#110;&#x67;&#x65;&#32;&#x61;&#116;&#32;&#x73;&#x65;&#x69;&#32;&#100;&#x6f;&#116;&#32;&#x63;&#x6d;&#x75;&#32;&#100;&#x6f;&#116;&#32;&#x65;&#100;&#x75;</noscript></p>

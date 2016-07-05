@@ -1,0 +1,89 @@
+<h1 id="attack-tree-editor">Attack Tree Editor</h1>
+<h2 id="what-it-is">What it is?</h2>
+<p>An Attack-Tree is a graphical model that show all contributor of a successful compromising of a system. It uses a tree notation with the root being the system being compromised and the leafs being the vulnerabilities or the nodes that propagates the vulnerabilities or attacks.</p>
+<p>Such a diagram shows all the contributors that can facilitate a successful attack against a given system. It also helps to understand the path from a vulnerability to the impacted system.</p>
+<h2 id="implementation-concerns">Implementation Concerns</h2>
+<p>Our Attack Tree editor relies on an EMF meta-model of an attack tree as well as a Sirius representation for it. The Sirius representation generates the graphical representation of the tree from the meta-model.</p>
+<h2 id="examples-of-attack-tree">Examples of Attack Tree</h2>
+<p>To open an example of an Attack Tree, do the following</p>
+<ul>
+<li>Create a new project by using <em>New</em> -&gt; <em>Project</em>. Select the name of the project and click on <em>Finish</em></li>
+</ul>
+<div class="figure">
+<img src="imgs/new-project.png" title="New Project" alt="Creating a New Project in Eclipse" />
+<p class="caption">Creating a New Project in Eclipse</p>
+</div>
+<ul>
+<li>Right click on the new project and select <em>New</em> -&gt; <em>Other</em> and select</li>
+</ul>
+<div class="figure">
+<img src="imgs/new-project-others.png" title="New Project Other" alt="Creating a New Project in Eclipse" />
+<p class="caption">Creating a New Project in Eclipse</p>
+</div>
+<ul>
+<li>Select the <em>Attack Tree Wizard</em></li>
+</ul>
+<div class="figure">
+<img src="imgs/attacktree-wizard1.png" title="New Project Other" alt="Creating a New Project in Eclipse" />
+<p class="caption">Creating a New Project in Eclipse</p>
+</div>
+<ul>
+<li>Choose the example you want, indicate a file name and click on Finish.</li>
+</ul>
+<div class="figure">
+<img src="imgs/attacktree-wizard2.png" title="New Project Other" alt="Creating a New Project in Eclipse" />
+<p class="caption">Creating a New Project in Eclipse</p>
+</div>
+<h2 id="visualizing-the-attack-tree">Visualizing the Attack Tree</h2>
+<ul>
+<li>Make sure you have your Attack Tree file in your project. The file has the extension <em>attacktree</em>. See the previous section to create an attacktree example.</li>
+<li>Switch to the Modeling Perspective. Check that the modeling perspective is activated as in the following picture. The icon is on the top right in the eclipse main window.</li>
+</ul>
+<div class="figure">
+<img src="imgs/modeling-perspective.png" title="New Project Other" alt="Creating a New Project in Eclipse" />
+<p class="caption">Creating a New Project in Eclipse</p>
+</div>
+<ul>
+<li>Make sure the project has the Modeling Nature. Right Click on your project and check the item <em>Configure</em> -&gt; <em>Convert to Modeling Project</em>.</li>
+</ul>
+<div class="figure">
+<img src="imgs/convert-modeling.png" title="New Project Other" alt="Creating a New Project in Eclipse" />
+<p class="caption">Creating a New Project in Eclipse</p>
+</div>
+<ul>
+<li>Select the Attack Tree Viewpoint. Right click on te project and select the following menu</li>
+</ul>
+<div class="figure">
+<img src="imgs/viewpoint-selection.png" title="New Project Other" alt="Creating a New Project in Eclipse" />
+<p class="caption">Creating a New Project in Eclipse</p>
+</div>
+<ul>
+<li>Select the Attack Tree Viewpoint</li>
+</ul>
+<div class="figure">
+<img src="imgs/viewpoint-selection-attacktree.png" title="New Project Other" alt="Creating a New Project in Eclipse" />
+<p class="caption">Creating a New Project in Eclipse</p>
+</div>
+<ul>
+<li>Finally, open the Attack Tree Representation. Select the model element (the Attack Tree Model EObject) and right click on it. Select <em>New Representation</em> and then <em>new AttackTreeDiagram</em>.</li>
+</ul>
+<div class="figure">
+<img src="imgs/new-attack-tree-diagram.png" title="New Project Other" alt="Creating a New Project in Eclipse" />
+<p class="caption">Creating a New Project in Eclipse</p>
+</div>
+<ul>
+<li>You should then get the following diagram.</li>
+</ul>
+<div class="figure">
+<img src="imgs/medical-attracktree.png" title="New Project Other" alt="Creating a New Project in Eclipse" />
+<p class="caption">Creating a New Project in Eclipse</p>
+</div>
+<h2 id="editing-an-attack-tree">Editing an Attack Tree</h2>
+<p>This section has to be completed.</p>
+<h2 id="contact-and-help">Contact and Help</h2>
+<p>For any help and contact, please send an e-mail to Julien Delange <script type="text/javascript">
+<!--
+h='&#x73;&#x65;&#x69;&#46;&#x63;&#x6d;&#x75;&#46;&#x65;&#100;&#x75;';a='&#64;';n='&#106;&#100;&#x65;&#108;&#x61;&#110;&#x67;&#x65;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>&#106;&#100;&#x65;&#108;&#x61;&#110;&#x67;&#x65;&#32;&#x61;&#116;&#32;&#x73;&#x65;&#x69;&#32;&#100;&#x6f;&#116;&#32;&#x63;&#x6d;&#x75;&#32;&#100;&#x6f;&#116;&#32;&#x65;&#100;&#x75;</noscript></p>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<attackimpact:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:attackimpact="http://www.example.org/attackimpact">
+  <nodes name="television">
+    <vulnerabilities name="Buffer Overflow" type="Exposure">
+      <propagations destinations="//@nodes.0 //@nodes.1 //@nodes.2 //@nodes.3"/>
+    </vulnerabilities>
+    <propagations destinations="//@nodes.1 //@nodes.2 //@nodes.3"/>
+  </nodes>
+  <nodes name="mobile phone">
+    <vulnerabilities name="Malicious App" type="Exposure">
+      <propagations destinations="//@nodes.0 //@nodes.1 //@nodes.2 //@nodes.3"/>
+    </vulnerabilities>
+  </nodes>
+  <nodes name="router">
+    <vulnerabilities name="Weak Authentication" type="Authentication">
+      <propagations destinations="//@nodes.0 //@nodes.1 //@nodes.2 //@nodes.3"/>
+    </vulnerabilities>
+    <propagations destinations="//@nodes.0 //@nodes.1 //@nodes.2 //@nodes.3"/>
+  </nodes>
+  <nodes name="thermostat"/>
+</attackimpact:Model>

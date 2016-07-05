@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/edu.cmu.aaspe.attackimpact/src" editDirectory="/edu.cmu.aaspe.attackimpact.edit/src"
+    editorDirectory="/edu.cmu.aaspe.attackimpact.editor/src" modelPluginID="edu.cmu.aaspe.attackimpact"
+    modelName="AttackImpact" editorPluginClass="edu.cmu.attackimpact.presentation.AttackImpactEditorPlugin"
+    rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container" importerID="org.eclipse.emf.importer.ecore"
+    complianceLevel="8.0" copyrightFields="false" editPluginID="edu.cmu.aaspe.attackimpact.edit"
+    editorPluginID="edu.cmu.aaspe.attackimpact.editor" operationReflection="true"
+    importOrganizing="true">
+  <foreignModel>attackimpact.ecore</foreignModel>
+  <genPackages prefix="AttackImpact" basePackage="edu.cmu" disposableProviderFactory="true"
+      ecorePackage="attackimpact.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="attackimpact.ecore#//vulnerabilityType">
+      <genEnumLiterals ecoreEnumLiteral="attackimpact.ecore#//vulnerabilityType/Timing"/>
+      <genEnumLiterals ecoreEnumLiteral="attackimpact.ecore#//vulnerabilityType/Isolation"/>
+      <genEnumLiterals ecoreEnumLiteral="attackimpact.ecore#//vulnerabilityType/ResourceAllocation"/>
+      <genEnumLiterals ecoreEnumLiteral="attackimpact.ecore#//vulnerabilityType/Exposure"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="attackimpact.ecore#//propagationType">
+      <genEnumLiterals ecoreEnumLiteral="attackimpact.ecore#//propagationType/bus"/>
+      <genEnumLiterals ecoreEnumLiteral="attackimpact.ecore#//propagationType/dataFlow"/>
+    </genEnums>
+    <genClasses ecoreClass="attackimpact.ecore#//Node">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attackimpact.ecore#//Node/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attackimpact.ecore#//Node/description"/>
+      <genFeatures property="None" notify="false" children="true" createChild="true"
+          propertySortChoices="true" ecoreFeature="ecore:EReference attackimpact.ecore#//Node/vulnerabilities"/>
+      <genFeatures property="None" notify="false" children="true" createChild="true"
+          propertySortChoices="true" ecoreFeature="ecore:EReference attackimpact.ecore#//Node/propagations"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference attackimpact.ecore#//Node/relatedObject"/>
+    </genClasses>
+    <genClasses ecoreClass="attackimpact.ecore#//Vulnerability">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attackimpact.ecore#//Vulnerability/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attackimpact.ecore#//Vulnerability/description"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attackimpact.ecore#//Vulnerability/severity"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attackimpact.ecore#//Vulnerability/type"/>
+    </genClasses>
+    <genClasses ecoreClass="attackimpact.ecore#//Propagation">
+      <genFeatures createChild="false" ecoreFeature="ecore:EReference attackimpact.ecore#//Propagation/destinations"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attackimpact.ecore#//Propagation/severity"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attackimpact.ecore#//Propagation/type"/>
+    </genClasses>
+    <genClasses ecoreClass="attackimpact.ecore#//Model">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attackimpact.ecore#//Model/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attackimpact.ecore#//Model/description"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference attackimpact.ecore#//Model/nodes"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

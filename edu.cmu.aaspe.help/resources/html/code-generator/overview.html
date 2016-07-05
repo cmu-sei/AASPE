@@ -1,0 +1,10 @@
+<p>The seL4 code generator creates code for the seL4 kernel from AADL models. seL4 is the first formally verified kernel and is designed to build reliable, safe and secure applications.</p>
+<h1 id="how-it-works">How it works?</h1>
+<p>When generating the code, the generator produces two types of code: * <strong>CAmkES Architecture</strong>: corresponds to the system description specified with the CAmkES ADL. There is only one CAmkES description per processor. The CAmkES description contains the system timing requirements (period, deadline) as well as the communication (connections) between partitions. * <strong>Partition code</strong>: the code for each partition that receives data from other partitions (is there some incoming data ports), execute the subprograms and finally, send output data.</p>
+<h1 id="requirements">Requirements</h1>
+<p>In order to use the code generator, you need: * OSATE: if you read this, you probably already have a version with OSATE that supports our code generator features. * A working development environment for compiling an CAmkES/seL4 application. You can read more about CAmkES and setting up a <a href="https://wiki.sel4.systems/CAmkES">development environment on the CAmkES website</a>.</p>
+<h1 id="supported-platforms">Supported Platforms</h1>
+<p>Because the code generator must produce platform-dependent code, it only supports few platforms: * <strong>x86</strong> * <strong>Beaglebone Black</strong> * <strong>ARM kzm</strong> * <strong>Tegra K1</strong></p>
+<p>The platform used is specified in the AADL model with the property <em>sei::platform</em> on the processor component. For more details, please review the code generator patterns.</p>
+<h1 id="implementation-considerations">Implementation Considerations</h1>
+<p>The code generator leverages the Xtend and Xtext generation framework. Our seL4 code generator is based on the Xtext code generator templates. You do not need any third party tool to generate the code. Once you generate the code, you need to import it</p>

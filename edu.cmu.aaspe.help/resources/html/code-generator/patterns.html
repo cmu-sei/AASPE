@@ -1,0 +1,41 @@
+<h1 id="modeling-rules">Modeling Rules</h1>
+<ul>
+<li>Each process <strong>must be</strong> bound to a <strong>virtual processor</strong></li>
+<li>A <strong>virtual processor</strong> must be bound to a processor</li>
+<li>Each <strong>thread</strong> component must declare the following properties: <strong>Period</strong>, <strong>Deadline</strong></li>
+<li>Each <strong>thread</strong> can be only periodic or sporadic. The <em>dispath_protocol</em> property <strong>must be</strong> set to one of these values.</li>
+<li>The <strong>processor</strong> component must declare the scheduling policy using the ARINC653 properties: <strong>arinc653::module_major_frame</strong> and <strong>arinc653::module_schedule</strong></li>
+<li>Each <strong>virtual processor</strong> is bound only to exactly <strong>one</strong> process</li>
+<li>Each <strong>process</strong> can contain <strong>only one</strong> thread</li>
+<li><strong>Data</strong> are communicated using data ports connected among <strong>thread</strong> components.</li>
+</ul>
+<h1 id="transformation-patterns">Transformation Patterns</h1>
+<h2 id="camkes-transformation">CAmkES transformation</h2>
+<p>The CAmkES description specifies the architecture with the organization of the partitions and their interaction. One CAmkES description is produced for each processor. The following elements are used when creating the CAmKES description for a particular processor:</p>
+<ul>
+<li>A partition is created for each virtual processor bound to the processor.</li>
+<li>Each data connection between AADL processes is transformed into a CAmkES connection between partitions. The receiving partition has the right to read only while the sending partition can only send through this connection</li>
+<li>The period and execution time is specified for each partitions using the timing description of the system (properties <em>arinc653::module_schedule</em> and <em>arinc653::module_major_frame</em>)</li>
+</ul>
+<p>In addition, the code generator produces the following extra code (not described in the AADL model) * A partition that manage the time/clock and activate every partition * A connection between the time management partition and other partitions to activate them.</p>
+<h2 id="partition-code">Partition code</h2>
+<p>The partition code receives the data from other partitions, execute subprograms and send the data to other partitions. A partition is specified with an AADL <em>process</em> component bound to an AADL <em>virtual processor</em> component.</p>
+<p>The generator creates one directory and one CAmkES component for each partition. It specified the CAmkES description of the partition as well as the C source code that implements the partition.</p>
+<p>The main loop of the code is as follows</p>
+<div class="sourceCode"><pre class="sourceCode c"><code class="sourceCode c">
+<span class="dt">void</span> run ()
+{
+   <span class="kw">while</span> (<span class="dv">1</span>)
+   {
+      wait_for_activation();
+      receive_inputs();
+      execute_subprograms();
+      send_output();
+   }
+}</code></pre></div>
+<p>The goal of the <em>wait_for_activation()</em> part is to wait for a signal from the time management partition to activate the task.</p>
+<p>The goal of the <em>receive_inputs()</em> part is to receive data <strong>before</strong> executing the subprograms. The data from the subprograms might depend on this data.</p>
+<p>The goal of the <em>execute_subprograms()</em> part is to execute all the subprograms specified in the AADL model.</p>
+<p>The goal of the <em>send_output()</em> part is to send data to the other partitions before the partition completes its period.</p>
+<h1 id="unsupported-aadl-elements">Unsupported AADL elements</h1>
+<p>The following AADL elements are not used by the code generator. They will just be ignored by the AADL model. * <em>event ports</em> between threads * AADL modes * <em>event data ports</em> between threads * <em>memory</em> components bound to a process * <em>device</em> components * <em>data</em> shared between threads or processes</p>

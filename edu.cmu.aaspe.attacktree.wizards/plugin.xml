@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+	<extension
+	      point="org.eclipse.ui.newWizards">
+		<category
+		   id = "edu.cmu.aaspe.attacktree.wizards"
+		   name="AttackTree Wizards"
+		   >
+		</category>
+	 	<wizard
+	 	   project="true"
+		   id = "edu.cmu.aaspe.attacktree.wizards.newfile"
+	       name = "New Attack Tree file"
+	       icon="imgs/logo.png"
+		   class="edu.cmu.aaspe.attacktree.wizards.AttackTreeWizardNewfile"
+		   category="edu.cmu.aaspe.attacktree.wizards">
+		</wizard>
+	</extension>
+   
+</plugin>

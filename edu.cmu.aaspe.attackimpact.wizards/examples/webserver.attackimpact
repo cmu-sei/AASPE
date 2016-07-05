@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<attackimpact:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:attackimpact="http://www.example.org/attackimpact">
+  <nodes name="webserver">
+    <vulnerabilities name="Cross Site Scripting">
+      <propagations destinations="//@nodes.1"/>
+    </vulnerabilities>
+    <propagations destinations="//@nodes.1"/>
+  </nodes>
+  <nodes name="database"/>
+</attackimpact:Model>

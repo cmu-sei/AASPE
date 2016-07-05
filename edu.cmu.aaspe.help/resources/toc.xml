@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="AASPE Documentation">
+	<topic href="resources/html/overview.html" label="Overview" />
+	<topic href="resources/html/attack-impact.html" label="Attack Impact Editor" />
+	<topic href="resources/html/attack-tree.html" label="Attack Tree Editor" />
+	<topic href="resources/html/contact.html" label="Contact" />
+	<topic href="resources/html/license.html" label="License" />
+	<topic label="AADL to Attack Impact Bridge">
+		<topic href="resources/html/aadl/attack-impact-generation.html" label="Generate Attack Impact" />
+		<topic href="resources/html/aadl/engine-rules.html" label="Generator Engine Rules" />
+		<topic href="resources/html/aadl/extending-engine.html" label="Extending the Engine" />
+	</topic>
+	<topic label="AADL to seL4 Code Generator">
+		<topic href="resources/html/code-generator/overview.html" label="Overview of the Generator" />
+		<topic href="resources/html/code-generator/usage.html" label="Using the Code Generator" />
+		<topic href="resources/html/code-generator/patterns.html" label="Code Generation Patterns" />
+	</topic>
+</toc>

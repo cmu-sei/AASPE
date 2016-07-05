@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/edu.cmu.aaspe.attacktree/src" editDirectory="/edu.cmu.aaspe.attacktree.edit/src"
+    editorDirectory="/edu.cmu.aaspe.attacktree.editor/src" modelPluginID="edu.cmu.aaspe.attacktree"
+    modelName="AttackTree" editorPluginClass="edu.cmu.attacktree.presentation.AttackImpactEditorPlugin"
+    rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container" importerID="org.eclipse.emf.importer.ecore"
+    complianceLevel="8.0" copyrightFields="false" editPluginID="edu.cmu.aaspe.attacktree.edit"
+    editorPluginID="edu.cmu.aaspe.attacktree.editor" operationReflection="true" importOrganizing="true">
+  <foreignModel>attacktree.ecore</foreignModel>
+  <genPackages prefix="AttackTree" basePackage="edu.cmu" disposableProviderFactory="true"
+      ecorePackage="attacktree.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="attacktree.ecore#//vulnerabilityType">
+      <genEnumLiterals ecoreEnumLiteral="attacktree.ecore#//vulnerabilityType/Timing"/>
+      <genEnumLiterals ecoreEnumLiteral="attacktree.ecore#//vulnerabilityType/Isolation"/>
+      <genEnumLiterals ecoreEnumLiteral="attacktree.ecore#//vulnerabilityType/ResourceAllocation"/>
+      <genEnumLiterals ecoreEnumLiteral="attacktree.ecore#//vulnerabilityType/Exposure"/>
+      <genEnumLiterals ecoreEnumLiteral="attacktree.ecore#//vulnerabilityType/Authentication"/>
+      <genEnumLiterals ecoreEnumLiteral="attacktree.ecore#//vulnerabilityType/Concurrency"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="attacktree.ecore#//propagationType">
+      <genEnumLiterals ecoreEnumLiteral="attacktree.ecore#//propagationType/bus"/>
+      <genEnumLiterals ecoreEnumLiteral="attacktree.ecore#//propagationType/dataFlow"/>
+      <genEnumLiterals ecoreEnumLiteral="attacktree.ecore#//propagationType/local"/>
+      <genEnumLiterals ecoreEnumLiteral="attacktree.ecore#//propagationType/memory"/>
+      <genEnumLiterals ecoreEnumLiteral="attacktree.ecore#//propagationType/processor"/>
+      <genEnumLiterals ecoreEnumLiteral="attacktree.ecore#//propagationType/data"/>
+    </genEnums>
+    <genClasses ecoreClass="attacktree.ecore#//Node">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attacktree.ecore#//Node/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attacktree.ecore#//Node/description"/>
+      <genFeatures property="None" notify="false" children="true" createChild="true"
+          propertySortChoices="true" ecoreFeature="ecore:EReference attacktree.ecore#//Node/vulnerabilities"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference attacktree.ecore#//Node/subNodes"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference attacktree.ecore#//Node/relatedObject"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attacktree.ecore#//Node/tags"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attacktree.ecore#//Node/domains"/>
+    </genClasses>
+    <genClasses ecoreClass="attacktree.ecore#//Vulnerability">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attacktree.ecore#//Vulnerability/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attacktree.ecore#//Vulnerability/description"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attacktree.ecore#//Vulnerability/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attacktree.ecore#//Vulnerability/tags"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attacktree.ecore#//Vulnerability/severity"/>
+    </genClasses>
+    <genClasses ecoreClass="attacktree.ecore#//Model">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attacktree.ecore#//Model/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute attacktree.ecore#//Model/description"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference attacktree.ecore#//Model/nodes"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

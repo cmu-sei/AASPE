@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension-point id="vulnerability" name="Attack Vulnerability" schema="schema/vulnerability.exsd"/>
+   <extension-point id="propagation" name="Attack Propagation" schema="schema/propagation.exsd"/>
+
+     <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="org.osate.analysis.architecture.actionSet"
+            label="%actionSet.label"
+            visible="false">
+
+         <menu
+               id="menu.osate"
+               label="%menu.osate.label"
+               path="project">
+            <groupMarker name="file.grp"/>
+            <separator name="instance.grp"/>
+            <separator name="general.grp"/>
+         </menu>
+
+         <menu
+               id="menu.analyses"
+               label="%menu.analyses.label"
+               path="menu.osate">
+            <groupMarker name="top.grp"/>
+            <groupMarker name="bottom.grp"/>
+         </menu>
+
+         <menu
+               id="menu.security"
+               label="%menu.security.label"
+               path="menu.analyses/top.grp">
+            <groupMarker name="stuff.grp"/>
+         </menu>
+
+         <action
+               id="org.osate.analysis.architecture.actions.AttackImpact.action"
+               label="%AttackImpact.label"
+               tooltip="%AttackImpact.toolTip"
+               class="edu.cmu.sei.aaspe.actions.DoAttackImpact"
+               menubarPath="menu.analyses/menu.security/stuff.grp"
+               toolbarPath="arch.toolbar"
+               enablesFor="1">
+            <enablement>
+               <or>
+                  <and>
+                     <objectClass name="org.eclipse.core.resources.IFile"/>
+                     <objectState name="extension" value="aaxl2"/>
+                  </and>
+                   <objectClass name="org.osate.aadl2.instance.SystemInstance"/>
+              </or>
+            </enablement>
+         </action>
+
+            
+         <action
+               id="org.osate.analysis.architecture.actions.AttackSurface.action"
+               label="%AttackSurface.label"
+               tooltip="%AttackSurface.toolTip"
+               class="edu.cmu.sei.aaspe.actions.DoAttackSurface"
+               menubarPath="menu.analyses/menu.security/stuff.grp"
+               toolbarPath="arch.toolbar"
+               enablesFor="1">
+            <enablement>
+               <or>
+                  <and>
+                     <objectClass name="org.eclipse.core.resources.IFile"/>
+                     <objectState name="extension" value="aaxl2"/>
+                  </and>
+                   <objectClass name="org.osate.aadl2.instance.SystemInstance"/>
+              </or>
+            </enablement>
+         </action>
+         
+         <action
+               id="org.osate.analysis.architecture.actions.ExportToAttackImpact.action"
+               label="%ExportToAttackImpact.label"
+               tooltip="%ExportToAttackImpact.toolTip"
+               class="edu.cmu.sei.aaspe.actions.DoExportAttackImpact"
+               menubarPath="menu.analyses/menu.security/stuff.grp"
+               toolbarPath="arch.toolbar"
+               enablesFor="1">
+            <enablement>
+               <or>
+                  <and>
+                     <objectClass name="org.eclipse.core.resources.IFile"/>
+                     <objectState name="extension" value="aaxl2"/>
+                  </and>
+                   <objectClass name="org.osate.aadl2.instance.SystemInstance"/>
+              </or>
+            </enablement>
+         </action>         
+          
+         
+      </actionSet>
+   </extension>
+   
+   <extension
+   	   point="org.eclipse.ui.perspectiveExtensions">
+   	   <perspectiveExtension
+   		   targetID="org.osate.ui.perspective.AadlPerspective">
+   		   <actionSet
+   		 	   id="org.osate.analysis.architecture.actionSet"/>
+   	   </perspectiveExtension>
+   </extension>
+
+   <extension
+         id="SecurityMarker"
+         name="Security Marker"
+         point="org.eclipse.core.resources.markers">
+      <super type="org.osate.aadl2.modelsupport.AadlObjectMarker"/>
+      <persistent value="true"/>
+   </extension>
+   <extension
+         point="edu.cmu.sei.aaspe.vulnerability">
+      <vulnerability
+            class="edu.cmu.sei.aaspe.vulnerabilities.Exposition">
+      </vulnerability>
+      <vulnerability
+            class="edu.cmu.sei.aaspe.vulnerabilities.Concurrency">
+      </vulnerability>
+      <vulnerability
+            class="edu.cmu.sei.aaspe.vulnerabilities.Authentication">
+      </vulnerability>
+      <vulnerability
+            class="edu.cmu.sei.aaspe.vulnerabilities.Timing">
+      </vulnerability>
+      <vulnerability
+            class="edu.cmu.sei.aaspe.vulnerabilities.SecurityDomain">
+      </vulnerability>
+      <vulnerability
+            class="edu.cmu.sei.aaspe.vulnerabilities.SecurityLevel">
+      </vulnerability>
+      <vulnerability
+            class="edu.cmu.sei.aaspe.vulnerabilities.Encryption">
+      </vulnerability>
+      <vulnerability
+            class="edu.cmu.sei.aaspe.vulnerabilities.ResourceDimension">
+      </vulnerability>
+   </extension>
+   <extension
+         point="edu.cmu.sei.aaspe.propagation">
+      <propagation
+            class="edu.cmu.sei.aaspe.propagations.DataFlow">
+      </propagation>
+      <propagation
+            class="edu.cmu.sei.aaspe.propagations.ProcessToThread">
+      </propagation>
+      <propagation
+            class="edu.cmu.sei.aaspe.propagations.SharedBus">
+      </propagation>
+      <propagation
+            class="edu.cmu.sei.aaspe.propagations.SharedData">
+      </propagation>
+      <propagation
+            class="edu.cmu.sei.aaspe.propagations.SharedMemory">
+      </propagation>
+      <propagation
+            class="edu.cmu.sei.aaspe.propagations.SharedMemory">
+      </propagation>
+      <propagation
+            class="edu.cmu.sei.aaspe.propagations.ThreadToThread">
+      </propagation>
+   </extension>
+
+   
+   
+</plugin>

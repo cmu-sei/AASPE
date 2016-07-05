@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+  <extension
+        point="org.eclipse.sirius.externalJavaAction">
+     <javaActions
+           actionClass="edu.cmu.aaspe.attackimpact.actions.CreateVulnerabilityAction"
+           id="edu.cmu.aaspe.attackimpact.actions.CreateVulnerabilityAction">
+     </javaActions>
+  </extension> 
+  
+  <extension
+        point="org.eclipse.sirius.externalJavaAction">
+     <javaActions
+           actionClass="edu.cmu.aaspe.attackimpact.actions.ImpactAction"
+           id="edu.cmu.aaspe.attackimpact.actions.ImpactAction">
+     </javaActions>
+  </extension> 
+  
+  <extension
+        point="org.eclipse.sirius.externalJavaAction">
+     <javaActions
+           actionClass="edu.cmu.aaspe.attackimpact.actions.ReverseImpactAction"
+           id="edu.cmu.aaspe.attackimpact.actions.ReverseImpactAction">
+     </javaActions>
+  </extension> 
+  
+  <extension
+        point="org.eclipse.sirius.externalJavaAction">
+     <javaActions
+           actionClass="edu.cmu.aaspe.attackimpact.actions.GenerateAttackTree"
+           id="edu.cmu.aaspe.attackimpact.actions.GenerateAttackTree">
+     </javaActions>
+  </extension> 
+  
+   <extension
+        point="org.eclipse.sirius.externalJavaAction">
+     <javaActions
+           actionClass="edu.cmu.aaspe.attackimpact.actions.ClearImpactAction"
+           id="edu.cmu.aaspe.attackimpact.actions.ClearImpactAction">
+     </javaActions>
+  </extension> 
+  
+  
+</plugin>

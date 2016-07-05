@@ -1,0 +1,25 @@
+<h1 id="attack-impact-generation">Attack Impact Generation</h1>
+<p>Our tool include a generator that creates an Attack Impact model from an AADL model. The tool relies on an engine that analyzes the model, detect vulnerabilities and their impact inside an AADL model. It extracts these information and generate an Attack Impact.</p>
+<p>The engine is using pre-defined rules to detect vulnerabilities. For each component, the engine applies the rules in order to 1. Retrieve the list of all vulnerabilities related to the component 2. See the impact of a vulnerability within the architecture</p>
+<p>Our tool contains a set of pre-defined rules. This set is presented in this current documentation. Users can also extend the rules themselves. The presentation documentation also explain how to do this.</p>
+<h2 id="using-the-generator">Using the Generator</h2>
+<p>For generating the Attack Impact, you need first to instantiate your AADL model. To do so, in the outline view, select the root system component, right-click on it and select the menuitem <em>Instantiate System</em>.</p>
+<div class="figure">
+<img src="../imgs/instantiate1.png" title="Instantiate System" alt="Instantiate System" />
+<p class="caption">Instantiate System</p>
+</div>
+<p>Once the system is instantiated, it creates an <em>instances</em> directory. Within that directory, there are the files created by the instantiation process. The following pictures show one file in that directory.</p>
+<div class="figure">
+<img src="../imgs/files0.png" title="Instantiated Files" alt="Instantiated Files" />
+<p class="caption">Instantiated Files</p>
+</div>
+<p>To generate the Attack Impact, select the instance file generated before. Then, select the <em>Analysis</em> menu and go through the following items: <em>Security</em> and <em>Export to Attack Impact Model</em>, as shown below.</p>
+<div class="figure">
+<img src="../imgs/security-generate-attack-impact.png" title="Generate Attack Impact" alt="Generate Attack Impact" />
+<p class="caption">Generate Attack Impact</p>
+</div>
+<p>Once the process is completed, it generates a file with the extension <em>.attackimpact</em> in the <em>instances</em> model. This file is the corresponding attack impact of the selected AADL model instance.</p>
+<div class="figure">
+<img src="../imgs/files1.png" title="Generated files with attack impact" alt="Attack Impact Files" />
+<p class="caption">Attack Impact Files</p>
+</div>

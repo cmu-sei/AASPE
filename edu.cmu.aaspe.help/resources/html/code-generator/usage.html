@@ -1,0 +1,46 @@
+<p>The following paragraphs detail how to generate CAmkES and C code from an AADL model. It assumes that you already have a complete AADL model that enforces the code generation patterns.</p>
+<h1 id="generating-the-camkes-and-partitions-c-language-code">Generating the CAmkES and partitions (C language) code</h1>
+<p>To generate the code, select the system implementation in the outline view in eclipse, right click on it and select <strong>camkes - generate code</strong>.</p>
+<p>Then, once the code is generated, it creates a directory <em>instances/camkes</em>. The generated code is then available in that directory.</p>
+<h1 id="copy-compile-and-run-the-generated-code">Copy, compile and run the generated code</h1>
+<p>We assume you have all the dependencies to compile and build a system. To configure your system, read the following: https://wiki.sel4.systems/CAmkES</p>
+<ol style="list-style-type: decimal">
+<li><p>Checkout camkes using the repo tool. Do it like explained there:</p>
+<pre><code>mkdir camkes-project
+cd camkes-project
+repo init -u https://github.com/seL4/camkes-manifest.git
+repo sync</code></pre></li>
+<li>Copy the directories generated in Eclipse in the <em>apps/</em> directory of the camkes installation.</li>
+<li><p>Edit the <em>Kconfig</em> file at the root of the camkes installation. In the &quot;Application&quot; section, add a new line and include the apps imported from the generated code. For example, the Kconfig file will look like this:</p>
+<pre><code>menu &quot;Applications&quot;
+source &quot;apps/capdl-loader-experimental/Kconfig&quot;
+source &quot;apps/uart/Kconfig&quot;
+source &quot;apps/epit/Kconfig&quot;
+source &quot;apps/pingimpl/Kconfig&quot;
+source &quot;apps/boardsecureinstance/Kconfig&quot;
+source &quot;apps/boarddebugbeagleboardinstance/Kconfig&quot;
+source &quot;apps/boarddebugkzminstance/Kconfig&quot;
+source &quot;apps/boarddebuginstance/Kconfig&quot;
+source &quot;apps/pingtimer/Kconfig&quot;
+source &quot;apps/keyboard/Kconfig&quot;</code></pre></li>
+<li><p>Run the following command</p>
+<pre><code>make menuconfig</code></pre>
+and make sure you configure the appropriate platform (beaglebone or KZM) and application.</li>
+<li><p>Compile by invoking the following command</p>
+<pre><code>make clean all</code></pre></li>
+</ol>
+<h1 id="run-the-generated-application">Run the generated application</h1>
+<p>You can run the generated application either with QEMU (kzm target) or directly on the target (Beaglebone Black).</p>
+<h2 id="kzm-target">Kzm target</h2>
+<p>For the KZM target, you can directly use qemu like this:</p>
+<pre><code>qemu -M kzm -nographic -kernel images/capdl-loader-experimental-image-arm-imx31qemu -M kzm -nographic -kernel images/capdl-loader-experimental-image-arm-imx31</code></pre>
+<h2 id="beaglebone-black">BeagleBone Black</h2>
+<p>If you want to run the application on the Beaglebone black, you have to copy the binary on a micro SD card and then run it on the board. Follow the instructions there: https://sel4.systems/Info/Hardware/Beaglebone/</p>
+<p>Main steps for the beaglebone: 1. Connect to the terminal</p>
+<pre><code>  screen /dev/ttyUSB0 115200</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li><p>Insert the Micro SD card and load the binary</p>
+<pre><code>  fatload mmc 0 ${loadaddr} sel4test.bin</code></pre></li>
+<li><p>Start the binary</p>
+<pre><code>  go ${loadaddr}</code></pre></li>
+</ol>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="edu.cmu.aaspe.codegeneration.sel4"
+            name="seL4 - refine model and create code">
+      </command>
+      <command
+            id="edu.cmu.aaspe.codegeneration.camkes"
+            name="camkes - create code">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.osate.xtext.aadl2.ui.outline?after=additions">
+         <command
+               commandId="edu.cmu.aaspe.codegeneration.camkes"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="edu.cmu.aaspe.codegeneration.camkes.GenerateHandler"
+            commandId="edu.cmu.aaspe.codegeneration.camkes">
+      </handler>
+   </extension>
+ 
+   <extension
+         id="edu.cmu.aaspe.codegeneration.builder"
+         name="AADL code generation"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            callOnEmptyDelta="false"
+            hasNature="false"
+            isConfigurable="false"
+            supportsConfigurations="false">
+         <run
+               class="edu.cmu.aaspe.codegeneration.Builder">
+         </run>
+      </builder>
+   </extension>
+   
+   
+   <extension
+         id="edu.cmu.aaspe.codegeneration.nature"
+         name="AADL Code Generation Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="edu.cmu.aaspe.codegeneration.Nature">
+         </run>
+      </runtime>
+      <builder
+            id="edu.cmu.aaspe.codegeneration.builder">
+      </builder>
+   </extension>
+   
+   
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="edu.cmu.aaspe.codegeneration.nature.category"
+            name="AADL Code Generation commands">
+      </category>
+      <command
+            categoryId="edu.cmu.aaspe.codegeneration.nature.category"
+            defaultHandler="edu.cmu.aaspe.codegeneration.AddRemoveNatureHandler"
+            id="edu.cmu.aaspe.codegeneration.commands.addOrRemoveNature"
+            name="Add/Remove Code Generation Nature">
+      </command>
+   </extension>
+
+  <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
+         <command
+               commandId="edu.cmu.aaspe.codegeneration.commands.addOrRemoveNature"
+               label="Disable AADL Code Generation"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate>
+                     <adapt
+                           type="org.eclipse.core.resources.IProject">
+                        <test
+                              property="org.eclipse.core.resources.projectNature"
+                              value="edu.cmu.aaspe.codegeneration.nature">
+                        </test>
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="edu.cmu.aaspe.codegeneration.commands.addOrRemoveNature"
+               label="Enable AADL Code Generation"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate>
+                     <adapt
+                           type="org.eclipse.core.resources.IProject">
+                        <not>
+                           <test
+                                 property="org.eclipse.core.resources.projectNature"
+                                 value="edu.cmu.aaspe.codegeneration.nature">
+                           </test>
+                        </not>
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+</plugin>

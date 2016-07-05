@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<attacktree:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:attacktree="http://www.example.org/attacktree" name="Attack Tree Model of a compromised TV">
+  <rootNode name="Television" description="Television is compromised">
+    <vulnerabilities name="local vulnerability" description="Exploit of a local vulnerability (e.g. buffer overflow)" type="ResourceAllocation"/>
+    <subNodes name="network">
+      <subNodes name="phone">
+        <vulnerabilities name="Malicious App" description="A malicious App is trying to control the TV" type="Exposure"/>
+      </subNodes>
+      <subNodes name="router">
+        <vulnerabilities name="Weak authentication" description="The router has a weak authentication and everybody can connect to the TV" type="Authentication"/>
+      </subNodes>
+    </subNodes>
+  </rootNode>
+</attacktree:Model>
