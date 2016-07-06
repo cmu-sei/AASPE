@@ -22,6 +22,10 @@ Use the update site of the [experimental version of osate](http://www.osate.org)
 The tool is integrated with the OSATE experimental product. You can download it on [the OSATE official website](http://www.osate.org)
 
 
-= Examples
-Examples to exercise the tools are available under
-the examples/ directory. In order to
+# Examples
+Examples to exercise the tools are available in the [edu.cmu.aaspe.examples](https://github.com/cmu-sei/AASPE/tree/master/edu.cmu.aaspe.examples) project.
+You can import it in eclipse or view it directly on github.
+
+
+# Documentation
+You can get documentation inside the tool (in the OSATE help) or get it directly by browsing the [related github documentation project](https://github.com/cmu-sei/AASPE/tree/master/edu.cmu.aaspe.help/resources/markdown)
