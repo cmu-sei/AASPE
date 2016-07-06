@@ -21,6 +21,7 @@ import org.osate.aadl2.SystemImplementation
 import org.osate.aadl2.instance.SystemInstance
 import org.osate.xtext.aadl2.properties.util.GetProperties
 import org.osate.aadl2.instance.ComponentInstance
+import org.osate.xtext.aadl2.properties.util.ARINC653ScheduleWindow
 
 /**
  * This class contains all helpers methods to deal with the AADL components.
@@ -117,19 +118,10 @@ public class AadlHelper
 	 */
 	 def static canBeGenerated (SystemInstance systemInstance)
 	{
-		if (systemInstance.componentInstances.filter[category == ComponentCategory.PROCESSOR].size != 1)
-		{
-			return false
-		}
-		
-		if ( (!systemInstance.isPlatformBeagleBone) && (!systemInstance.isPlatformKzm) && 
-			 (!systemInstance.isPlatformx86) && (!systemInstance.isPlatformTegraK1))
-		{
-			return false	 	
-		}
-		
-		
-		return true
+		return ( ( systemInstance.componentInstances.filter[category == ComponentCategory.PROCESSOR].size == 1) &&
+		         ( (systemInstance.isPlatformBeagleBone) || (systemInstance.isPlatformKzm) || (systemInstance.isPlatformx86) || (systemInstance.isPlatformTegraK1)) &&
+		         ( systemInstance.componentInstances.filter[category == ComponentCategory.PROCESSOR].forall[ cpu | GetProperties.getModuleSchedule(cpu).size > 0] )
+		       );
 	}
 	
 	
@@ -143,5 +135,41 @@ public class AadlHelper
 	{
 		val el = GetProperties.getDispatchProtocol(ne)
 		return el?.name.equalsIgnoreCase("sporadic")
+	}
+	
+	def static getBoundProcessor (ComponentInstance component)
+	{
+		return component.systemInstance.allComponentInstances.findFirst[ c | GetProperties.getActualProcessorBinding(component).contains(c)]
+	}
+	
+	
+	/**
+	 * The period corresponds to the major frame: at which period the schedule
+	 * is repeated. We sum all the window slots of the schedule.
+	 */
+	def static getPartitionPeriodInMillisecond (ComponentInstance partition)
+	{
+		val runtime = partition.getBoundProcessor
+		val processor = runtime.boundProcessor
+		var Double total = 0.0
+		
+		for (ARINC653ScheduleWindow schedule : GetProperties.getModuleSchedule(processor))
+		{
+			total = total + schedule.time
+		}
+		return total 
+	}
+	
+	
+	/**
+	 * This corresponds to the budget/period of the parttion. We just get the schedule of the
+	 * current partition.
+	 */
+	def static getPartitionBudgetInMillisecond (ComponentInstance partition)
+	{
+		val runtime = partition.getBoundProcessor
+		val processor = runtime.boundProcessor
+		val schedule = GetProperties.getModuleSchedule(processor)?.findFirst[ schedule | schedule.partition == runtime]
+		return schedule.time
 	}
 }

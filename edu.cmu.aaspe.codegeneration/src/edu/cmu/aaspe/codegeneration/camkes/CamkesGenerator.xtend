@@ -60,6 +60,9 @@ import static extension edu.cmu.aaspe.codegeneration.AadlHelper.getSchedulerProc
 import static extension edu.cmu.aaspe.codegeneration.AadlHelper.getPeriod
 import static extension edu.cmu.aaspe.codegeneration.AadlHelper.isPeriodic
 import static extension edu.cmu.aaspe.codegeneration.AadlHelper.isSporadic
+import static extension edu.cmu.aaspe.codegeneration.AadlHelper.getPartitionPeriodInMillisecond
+import static extension edu.cmu.aaspe.codegeneration.AadlHelper.getPartitionBudgetInMillisecond
+
 import org.osate.aadl2.EventDataPort
 
 class CamkesGenerator implements IGenerator {
@@ -588,6 +591,17 @@ assembly {
 
 ««« Configure security aspects, sender
 ««« can write on sharer ports, receiver cannot
+«FOR subComponent : element.componentInstances.filter[category == ComponentCategory.PROCESS]»
+«FOR thread : subComponent.componentInstances.filter[category == ComponentCategory.THREAD]»
+		«subComponent.name.toCamkesName»_«thread.name.toCamkesName»._period = «subComponent.getPartitionPeriodInMillisecond»
+		«subComponent.name.toCamkesName»_«thread.name.toCamkesName»._budget = «subComponent.getPartitionBudgetInMillisecond»
+«ENDFOR»		
+«ENDFOR»
+
+«FOR connection : element.connectionInstances.filter[((destination as FeatureInstance).category == FeatureCategory.DATA_PORT) && (destination.containingComponentInstance.category == ComponentCategory.THREAD) && (source.containingComponentInstance.category == ComponentCategory.THREAD)]»
+		connection«connIdConfiguration».from_access = "W";
+		connection«connIdConfiguration++».to_access = "R";
+«ENDFOR»
 
 «FOR connection : element.connectionInstances.filter[((destination as FeatureInstance).category == FeatureCategory.DATA_PORT) && (destination.containingComponentInstance.category == ComponentCategory.THREAD) && (source.containingComponentInstance.category == ComponentCategory.THREAD)]»
 		connection«connIdConfiguration».from_access = "W";

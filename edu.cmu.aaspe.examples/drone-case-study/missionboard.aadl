@@ -6,6 +6,7 @@ public
 	with security_properties;
 	with drone::software;
 	with sei;
+	with arinc653;
 	
 	------------------------------
 	--  Processor & Partitions  --
@@ -309,6 +310,14 @@ public
       actual_processor_binding => (reference (serialdrv_runtime)) applies to serialdrv_partition;
       
       security_properties::trust => 100 applies to filter_partition;
+	
+      arinc653::module_schedule =>
+	  (
+		[ partition => reference (missiondata_runtime) ; duration => 20 ms ; periodic_processing_start => false;],
+		[ partition => reference (filter_runtime)      ; duration => 20 ms ; periodic_processing_start => false;],
+		[ partition => reference (controldata_runtime) ; duration => 20 ms ; periodic_processing_start => false;],
+		[ partition => reference (serialdrv_runtime)   ; duration => 50 ms ; periodic_processing_start => false;]
+	  ) applies to cpu;
 	end board.secure;
 	
 	system implementation board.debug extends board.secure
@@ -348,12 +357,10 @@ public
 	subcomponents
 	  runtime               : virtual processor partition_allaccesses;
 	  runtime_memory        : memory partition_memory;
-     hw_memory             : memory hardware_memory;
-	
-			
-			connections
+      hw_memory             : memory hardware_memory;	
+	connections
 	  wifi_missiondata            : bus access wifi <-> runtime.wifi;
-     serial_drv            : bus access com <-> runtime.com;
+      serial_drv            : bus access com <-> runtime.com;
 	properties
 	  actual_processor_binding => (reference (cpu)) applies to runtime;
      actual_processor_binding => (reference (runtime)) applies to missiondata_partition;

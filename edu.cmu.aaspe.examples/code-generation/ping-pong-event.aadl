@@ -3,6 +3,7 @@ public
   with software;
   with deployment;
   with sei;
+  with arinc653;
   
 ---------------
 -- processor --
@@ -61,6 +62,11 @@ subcomponents
 connections
   c0 : port prod.out_port -> cons.in_port;
 properties
+  arinc653::module_schedule =>
+	(
+		[ partition => reference (runtime_cons); duration => 20 ms ; periodic_processing_start => false;],
+		[ partition => reference (runtime_prod); duration => 50 ms ; periodic_processing_start => false;]
+	) applies to cpu;
   actual_processor_binding => (reference (runtime_prod)) applies to prod;
   actual_processor_binding => (reference (cpu)) applies to runtime_prod;
   actual_processor_binding => (reference (runtime_cons)) applies to cons;
