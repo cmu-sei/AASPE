@@ -1,0 +1,135 @@
+package sel4_bb_serial
+public
+  with software;
+  with deployment;
+  with sei;
+  with arinc653;
+  with data_model;
+  
+  data myinteger
+  properties
+    source_name => "int"; 
+    source_text => ("ping");
+    data_size => 8 bytes;
+  end myinteger;
+  
+  
+---------------
+-- processor --
+---------------
+
+virtual processor runtime_regular
+end runtime_regular;
+
+virtual processor runtime_serial
+features
+	serial_mem : in out data port;
+end runtime_serial;
+
+processor the_processor
+features
+	uart1_mem : in out data port {Base_Address => 48022000;};
+properties
+	Deployment::Execution_Platform => sel4; 
+end the_processor;
+
+
+---------------
+-- processes -- 
+---------------
+
+process boo
+features
+	datain : in data port myinteger;
+	dataout : out data port myinteger;
+end boo;
+
+process implementation boo.impl
+subcomponents
+  thr        : thread boo_thread.impl;
+connections
+  c0 : port thr.dataout -> dataout;
+  c1 : port datain -> thr.datain;
+end boo.impl;
+
+
+subprogram boo_spg
+features
+	datain : in parameter myinteger;
+	dataout : out parameter myinteger;
+properties
+  source_language => (c);
+  source_name     => "boo_spg";
+  source_text     => ("boo.c");
+end boo_spg;
+
+
+thread boo_thread
+features
+	datain : in data port myinteger;
+	dataout : out data port myinteger;
+end boo_thread;
+
+thread implementation boo_thread.impl
+calls 
+mycalls: {
+  p_spg : subprogram boo_spg;
+};
+connections
+  c0 : parameter p_spg.dataout -> dataout;
+  c1 : parameter datain -> p_spg.datain;
+properties
+  dispatch_protocol                  => periodic;
+  period                             => 1000 ms;
+  deadline                           => 1000 ms;
+  priority                           => 2;
+end boo_thread.impl;
+
+
+device serial
+features
+	datain : in data port myinteger;
+	dataout : out data port myinteger;
+end serial;
+
+device implementation serial.impl
+properties
+  dispatch_protocol                  => periodic;
+  period                             => 1000 ms;
+  deadline                           => 1000 ms;
+  priority                           => 2;
+  source_language => (c);
+  source_text     => ("serial.c");
+end serial.impl;
+
+
+system main
+end main;
+
+system implementation main.beaglebone
+subcomponents
+  boo : process boo.impl;
+  serial : device serial.impl;
+  cpu : processor the_processor;
+ 
+  runtime_boo : virtual processor runtime_regular;
+  runtime_serial : virtual processor runtime_serial;
+connections
+  c0 : port boo.dataout -> serial.datain;
+  c1 : port serial.dataout -> boo.datain;
+  c2 : port cpu.uart1_mem <-> runtime_serial.serial_mem;
+properties
+  period => 1000 ms applies to boo.thr;
+  sei::platform => "beaglebone" applies to cpu;
+  actual_processor_binding => (reference (runtime_boo)) applies to boo;
+  actual_processor_binding => (reference (cpu)) applies to runtime_boo;
+  actual_processor_binding => (reference (runtime_serial)) applies to serial;
+  actual_processor_binding => (reference (cpu)) applies to runtime_serial;
+  arinc653::module_schedule =>
+	(
+		[ partition => reference (runtime_serial); duration => 50 ms ; periodic_processing_start => false;],
+		[ partition => reference (runtime_boo); duration => 20 ms ; periodic_processing_start => false;]
+	) applies to cpu;
+end main.beaglebone;
+
+end sel4_bb_serial;

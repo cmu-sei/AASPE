@@ -3,6 +3,7 @@ public
   with software;
   with deployment;
   with sei;
+  with arinc653;
   
 ---------------
 -- processor --
@@ -49,6 +50,11 @@ properties
   actual_processor_binding => (reference (cpu)) applies to runtime_prod;
   actual_processor_binding => (reference (runtime_cons)) applies to hello2;
   actual_processor_binding => (reference (cpu)) applies to runtime_cons;
+  arinc653::module_schedule =>
+	(
+		[ partition => reference (runtime_cons); duration => 20 ms ; periodic_processing_start => false;],
+		[ partition => reference (runtime_prod); duration => 50 ms ; periodic_processing_start => false;]
+	) applies to cpu;
 end twotasks.impl;
 
 system implementation twotasks.beaglebone extends twotasks.impl

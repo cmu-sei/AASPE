@@ -62,8 +62,11 @@ import static extension edu.cmu.aaspe.codegeneration.AadlHelper.isPeriodic
 import static extension edu.cmu.aaspe.codegeneration.AadlHelper.isSporadic
 import static extension edu.cmu.aaspe.codegeneration.AadlHelper.getPartitionPeriodInMillisecond
 import static extension edu.cmu.aaspe.codegeneration.AadlHelper.getPartitionBudgetInMillisecond
+import static extension edu.cmu.aaspe.codegeneration.AadlHelper.getBoundProcessor
 
 import org.osate.aadl2.EventDataPort
+import org.osate.aadl2.instance.ConnectionInstance
+import org.osate.aadl2.DeviceImplementation
 
 class CamkesGenerator implements IGenerator {
 	def static boolean shouldBeGenerated (FeatureInstance feature)
@@ -72,7 +75,8 @@ class CamkesGenerator implements IGenerator {
 		{
 			for (ci : feature.srcConnectionInstances)
 			{
-				if (ci.destination.containingComponentInstance.category == ComponentCategory.THREAD)
+				if ( (ci.destination.containingComponentInstance.category == ComponentCategory.THREAD) ||
+					(ci.destination.containingComponentInstance.category == ComponentCategory.DEVICE))
 				{
 					return true
 				}
@@ -83,7 +87,7 @@ class CamkesGenerator implements IGenerator {
 		{
 			for (ci : feature.dstConnectionInstances)
 			{
-				if (ci.source.containingComponentInstance.category == ComponentCategory.THREAD)
+				if ( (ci.source.containingComponentInstance.category == ComponentCategory.THREAD) || (ci.source.containingComponentInstance.category == ComponentCategory.DEVICE))
 				{
 					return true
 				}
@@ -217,6 +221,12 @@ component Timer {
 			«ENDIF»
 			«ENDFOR»
 		«ENDFOR»
+		
+		«FOR device : si.componentInstances.filter[category == ComponentCategory.DEVICE]»
+			«IF device.isPeriodic»
+  emits sig «device.name.toCamkesName»_activator;
+			«ENDIF»
+		«ENDFOR»		
 }
 '''
 	}
@@ -463,6 +473,16 @@ void post_init ()
 			]
 		]
 		
+		instance.componentInstances.filter[category == ComponentCategory.DEVICE].forEach
+		[ device |
+			val s = device.componentClassifier.name.toCamkesName
+			if (! res.contains (s))
+			{
+				res.add(s)
+			}
+		]
+		
+		
 		return res
 	}
 	
@@ -514,24 +534,35 @@ void post_init ()
 #endif
 '''
 	}
+
 	
 	def static String toAssemblyConnectionEndString (ConnectionInstanceEnd connectionInstanceEnd)
 	{
 //		val StringBuffer sb = new StringBuffer();
-		val threadComponent = connectionInstanceEnd.containingComponentInstance
-		val processComponent = threadComponent.containingComponentInstance
-		
-		if ((threadComponent == null) || (threadComponent.category != ComponentCategory.THREAD))
+
+		if (connectionInstanceEnd.containingComponentInstance.category == ComponentCategory.DEVICE)
 		{
-			return "unknownThread"
+			return connectionInstanceEnd.containingComponentInstance.name.toCamkesName + "." + connectionInstanceEnd.name.toLowerCase
+		}
+
+		if (connectionInstanceEnd.containingComponentInstance.category == ComponentCategory.THREAD)
+		{
+		
+			val threadComponent = connectionInstanceEnd.containingComponentInstance
+			val processComponent = threadComponent.containingComponentInstance
+			
+			if ((threadComponent == null) || (threadComponent.category != ComponentCategory.THREAD))
+			{
+				return "unknownThread"
+			}
+			
+			if ((processComponent == null) || (processComponent.category != ComponentCategory.PROCESS))
+			{
+				return "unknownProcess"
+			}		
+			return processComponent.name.toCamkesName + "_" + threadComponent.name.toCamkesName + "." + connectionInstanceEnd.name.toLowerCase	
 		}
 		
-		if ((processComponent == null) || (processComponent.category != ComponentCategory.PROCESS))
-		{
-			return "unknownProcess"
-		}		
-		
-		return processComponent.name.toCamkesName + "_" + threadComponent.name.toCamkesName + "." + connectionInstanceEnd.name.toLowerCase
 		
 	}
 	
@@ -553,13 +584,30 @@ assembly {
 		
 		«FOR subComponent : element.componentInstances.filter[category == ComponentCategory.PROCESS]»
 			«FOR thread : subComponent.componentInstances.filter[category == ComponentCategory.THREAD]»
-    component «thread.componentClassifier.name.toCamkesName» «subComponent.name.toCamkesName»_«thread.name.toCamkesName»;
+		component «thread.componentClassifier.name.toCamkesName» «subComponent.name.toCamkesName»_«thread.name.toCamkesName»;
 			«ENDFOR»
 		«ENDFOR»
 		
+		«FOR device : element.componentInstances.filter[category == ComponentCategory.DEVICE]»
+    component «device.componentClassifier.name.toCamkesName» «device.name.toCamkesName»;
+    component «device.componentClassifier.name.toCamkesName»_hw «device.name.toCamkesName»_hw;
+		«ENDFOR»
+		
+		
 «««		We connect the data of data port and event data port
-		«FOR connection : element.connectionInstances.filter[((destination as FeatureInstance).category == FeatureCategory.DATA_PORT) && (destination.containingComponentInstance.category == ComponentCategory.THREAD) && (source.containingComponentInstance.category == ComponentCategory.THREAD)]»
+		«FOR connection : element.connectionInstances.filter[((destination as FeatureInstance).category == FeatureCategory.DATA_PORT) && 
+			                                                  ( (destination.containingComponentInstance.category == ComponentCategory.THREAD) || (destination.containingComponentInstance.category == ComponentCategory.DEVICE) )&& 
+			                                                  ( (source.containingComponentInstance.category == ComponentCategory.THREAD) || (source.containingComponentInstance.category == ComponentCategory.DEVICE))
+		]»
     connection seL4SharedData connection«connId++»(from «connection.source.toAssemblyConnectionEndString», to «connection.destination.toAssemblyConnectionEndString»);
+		«ENDFOR»
+		
+		
+«««		We connect devices with processors
+		«FOR device : element.componentInstances.filter[category == ComponentCategory.DEVICE]»
+			«FOR runtimePort : device.boundProcessor.featureInstances.filter[category == FeatureCategory.DATA_PORT]»
+		    connection seL4HardwareMMIO connection«connId++»(from «device.name.toCamkesName».«runtimePort.name.toLowerCase», to «device.name.toCamkesName»_hw.«runtimePort.name.toLowerCase»);
+		    «ENDFOR»
 		«ENDFOR»
 		
 «««     We connect the events of the event data ports connections
@@ -574,6 +622,10 @@ assembly {
     connection seL4Notification notification«notificationId++» (from timer.«subComponent.name.toCamkesName»_«thread.name.toCamkesName»_activator, to «subComponent.name.toCamkesName»_«thread.name.toCamkesName».activator);
 			«ENDFOR»
 		«ENDFOR»
+		«FOR device : element.componentInstances.filter[category == ComponentCategory.DEVICE]»
+		    connection seL4Notification notification«notificationId++» (from timer.«device.name.toCamkesName»_activator, to «device.name.toCamkesName».activator);
+		«ENDFOR»
+		
 
 « IF (element.isPlatformKzm || element.isPlatformBeagleBone || element.isPlatformTegraK1 )»
         connection seL4HardwareMMIO timer_mem (from timer.reg, to timerbase.reg);
@@ -588,13 +640,20 @@ assembly {
 	}
 	
 	configuration {
+		
+«««		We configure the memory area of devices
+		«FOR device : element.componentInstances.filter[category == ComponentCategory.DEVICE]»
+		   «FOR runtimePort : device.boundProcessor.featureInstances.filter[category == FeatureCategory.DATA_PORT]»
+		   «device.name.toCamkesName»_hw.«runtimePort.name.toLowerCase»_attributes = "0x«GetProperties.getBaseAddress(runtimePort.dstConnectionInstances.findFirst[true].source)»:0x1000";
+			«ENDFOR»
+		«ENDFOR»
 
 ««« Configure security aspects, sender
 ««« can write on sharer ports, receiver cannot
 «FOR subComponent : element.componentInstances.filter[category == ComponentCategory.PROCESS]»
 «FOR thread : subComponent.componentInstances.filter[category == ComponentCategory.THREAD]»
-		«subComponent.name.toCamkesName»_«thread.name.toCamkesName»._period = «subComponent.getPartitionPeriodInMillisecond»
-		«subComponent.name.toCamkesName»_«thread.name.toCamkesName»._budget = «subComponent.getPartitionBudgetInMillisecond»
+		«subComponent.name.toCamkesName»_«thread.name.toCamkesName»._period = «subComponent.getPartitionPeriodInMillisecond»;
+		«subComponent.name.toCamkesName»_«thread.name.toCamkesName»._budget = «subComponent.getPartitionBudgetInMillisecond»;
 «ENDFOR»		
 «ENDFOR»
 
@@ -638,10 +697,10 @@ assembly {
 	 * Generates the component definition in camkes
 	 */
 	
-	def static String generateComponentDefinition (ComponentInstance threadInstance)
-	{
+	def static String generateProcessDefinition (ComponentInstance component)
+	{		
 '''
-component «threadInstance.componentClassifier.name.toCamkesName»
+component «component.componentClassifier.name.toCamkesName»
 {
 	include "generatedtypes.h";
 
@@ -650,23 +709,23 @@ component «threadInstance.componentClassifier.name.toCamkesName»
 ««« For all data ports that should be generated, we add a buffer.
 ««« If we have an event data port, we will generate extra stuff
 ««« in order to activate the task.
-«FOR dataport : threadInstance.featureInstances.filter[(category == FeatureCategory.DATA_PORT) && shouldBeGenerated] »
+«FOR dataport : component.featureInstances.filter[(category == FeatureCategory.DATA_PORT) && shouldBeGenerated] »
 	dataport «(dataport.feature as DataPort).classifier.name.toCamkesName.toLowerCase» «dataport.name»;
 «ENDFOR»
-«FOR dataport : threadInstance.featureInstances.filter[(category == FeatureCategory.EVENT_DATA_PORT) && shouldBeGenerated] »
+«FOR dataport : component.featureInstances.filter[(category == FeatureCategory.EVENT_DATA_PORT) && shouldBeGenerated] »
 	dataport «(dataport.feature as EventDataPort).classifier.name.toCamkesName.toLowerCase» «dataport.name»;
 «ENDFOR»
 
 ««« If we have a periodic task, we consume an activator event to activate the task
-« IF threadInstance.isPeriodic»
+« IF component.isPeriodic»
 	consumes sig activator;
 « ENDIF »
 
 ««« If we have a sporadic task, we are generating either an activator or another
 ««« artifact to activate the task when a data is available.
 
-« IF threadInstance.isSporadic»
-«FOR dataport : threadInstance.featureInstances.filter[(category == FeatureCategory.EVENT_DATA_PORT)&& shouldBeGenerated] »
+« IF component.isSporadic»
+«FOR dataport : component.featureInstances.filter[(category == FeatureCategory.EVENT_DATA_PORT)&& shouldBeGenerated] »
 «IF dataport.direction == DirectionType.IN»
 	consumes sig «dataport.name»_event_signal;
 « ENDIF »
@@ -676,8 +735,8 @@ component «threadInstance.componentClassifier.name.toCamkesName»
 «ENDFOR»
 «ENDIF »
 
-« IF threadInstance.isPeriodic»
-«FOR dataport : threadInstance.featureInstances.filter[(category == FeatureCategory.EVENT_DATA_PORT)&& shouldBeGenerated] »
+« IF component.isPeriodic»
+«FOR dataport : component.featureInstances.filter[(category == FeatureCategory.EVENT_DATA_PORT)&& shouldBeGenerated] »
 «IF dataport.direction == DirectionType.OUT»
 	emits sig «dataport.name»_event_signal;
 « ENDIF »
@@ -686,6 +745,82 @@ component «threadInstance.componentClassifier.name.toCamkesName»
 
 }
 '''
+	}
+	
+	def static String generateDeviceHardwareDefinition (ComponentInstance component)
+	{		
+'''
+component «component.componentClassifier.name.toCamkesName»_hw
+{
+
+	hardware;
+«FOR dataport : component.getBoundProcessor.featureInstances.filter[(category == FeatureCategory.DATA_PORT)] »
+	dataport Buf «dataport.name»;
+«ENDFOR»
+}
+
+
+'''		
+	}
+	
+	def static String generateDeviceDriverDefinition (ComponentInstance component)
+	{		
+'''
+component «component.componentClassifier.name.toCamkesName»
+{
+	include "generatedtypes.h";
+
+	control;
+
+«FOR dataport : component.getBoundProcessor.featureInstances.filter[(category == FeatureCategory.DATA_PORT)] »
+	dataport Buf «dataport.name»;
+«ENDFOR»
+
+««« For all data ports that should be generated, we add a buffer.
+««« If we have an event data port, we will generate extra stuff
+««« in order to activate the task.
+«FOR dataport : component.featureInstances.filter[(category == FeatureCategory.DATA_PORT) && shouldBeGenerated] »
+	dataport «(dataport.feature as DataPort).classifier.name.toCamkesName.toLowerCase» «dataport.name»;
+«ENDFOR»
+«FOR dataport : component.featureInstances.filter[(category == FeatureCategory.EVENT_DATA_PORT) && shouldBeGenerated] »
+	dataport «(dataport.feature as EventDataPort).classifier.name.toCamkesName.toLowerCase» «dataport.name»;
+«ENDFOR»
+
+««« If we have a periodic task, we consume an activator event to activate the task
+« IF component.isPeriodic»
+	consumes sig activator;
+« ENDIF »
+
+««« If we have a sporadic task, we are generating either an activator or another
+««« artifact to activate the task when a data is available.
+
+« IF component.isSporadic»
+«FOR dataport : component.featureInstances.filter[(category == FeatureCategory.EVENT_DATA_PORT)&& shouldBeGenerated] »
+«IF dataport.direction == DirectionType.IN»
+	consumes sig «dataport.name»_event_signal;
+« ENDIF »
+«IF dataport.direction == DirectionType.OUT»
+	emits sig «dataport.name»_event_signal;
+« ENDIF »
+«ENDFOR»
+«ENDIF »
+
+« IF component.isPeriodic»
+«FOR dataport : component.featureInstances.filter[(category == FeatureCategory.EVENT_DATA_PORT)&& shouldBeGenerated] »
+«IF dataport.direction == DirectionType.OUT»
+	emits sig «dataport.name»_event_signal;
+« ENDIF »
+«ENDFOR»
+«ENDIF »
+
+}
+'''		
+	}
+	
+	
+		def static String generateDeviceDefinition (ComponentInstance component)
+	{		
+	return component.generateDeviceHardwareDefinition + component.generateDeviceDriverDefinition
 	}
 
 
@@ -712,6 +847,23 @@ component «threadInstance.componentClassifier.name.toCamkesName»
 				srcs.put(thr.componentClassifier.name.toCamkesName.toLowerCase, sourceList.toString())
 				
 			]
+		]
+		
+		systemInstance.componentInstances.filter[category == ComponentCategory.DEVICE].forEach
+		[ device |
+				val DeviceImplementation = device.componentClassifier
+				val StringBuffer sourceList = new StringBuffer()
+				
+				sourceList.append ("components" + File.separatorChar + DeviceImplementation.name.toCamkesName + File.separatorChar + "src" + File.separatorChar + DeviceImplementation.name.toCamkesName + ".c " )
+				
+				
+				device.getUsedFiles.forEach[
+					sourceList.append (" components" + File.separatorChar + DeviceImplementation.name.toCamkesName + File.separatorChar + "src" + File.separatorChar + it )
+					
+				]
+				srcs.put(device.componentClassifier.name.toCamkesName.toLowerCase, sourceList.toString())
+				
+			
 		]
 
 '''
@@ -747,59 +899,93 @@ config APP_«instance.camkesApplicationName.toUpperCase»
 '''
 	}		
 	
-	def static List<String> getCallSequenceCode (ComponentInstance threadInstance)
+	def static List<String> getCallSequenceCode (ComponentInstance instance)
 	{
 		val callseqs = new ArrayList<String>()
 		
-		val ThreadImplementation threadImplementation = threadInstance.componentClassifier as ThreadImplementation
-		
-		threadImplementation.ownedSubprogramCallSequences.forEach [ callSeq|
-			callSeq.ownedSubprogramCalls.forEach [ call |
-				var subprogramName = GetProperties.getSourceName(call.calledSubprogram as SubprogramType)
-				if (subprogramName == null)
+		if (instance.category == ComponentCategory.DEVICE)
+		{
+			val List<String> args = new ArrayList<String>()
+			
+			(instance.componentClassifier as DeviceImplementation).type.ownedFeatures.filter(DataPort).forEach[
+
+				dataport |
+				var arg = ""
+				if (args.size() > 0)
 				{
-					subprogramName =(call.calledSubprogram as SubprogramType).name.toCamkesName.toLowerCase
+					arg += ","
 				}
 				
-				val List<String> args = new ArrayList<String>()
-				
-				threadImplementation.ownedConnections.forEach[conn |
-					var arg = "0"
-					var boolean toAdd = false
-					
-					if (conn.destination.context == call)
-					{
-//						println("source")
-						arg = "(*"+ conn.source.connectionEnd.name.toLowerCase + ")"
-						if (threadInstance.featureInstances.filter[name.equalsIgnoreCase(conn.destination.connectionEnd.name)].get(0).shouldBeGenerated)
-						{
-							toAdd = true
-						}
-					}
-					
-					if (conn.source.context == call)
-					{
-//						println("dest")
-						arg = "("+ conn.destination.connectionEnd.name.toLowerCase + ")"
-						if (threadInstance.featureInstances.filter[name.equalsIgnoreCase(conn.source.connectionEnd.name)].get(0).shouldBeGenerated)
-						{
-							toAdd = true
-						}
-					}
-					if (args.size() > 0)
-					{
-						arg = "," + arg
-					}
-					if (toAdd)
-					{
-						args += arg
-						
-					}
-				]
-				val callString = '''«subprogramName» («FOR a : args»«a»«ENDFOR» );'''
-				callseqs.add(callString)
+				if (dataport.direction == DirectionType.IN)
+				{
+					arg += "(*" + dataport.name.toLowerCase + ")";
+				}
+				if (dataport.direction == DirectionType.OUT)
+				{
+					arg += "(" + dataport.name.toLowerCase + ")";
+				}
+				args.add(arg)
 			]
-		]
+			
+			var res = "driver(";
+			for (String a  : args)
+			{
+				res += a;
+			}
+			res += ");"
+			callseqs.add(res)
+		}
+		
+		if (instance.category == ComponentCategory.THREAD)
+		{
+			val ThreadImplementation threadImplementation = instance.componentClassifier as ThreadImplementation
+			
+			threadImplementation.ownedSubprogramCallSequences.forEach [ callSeq|
+				callSeq.ownedSubprogramCalls.forEach [ call |
+					var subprogramName = GetProperties.getSourceName(call.calledSubprogram as SubprogramType)
+					if (subprogramName == null)
+					{
+						subprogramName =(call.calledSubprogram as SubprogramType).name.toCamkesName.toLowerCase
+					}
+					
+					val List<String> args = new ArrayList<String>()
+					
+					threadImplementation.ownedConnections.forEach[conn |
+						var arg = "0"
+						var boolean toAdd = false
+						
+						if (conn.destination.context == call)
+						{
+							arg = "(*"+ conn.source.connectionEnd.name.toLowerCase + ")"
+							if (instance.featureInstances.filter[name.equalsIgnoreCase(conn.destination.connectionEnd.name)].get(0).shouldBeGenerated)
+							{
+								toAdd = true
+							}
+						}
+						
+						if (conn.source.context == call)
+						{
+							arg = "("+ conn.destination.connectionEnd.name.toLowerCase + ")"
+							if (instance.featureInstances.filter[name.equalsIgnoreCase(conn.source.connectionEnd.name)].get(0).shouldBeGenerated)
+							{
+								toAdd = true
+							}
+						}
+						if (args.size() > 0)
+						{
+							arg = "," + arg
+						}
+						if (toAdd)
+						{
+							args += arg
+							
+						}
+					]
+					val callString = '''«subprogramName» («FOR a : args»«a»«ENDFOR» );'''
+					callseqs.add(callString)
+				]
+			]	
+		}
 		
 		return callseqs
 	}
@@ -813,7 +999,7 @@ config APP_«instance.camkesApplicationName.toUpperCase»
 	
 	def static String generateComponentSource (ComponentInstance instance)
 	{
-		val ti = instance.componentClassifier as ThreadImplementation
+		val ti = instance.componentClassifier
 '''
  #include <camkes.h>
 
@@ -835,9 +1021,13 @@ int run(void)
     «feature.getName»_event_signal_wait();
 «ENDFOR»
 «ENDIF»
-        «FOR seq : instance.callSequenceCode»
-		« seq »
-        «ENDFOR»
+
+«FOR seq : instance.callSequenceCode»
+« seq »
+«ENDFOR»
+
+
+
 
 «FOR feature : ti.getAllFeatures.filter(EventDataPort).filter[direction == DirectionType.OUT]»
     «feature.getName»_event_signal_emit();
@@ -879,7 +1069,7 @@ int run(void)
 			pr.componentInstances.filter[category == ComponentCategory.THREAD].forEach[ thr |
 				val threadType = thr.componentClassifier
 				
-				Utils.write (instance, "camkes" +  File.separator + appname + File.separator + "components" +  File.separator + threadType.name.toCamkesName +  File.separator + threadType.name.toCamkesName + ".camkes" , thr.generateComponentDefinition)
+				Utils.write (instance, "camkes" +  File.separator + appname + File.separator + "components" +  File.separator + threadType.name.toCamkesName +  File.separator + threadType.name.toCamkesName + ".camkes" , thr.generateProcessDefinition)
 				Utils.write (instance, "camkes" +  File.separator + appname + File.separator + "components" +  File.separator + threadType.name.toCamkesName +  File.separator + "src" + File.separator + threadType.name.toCamkesName + ".c" , thr.generateComponentSource)
 				Utils.write (instance, "camkes" +  File.separator + appname + File.separator + "components" +  File.separator + threadType.name.toCamkesName +  File.separator + "include" + File.separator + "generatedtypes.h" , instance.generateAssemblyTypes)
 				
@@ -888,28 +1078,18 @@ int run(void)
 				]
 			]
 		]
-//		element.ownedSubcomponents.filter(ProcessSubcomponent).forEach
-//		[
-//			componentImplementation.ownedSubcomponents.filter (ThreadSubcomponent).forEach
-//			[
-//				
-//				thrsubco |
-////				println("bli" + thrsubco)
-//				val threadSubcomponentType =  thrsubco.threadSubcomponentType
-//				Utils.write (element, "camkes" +  File.separator + appname + File.separator + "components" +  File.separator + threadSubcomponentType.name.toCamkesName +  File.separator + threadSubcomponentType.name.toCamkesName + ".camkes" , thrsubco.componentImplementation.generateComponentDefinition)
-//				Utils.write (element, "camkes" +  File.separator + appname + File.separator + "components" +  File.separator + threadSubcomponentType.name.toCamkesName +  File.separator + "src" + File.separator + threadSubcomponentType.name.toCamkesName + ".c" , thrsubco.componentImplementation.generateComponentSource)
-//				Utils.write (element, "camkes" +  File.separator + appname + File.separator + "components" +  File.separator + threadSubcomponentType.name.toCamkesName +  File.separator + "include" + File.separator + "generatedtypes.h" , thrsubco.componentImplementation.generateComponentTypes)
-////								println("bli" + thrsubco.componentImplementation)
-//				
-//				val threadImpl = (thrsubco.componentImplementation as ThreadImplementation)
-//				
-////				println ("bla" + threadImpl.name)
-//				threadImpl.getUsedFiles.forEach[
-////					println(it)
-//					Utils.copy (element, it, "camkes" +  File.separator + appname + File.separator + "components" +  File.separator + thrsubco.threadSubcomponentType.name.toCamkesName +  File.separator + "src" + File.separator)
-//				]	
-//			]
-//		]
+		
+		instance.componentInstances.filter[category == ComponentCategory.DEVICE].forEach[ device |	
+			val deviceType = device.componentClassifier
+			Utils.write (instance, "camkes" +  File.separator + appname + File.separator + "components" +  File.separator + deviceType.name.toCamkesName +  File.separator + deviceType.name.toCamkesName + ".camkes" , device.generateDeviceDefinition)
+			Utils.write (instance, "camkes" +  File.separator + appname + File.separator + "components" +  File.separator + deviceType.name.toCamkesName +  File.separator + "src" + File.separator + deviceType.name.toCamkesName + ".c" , device.generateComponentSource)
+			Utils.write (instance, "camkes" +  File.separator + appname + File.separator + "components" +  File.separator + deviceType.name.toCamkesName +  File.separator + "include" + File.separator + "generatedtypes.h" , instance.generateAssemblyTypes)
+				
+			device.getUsedFiles.forEach[
+				Utils.copy (instance, it, "camkes" +  File.separator + appname + File.separator + "components" +  File.separator + deviceType.name.toCamkesName +  File.separator + "src" + File.separator)
+			]
+		]
+	
 		Utils.refreshWorkspace(null)
 	}
 	
@@ -917,15 +1097,24 @@ int run(void)
 	{
 		val List<String> res = new ArrayList<String>()
 //		println("ti=" + ti.name)
-		val ti = component.componentClassifier as ThreadImplementation
-		ti.ownedSubprogramCallSequences.forEach
-				[
-//					println(it)
-					ownedSubprogramCalls.forEach[
-//						println(it)
-						res.addAll(GetProperties.getSourceText((calledSubprogram as SubprogramType)))
+
+		if (component.category == ComponentCategory.THREAD)
+		{
+			val ti = component.componentClassifier as ThreadImplementation
+			ti.ownedSubprogramCallSequences.forEach
+					[
+	//					println(it)
+						ownedSubprogramCalls.forEach[
+	//						println(it)
+							res.addAll(GetProperties.getSourceText((calledSubprogram as SubprogramType)))
+						]
 					]
-				]
+		}
+		
+		if (component.category == ComponentCategory.DEVICE)
+		{
+			res.addAll (GetProperties.getSourceText(component));
+		}
 		return res
 	}
 	
