@@ -1,3 +1,22 @@
+---------------------------------------------------
+--  Example to use the Beaglebone serial driver --
+--                                              --
+--------------------------------------------------
+--
+--  When loading the binary, do not forget to
+--  enable UART1 on the beaglebone.
+--  You can do this by issuing the following
+--  command in u-boot:
+--  mw.l 0x44E10980 0x30
+--  mw.l 0x44E10984 0x00
+--
+--  For more information, you can read the
+--  following:
+--
+--  http://julien.gunnm.org/geek/sel4/beaglebone%20black/2016/06/15/beaglebone-black-sel4-uart1/
+--
+-------------------------------------------------
+
 package sel4_bb_serial
 public
   with software;

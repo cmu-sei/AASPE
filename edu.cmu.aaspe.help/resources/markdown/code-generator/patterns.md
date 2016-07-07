@@ -1,13 +1,30 @@
 
 # Modeling Rules
-* Each process **must be** bound to a **virtual processor**
-* A **virtual processor** must be bound to a processor
-* Each **thread** component must declare the following properties: **Period**, **Deadline**
-* Each **thread** can be only periodic or sporadic. The *dispath_protocol* property **must be** set to one of these values.
-* The **processor** component must declare the scheduling policy using the ARINC653 properties: **arinc653::module_major_frame** and **arinc653::module_schedule**
-* Each **virtual processor** is bound only to exactly **one** process
-* Each **process** can contain **only one** thread
-* **Data** are communicated using data ports connected among **thread** components.
+
+## General
+The following rules applies all system being generated:
+
+ * Each process **must be** bound to a **virtual processor**
+ * A **virtual processor** must be bound to a processor
+ * The **processor** component must declare the scheduling policy using the ARINC653 properties: **arinc653::module_major_frame** and **arinc653::module_schedule**. Each virtual processor must be specified.
+ * Each **virtual processor** is bound only to exactly **one** process
+ * **Data** are communicated using data ports connected among **thread**, **process** and **device** components.
+ * Every system being generated must contain only **one processor**
+ * Data must specify the **source_name** property that specifies the C type they are mapped to.
+
+## Partition Specific
+ * Each **thread** component must declare the following properties: **Period**, **Deadline**
+ * Each **thread** can be only periodic or sporadic. The *dispath_protocol* property **must be** set to one of these values.
+ * Each **process** can contain **only one** thread
+ * Subprograms components must define the following properties **source_language**, **source_name** and **source_text**.
+
+## Device specific
+ * An AADL device component is mapped into a hardware and a regular component.
+ * The AADL device specifies its memory/configuration requirements (memory, etc.) using data ports connected between the **virtual processor** bound to the device and the **processor** that represents the underlying operating system. The port on the processor must have the property **Base_Address** defined in order to specify the memory address of the device register.
+ * An example of a use of a device driver can be found with the [beaglebone-uart example](https://github.com/cmu-sei/AASPE/blob/master/edu.cmu.aaspe.examples/code-generation/beaglebone-serial.aadl). This example defines a system that interact through a serial driver.
+ * A device must defines the **Period** and **Deadline** properties
+ * The device must specify the c source file that implement the driver using the **source_text** property
+ * In the subprograms that implement the device, there must be a function called **driver()**. It takes the same arguments that the AADL component.
 
 # Transformation Patterns
 
@@ -59,3 +76,4 @@ The following AADL elements are not used by the code generator. They will just b
  * *memory* components bound to a process
  * *device* components
  * *data* shared between threads or processes
+ * Only C subprograms are supported

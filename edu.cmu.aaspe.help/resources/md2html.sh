@@ -2,7 +2,7 @@
 
 echo "Starting Conversion"
 
-for src in `find . -name '*.png'`; do
+for src in `find markdown -name '*.png'`; do
    dst=`echo $src|sed -e 's/markdown/html/g'`
    echo "Copy $src => $dst"
    mkdir -p `dirname $dst`

@@ -1,13 +1,30 @@
 <h1 id="modeling-rules">Modeling Rules</h1>
+<h2 id="general">General</h2>
+<p>The following rules applies all system being generated:</p>
 <ul>
 <li>Each process <strong>must be</strong> bound to a <strong>virtual processor</strong></li>
 <li>A <strong>virtual processor</strong> must be bound to a processor</li>
+<li>The <strong>processor</strong> component must declare the scheduling policy using the ARINC653 properties: <strong>arinc653::module_major_frame</strong> and <strong>arinc653::module_schedule</strong>. Each virtual processor must be specified.</li>
+<li>Each <strong>virtual processor</strong> is bound only to exactly <strong>one</strong> process</li>
+<li><strong>Data</strong> are communicated using data ports connected among <strong>thread</strong>, <strong>process</strong> and <strong>device</strong> components.</li>
+<li>Every system being generated must contain only <strong>one processor</strong></li>
+<li>Data must specify the <strong>source_name</strong> property that specifies the C type they are mapped to.</li>
+</ul>
+<h2 id="partition-specific">Partition Specific</h2>
+<ul>
 <li>Each <strong>thread</strong> component must declare the following properties: <strong>Period</strong>, <strong>Deadline</strong></li>
 <li>Each <strong>thread</strong> can be only periodic or sporadic. The <em>dispath_protocol</em> property <strong>must be</strong> set to one of these values.</li>
-<li>The <strong>processor</strong> component must declare the scheduling policy using the ARINC653 properties: <strong>arinc653::module_major_frame</strong> and <strong>arinc653::module_schedule</strong></li>
-<li>Each <strong>virtual processor</strong> is bound only to exactly <strong>one</strong> process</li>
 <li>Each <strong>process</strong> can contain <strong>only one</strong> thread</li>
-<li><strong>Data</strong> are communicated using data ports connected among <strong>thread</strong> components.</li>
+<li>Subprograms components must define the following properties <strong>source_language</strong>, <strong>source_name</strong> and <strong>source_text</strong>.</li>
+</ul>
+<h2 id="device-specific">Device specific</h2>
+<ul>
+<li>An AADL device component is mapped into a hardware and a regular component.</li>
+<li>The AADL device specifies its memory/configuration requirements (memory, etc.) using data ports connected between the <strong>virtual processor</strong> bound to the device and the <strong>processor</strong> that represents the underlying operating system. The port on the processor must have the property <strong>Base_Address</strong> defined in order to specify the memory address of the device register.</li>
+<li>An example of a use of a device driver can be found with the <a href="https://github.com/cmu-sei/AASPE/blob/master/edu.cmu.aaspe.examples/code-generation/beaglebone-serial.aadl">beaglebone-uart example</a>. This example defines a system that interact through a serial driver.</li>
+<li>A device must defines the <strong>Period</strong> and <strong>Deadline</strong> properties</li>
+<li>The device must specify the c source file that implement the driver using the <strong>source_text</strong> property</li>
+<li>In the subprograms that implement the device, there must be a function called <strong>driver()</strong>. It takes the same arguments that the AADL component.</li>
 </ul>
 <h1 id="transformation-patterns">Transformation Patterns</h1>
 <h2 id="camkes-transformation">CAmkES transformation</h2>
@@ -38,4 +55,4 @@
 <p>The goal of the <em>execute_subprograms()</em> part is to execute all the subprograms specified in the AADL model.</p>
 <p>The goal of the <em>send_output()</em> part is to send data to the other partitions before the partition completes its period.</p>
 <h1 id="unsupported-aadl-elements">Unsupported AADL elements</h1>
-<p>The following AADL elements are not used by the code generator. They will just be ignored by the AADL model. * <em>event ports</em> between threads * AADL modes * <em>event data ports</em> between threads * <em>memory</em> components bound to a process * <em>device</em> components * <em>data</em> shared between threads or processes</p>
+<p>The following AADL elements are not used by the code generator. They will just be ignored by the AADL model. * <em>event ports</em> between threads * AADL modes * <em>event data ports</em> between threads * <em>memory</em> components bound to a process * <em>device</em> components * <em>data</em> shared between threads or processes * Only C subprograms are supported</p>
