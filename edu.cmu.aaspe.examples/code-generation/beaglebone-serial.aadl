@@ -99,7 +99,7 @@ properties
   deadline                           => 1000 ms;
   priority                           => 2;
   source_language => (c);
-  source_text     => ("serial.c");
+  source_text     => ("serial.c", "serial-mgmt.c");
 end serial.impl;
 
 

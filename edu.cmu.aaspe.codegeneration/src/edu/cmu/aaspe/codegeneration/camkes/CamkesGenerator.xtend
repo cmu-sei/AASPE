@@ -361,6 +361,14 @@ void irq_callback(void *_ UNUSED)
 			}
 			« ENDIF »
 			«ENDFOR»
+		«ENDFOR»
+		«FOR device : si.componentInstances.filter[category == ComponentCategory.DEVICE]»
+			« IF device.isPeriodic»
+			if ( ( ticks % « Math.round(GetProperties.getPeriodinMS(device)/100)») == 0)
+			{
+				«device.name.toCamkesName»_activator_emit();
+			}
+			« ENDIF »
 		«ENDFOR»    
 «ENDIF»
 
@@ -376,7 +384,15 @@ void irq_callback(void *_ UNUSED)
 			}
 			« ENDIF »
 			«ENDFOR»
-		«ENDFOR»    
+		«ENDFOR»
+		«FOR device : si.componentInstances.filter[category == ComponentCategory.DEVICE]»
+			« IF device.isPeriodic»
+			if ( ( ticks % « Math.round(GetProperties.getPeriodinMS(device))») == 0)
+			{
+				«device.name.toCamkesName»_activator_emit();
+			}
+			« ENDIF »
+		«ENDFOR» 
 «ENDIF»
 
     irq_reg_callback(irq_callback, NULL);
