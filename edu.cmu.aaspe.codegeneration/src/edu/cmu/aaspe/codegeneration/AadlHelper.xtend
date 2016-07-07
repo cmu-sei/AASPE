@@ -22,6 +22,7 @@ import org.osate.aadl2.instance.SystemInstance
 import org.osate.xtext.aadl2.properties.util.GetProperties
 import org.osate.aadl2.instance.ComponentInstance
 import org.osate.xtext.aadl2.properties.util.ARINC653ScheduleWindow
+import org.osate.aadl2.instance.ConnectionInstance
 
 /**
  * This class contains all helpers methods to deal with the AADL components.
@@ -171,5 +172,20 @@ public class AadlHelper
 		val processor = runtime.boundProcessor
 		val schedule = GetProperties.getModuleSchedule(processor)?.findFirst[ schedule | schedule.partition == runtime]
 		return schedule.time
+	}
+	
+	
+	
+	def static getDataPortOfComponent (ConnectionInstance connection, ComponentInstance component)
+	{
+		if (connection.source.containingComponentInstance == component)
+		{
+			return connection.source
+		}
+		if (connection.destination.containingComponentInstance == component)
+		{
+			return connection.destination
+		}
+		return null
 	}
 }

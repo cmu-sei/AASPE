@@ -926,6 +926,7 @@ config APP_«instance.camkesApplicationName.toUpperCase»
 			(instance.componentClassifier as DeviceImplementation).type.ownedFeatures.filter(DataPort).forEach[
 
 				dataport |
+				var boolean toAdd = false
 				var arg = ""
 				if (args.size() > 0)
 				{
@@ -934,16 +935,29 @@ config APP_«instance.camkesApplicationName.toUpperCase»
 				
 				if (dataport.direction == DirectionType.IN)
 				{
+					if (instance.featureInstances.findFirst[name.equalsIgnoreCase(dataport.name)].shouldBeGenerated)
+					{
+						toAdd = true
+					}
 					arg += "(*" + dataport.name.toLowerCase + ")";
 				}
 				if (dataport.direction == DirectionType.OUT)
 				{
 					arg += "(" + dataport.name.toLowerCase + ")";
+					if (instance.featureInstances.findFirst[name.equalsIgnoreCase(dataport.name)].shouldBeGenerated)
+					{
+						toAdd = true
+					}
 				}
-				args.add(arg)
+				
+				
+				if (toAdd)
+				{
+					args.add(arg)
+				}
 			]
 			
-			var res = "driver(";
+			var res = "driver (";
 			for (String a  : args)
 			{
 				res += a;

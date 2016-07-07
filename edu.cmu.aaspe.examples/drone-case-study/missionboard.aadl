@@ -7,6 +7,7 @@ public
 	with drone::software;
 	with sei;
 	with arinc653;
+	with deployment;
 	
 	------------------------------
 	--  Processor & Partitions  --
@@ -22,6 +23,7 @@ public
 	
 	virtual processor serial_partition extends partition
 	features
+		serial_mem : in out data port;
 	   com : requires bus access drone::platform::serial;  
 	end serial_partition;
 	
@@ -32,8 +34,14 @@ public
 	end partition_allaccesses;
 	 
 	processor sel4_cpu
+	features
+		uart1_mem : in out data port {Base_Address => 48022000;};
+	properties
+		Deployment::Execution_Platform => sel4; 
 	end sel4_cpu;
 	
+
+
 	
 	------------------------
    --  Memory component  --
@@ -206,7 +214,7 @@ public
 		Compute_Execution_Time => 1 ms .. 2 ms;
 	end thr_serial_driver.i; 
 
-	process serial_driver
+	device serial_driver
 	features
 		from_filter  : in data port drone::datatypes::boardcmd_request_t.i;
 		to_filter    : out data port drone::datatypes::boardcmd_reply_t.i;
@@ -214,14 +222,14 @@ public
 		to_outside   : out data port drone::datatypes::boardcmd_request_t.i;
 	end serial_driver;
 	
-	process implementation serial_driver.i
-	subcomponents
-		serial_driver : thread thr_serial_driver.i;
-	connections
-	  c0 : port from_filter -> serial_driver.from_filter;
-	  c1 : port serial_driver.to_filter -> to_filter;
-	  c2 : port from_outside -> serial_driver.from_outside;
-	  c3 : port serial_driver.to_outside -> to_outside;
+	device implementation serial_driver.i
+	properties
+	  dispatch_protocol                  => periodic;
+	  period                             => 1000 ms;
+	  deadline                           => 1000 ms;
+	  priority                           => 2;
+	  source_language => (c);
+	  source_text     => ("serial-driver.c", "serial-mgmt.c", "utils.c");
 	end serial_driver.i;
 	
 	-----------------
@@ -248,17 +256,19 @@ public
       missiondata_partition       : process missiondata.i;
       filter_partition      : process filter.i;
       controldata_partition         : process navigation.i;
-      serialdrv_partition   : process serial_driver.i;
+      serial_driver   : device serial_driver.i;
 	connections
-      cmd_from_outside      : port cmdin -> serialdrv_partition.from_outside;
-      cmd_to_outside        : port serialdrv_partition.to_outside -> cmdout;
+      cmd_from_outside      : port cmdin -> serial_driver.from_outside;
+      cmd_to_outside        : port serial_driver.to_outside -> cmdout;
       cmddata               : port filter_partition.missiondata -> missiondata_partition.missiondata;
       navdata               : port controldata_partition.navdata -> filter_partition.navdata;
-      serialcmdin           : port filter_partition.cmdout -> serialdrv_partition.from_filter; 
-      serialcmdout          : port serialdrv_partition.to_filter -> filter_partition.cmdin;
+      serialcmdin           : port filter_partition.cmdout -> serial_driver.from_filter; 
+      serialcmdout          : port serial_driver.to_filter -> filter_partition.cmdin;
       
       apprequest            : port app_request -> missiondata_partition.app_request;
       appreply              : port missiondata_partition.app_reply -> app_reply;
+      
+
 	properties
       security_properties::domains => ("navigation") applies to controldata_partition;
       security_properties::domains => ("navigation", "mission") applies to filter_partition;
@@ -286,13 +296,14 @@ public
       serialdrv_memory      : memory partition_memory;
       hw_memory             : memory hardware_memory;
 	connections
-	   wifi_missiondata            : bus access wifi <-> missiondata_runtime.wifi;
+	  wifi_missiondata            : bus access wifi <-> missiondata_runtime.wifi;
       serial_drv            : bus access com <-> serialdrv_runtime.com;
+      serial_mem            : port serialdrv_runtime.serial_mem <-> cpu.uart1_mem;
 	properties
 	   actual_memory_binding => (reference (missiondata_memory)) applies to missiondata_partition;
 	   actual_memory_binding => (reference (filter_memory)) applies to filter_partition;
 	   actual_memory_binding => (reference (controldata_memory)) applies to controldata_partition;
-	   actual_memory_binding => (reference (serialdrv_memory)) applies to serialdrv_partition;
+	   actual_memory_binding => (reference (serialdrv_memory)) applies to serial_driver;
 	   
 	   actual_memory_binding => (reference (hw_memory)) applies to missiondata_memory; 
 	   actual_memory_binding => (reference (hw_memory)) applies to filter_memory;
@@ -307,7 +318,7 @@ public
       actual_processor_binding => (reference (missiondata_runtime)) applies to missiondata_partition;
       actual_processor_binding => (reference (filter_runtime)) applies to filter_partition;
       actual_processor_binding => (reference (controldata_runtime)) applies to controldata_partition;
-      actual_processor_binding => (reference (serialdrv_runtime)) applies to serialdrv_partition;
+      actual_processor_binding => (reference (serialdrv_runtime)) applies to serial_driver;
       
       security_properties::trust => 100 applies to filter_partition;
 	
@@ -325,7 +336,7 @@ public
 		period => 100 ms applies to missiondata_partition.thr;
 		period => 150 ms applies to filter_partition.filter;
 		period => 180 ms applies to controldata_partition.navigation;
-		period => 220 ms applies to serialdrv_partition.serial_driver;
+		period => 220 ms applies to serial_driver;
 	end board.debug;
 	
 	system implementation board.debug_kzm extends board.debug
@@ -366,12 +377,12 @@ public
      actual_processor_binding => (reference (runtime)) applies to missiondata_partition;
      actual_processor_binding => (reference (runtime)) applies to filter_partition;
      actual_processor_binding => (reference (runtime)) applies to controldata_partition; 
-     actual_processor_binding => (reference (runtime)) applies to serialdrv_partition;
+     actual_processor_binding => (reference (runtime)) applies to serial_driver;
 
      actual_memory_binding => (reference (runtime_memory)) applies to missiondata_partition;
      actual_memory_binding => (reference (runtime_memory)) applies to filter_partition;
      actual_memory_binding => (reference (runtime_memory)) applies to controldata_partition;
-     actual_memory_binding => (reference (runtime_memory)) applies to serialdrv_partition;
+     actual_memory_binding => (reference (runtime_memory)) applies to serial_driver;
       
      actual_memory_binding => (reference (hw_memory)) applies to runtime_memory; 
 	end board.insecure; 

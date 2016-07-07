@@ -7,7 +7,7 @@ static uint8_t temp = 10;
 static uint8_t sound = 50;
 static uint8_t light = 125;
 
-void handle_serial (boardcmdrequestti from_filter, boardcmdreplyti* to_filter)
+void driver (boardcmdrequestti from_filter, boardcmdreplyti* to_filter)
 {
 //	*to_outside = from_outside;
 	print_boardrequest ("SERIAL", from_filter);
