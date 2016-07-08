@@ -14,5 +14,5 @@
 void simulate_missiondata (missiondatati missiondata)
 {
 //	*appreply = apprequest;
-	print_mission_data ("MISSIONDATA", missiondata);
+//	print_mission_data ("MISSIONDATA", missiondata);
 }

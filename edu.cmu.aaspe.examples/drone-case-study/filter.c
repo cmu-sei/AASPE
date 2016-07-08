@@ -36,8 +36,10 @@ void filter (missiondatati *missiondata, navdatat navdata, boardcmdreplyti cmdin
 {
 //	*cmdout = cmdin;
 
-	print_navdata ("FILTER DATA FROM NAVIGATION ", navdata);
-	print_boardreply ("FILTER - REPLY FROM BOARD", cmdin);
+//	print_navdata ("FILTER DATA FROM NAVIGATION ", navdata);
+//	print_boardreply ("FILTER - REPLY FROM BOARD", cmdin);
+
+	printf ("[FILTER] navdata = %d\n", navdata);
 
 	missiondata->temp = cmdin.temp;
 	missiondata->light = cmdin.light;

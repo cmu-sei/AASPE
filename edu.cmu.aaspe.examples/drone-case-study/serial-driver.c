@@ -10,7 +10,7 @@ static uint8_t light = 125;
 void driver (boardcmdrequestti from_filter, boardcmdreplyti* to_filter)
 {
 //	*to_outside = from_outside;
-	print_boardrequest ("SERIAL", from_filter);
+//	print_boardrequest ("SERIAL", from_filter);
 
 	temp = (temp + 1) % 255;
 	sound = (sound + 1) % 255;

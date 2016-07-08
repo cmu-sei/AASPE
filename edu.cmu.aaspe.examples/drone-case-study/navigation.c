@@ -13,14 +13,14 @@ int iteration = 0;
 
 void navigation (navdatat* navdata)
 {
-	print_navdata ("NAVIGATION", navdata);
+//	print_navdata ("NAVIGATION", navdata);
 	if (iteration < 10)
 	{
 		*navdata = navdatat_up;
 	}
 	if ( (iteration >= 10) && (iteration < 20))
 	{
-		*navdata = navdatat_up;
+		*navdata = navdatat_left;
 	}
 	iteration = (iteration + 1) % 20;
 }
