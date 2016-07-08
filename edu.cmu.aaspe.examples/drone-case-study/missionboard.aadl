@@ -8,6 +8,7 @@ public
 	with sei;
 	with arinc653;
 	with deployment;
+	with base_types;
 	
 	------------------------------
 	--  Processor & Partitions  --
@@ -112,8 +113,8 @@ public
 	features
 		missiondata : out data port drone::datatypes::missiondata_t.i;
 		navdata     : in  data port drone::datatypes::navdata_t;
-		cmdin : in data port drone::datatypes::boardcmd_reply_t.i;
-		cmdout : out data port drone::datatypes::boardcmd_request_t.i;
+		cmdin : in data port drone::datatypes::string.i;
+		cmdout : out data port drone::datatypes::string.i;
 	properties
 		Dispatch_Protocol => Periodic;
 		Period => 10 ms;
@@ -137,8 +138,8 @@ public
 	features
 		missiondata : out data port drone::datatypes::missiondata_t.i;
 		navdata     : in  data port drone::datatypes::navdata_t;
-		cmdin : in data port drone::datatypes::boardcmd_reply_t.i;
-		cmdout : out data port drone::datatypes::boardcmd_request_t.i;
+		cmdin : in data port drone::datatypes::string.i;
+		cmdout : out data port drone::datatypes::string.i;
 	properties
 	  security_properties::trust => 100;
 	end filter;
@@ -216,8 +217,8 @@ public
 
 	device serial_driver
 	features
-		from_filter  : in data port drone::datatypes::boardcmd_request_t.i;
-		to_filter    : out data port drone::datatypes::boardcmd_reply_t.i;
+		from_filter  : in data port drone::datatypes::string.i;
+		to_filter    : out data port drone::datatypes::string.i;
 		from_outside : in data port drone::datatypes::boardcmd_reply_t.i;
 		to_outside   : out data port drone::datatypes::boardcmd_request_t.i;
 	end serial_driver;

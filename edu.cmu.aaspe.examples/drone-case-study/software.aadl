@@ -2,6 +2,7 @@ package drone::software
 public
 
 	with drone::datatypes;
+	with base_types;
 
 	subprogram spg_missiondata
 		features
@@ -18,8 +19,8 @@ public
 		features
 			missiondata: out parameter drone::datatypes::missiondata_t.i;
 			navdata: in parameter drone::datatypes::navdata_t;
-			cmdin: in parameter drone::datatypes::boardcmd_reply_t.i;
-			cmdout: out parameter drone::datatypes::boardcmd_request_t.i;
+			cmdin: in parameter drone::datatypes::string.i;
+			cmdout: out parameter drone::datatypes::string.i;
 		properties
 			source_language => (c);
 			source_name => "filter";

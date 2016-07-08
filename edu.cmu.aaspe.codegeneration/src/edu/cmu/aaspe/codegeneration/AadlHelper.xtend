@@ -23,6 +23,8 @@ import org.osate.xtext.aadl2.properties.util.GetProperties
 import org.osate.aadl2.instance.ComponentInstance
 import org.osate.xtext.aadl2.properties.util.ARINC653ScheduleWindow
 import org.osate.aadl2.instance.ConnectionInstance
+import org.osate.aadl2.DataClassifier
+import org.osate.aadl2.Classifier
 
 /**
  * This class contains all helpers methods to deal with the AADL components.
@@ -43,6 +45,47 @@ public class AadlHelper
 	def static double getHyperPeriod (SystemImplementation systemImplementation)
 	{ 
 		return 0.0
+	}
+	
+	def static String toCamkesName (String source)
+	{
+		var String dest = source
+		
+		dest = dest.substring(0,1).toUpperCase + dest.substring(1,dest.length())
+		
+		while (dest.indexOf('.') > 0)
+		{
+			val idx = dest.indexOf('.')
+			dest = dest.substring(0,idx) + dest.substring(idx + 1, idx+2).toUpperCase + dest.substring(idx + 2 , dest.length)
+		}
+		
+		while (dest.indexOf('_') > 0)
+		{
+			val idx = dest.indexOf('_')
+			dest = dest.substring(0,idx) + dest.substring(idx + 1, idx+2).toUpperCase + dest.substring(idx + 2 , dest.length)
+		}
+		return dest
+	}
+	
+	def static mapDataToCamkes (Classifier data)
+	{
+		val dataRepresentation = GetProperties.getDataRepresentation(data)
+		if ((dataRepresentation != null) && (dataRepresentation.name.equalsIgnoreCase("string")))
+		{
+			return "string"	
+		}
+		
+		return data.name.toCamkesName.toLowerCase
+	}
+	
+	def static mapDataToC (Classifier data)
+	{
+		if (GetProperties.getDataRepresentation(data).name.equalsIgnoreCase("string"))
+		{
+			return "char*"	
+		}
+		
+		return data.name.toCamkesName.toLowerCase
 	}
 
 	/**

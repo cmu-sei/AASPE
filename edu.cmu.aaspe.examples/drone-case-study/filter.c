@@ -32,22 +32,25 @@
 
 
 
-void filter (missiondatati *missiondata, navdatat navdata, boardcmdreplyti cmdin, boardcmdrequestti* cmdout)
+void filter (missiondatati *missiondata, navdatat navdata, stringi* cmdin, stringi* cmdout)
 {
 //	*cmdout = cmdin;
 
 //	print_navdata ("FILTER DATA FROM NAVIGATION ", navdata);
 //	print_boardreply ("FILTER - REPLY FROM BOARD", cmdin);
 
-	printf ("[FILTER] navdata = %d\n", navdata);
+//	printf ("[FILTER] navdata = %d\n", navdata);
+	strcpy(cmdout->buf,"blabla");
+	cmdout->size = 6;
+	printf ("[FILTER] from driver = %s\n", cmdin->buf);
 
-	missiondata->temp = cmdin.temp;
-	missiondata->light = cmdin.light;
-	missiondata->sound = cmdin.sound;
+//	missiondata->temp = cmdin.temp;
+//	missiondata->light = cmdin.light;
+//	missiondata->sound = cmdin.sound;
 
-	cmdout->get_temp = 1;
-	cmdout->get_light = 0;
-	cmdout->get_sound = 0;
+//	cmdout->get_temp = 1;
+//	cmdout->get_light = 0;
+//	cmdout->get_sound = 0;
 
-	cmdout->direction = directiont_down;
+//	cmdout->direction = directiont_down;
 }

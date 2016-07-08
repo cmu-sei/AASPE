@@ -18,7 +18,7 @@ void UartFIFOConfigure(unsigned int baseAdd);
 
 int init = 0;
 
-void driver (int datain, int* dataout)
+void driver (int* datain, int* dataout)
 {
 	if (init == 0)
 	{
@@ -37,7 +37,7 @@ void driver (int datain, int* dataout)
         //              printf ("UART= %s\n", mybuf);
 
         UART_rx (serial_mem, (unsigned char*)dataout, 1);
-        UART_tx (serial_mem, (unsigned char*)&datain, 1);
+        UART_tx (serial_mem, (unsigned char*)datain, 1);
         printf ("[DRIVER] Sending %d\n", *dataout);
-        printf ("[DRIVER] Receiving %d\n", datain);
+        printf ("[DRIVER] Receiving %d\n", *datain);
 }
