@@ -2,7 +2,7 @@
 
 int cons = 0;
 
-void boo_spg (int* dataout, int datain)
+void boo_spg (int* dataout, int* datain)
 {
 	cons = cons + 1;
 	*dataout = cons;

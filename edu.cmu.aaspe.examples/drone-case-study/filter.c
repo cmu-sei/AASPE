@@ -31,8 +31,10 @@
 //}boardcmdrequestti;
 
 
+#define BUFSIZE 20
 
-void filter (missiondatati *missiondata, navdatat navdata, stringi* cmdin, stringi* cmdout)
+
+void filter (missiondatati *missiondata, navdatat* navdata, stringi* cmdin, stringi* cmdout)
 {
 //	*cmdout = cmdin;
 
@@ -40,9 +42,36 @@ void filter (missiondatati *missiondata, navdatat navdata, stringi* cmdin, strin
 //	print_boardreply ("FILTER - REPLY FROM BOARD", cmdin);
 
 //	printf ("[FILTER] navdata = %d\n", navdata);
-	strcpy(cmdout->buf,"blabla");
-	cmdout->size = 6;
-	printf ("[FILTER] from driver = %s\n", cmdin->buf);
+//	strcpy(cmdout->buf,"blabla");
+//	cmdout->size = 6;
+//	printf ("[FILTER] from driver = %s\n", cmdin->buf);
+
+	/**
+	 * reset the buffer to send
+	 */
+	for (int i = 0 ; i < BUFSIZE ; i++)
+	{
+		cmdout->buf[i] = 0;
+	}
+
+	if (*navdata == navdatat_up)
+	{
+		strcpy (cmdout->buf, ":L:200:R:200:");
+		cmdout->size = 13;
+	}
+	if (*navdata == navdatat_left)
+	{
+		strcpy (cmdout->buf, ":L:200:R:0:");
+		cmdout->size = 11;
+	}
+	if (*navdata == navdatat_none)
+	{
+		strcpy (cmdout->buf, ":L:0:R:0:");
+		cmdout->size = 9;
+	}
+
+
+
 
 //	missiondata->temp = cmdin.temp;
 //	missiondata->light = cmdin.light;

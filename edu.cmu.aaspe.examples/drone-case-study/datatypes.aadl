@@ -7,7 +7,7 @@ with data_model;
 data direction_t
 properties
 	data_model::data_representation => enum;
-	data_model::enumerators => ("up", "down", "left", "right");
+	data_model::enumerators => ("up", "down", "left", "right", "none");
 end direction_t;
 
 --
@@ -80,8 +80,8 @@ end application_reply_t.i;
 
 data buffer
 properties
-  source_name => "char[10]";
-  data_size => 8 bytes;
+  source_name => "char[20]";
+  data_size => 20 bytes;
 end buffer;
 
 data implementation buffer.i
