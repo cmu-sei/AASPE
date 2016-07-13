@@ -63,6 +63,10 @@ import static extension edu.cmu.aaspe.codegeneration.AadlHelper.isSporadic
 import static extension edu.cmu.aaspe.codegeneration.AadlHelper.getPartitionPeriodInMillisecond
 import static extension edu.cmu.aaspe.codegeneration.AadlHelper.getPartitionBudgetInMillisecond
 import static extension edu.cmu.aaspe.codegeneration.AadlHelper.getBoundProcessor
+import static extension edu.cmu.aaspe.codegeneration.AadlHelper.toCamkesName
+import static extension edu.cmu.aaspe.codegeneration.AadlHelper.mapDataToCamkes
+
+import static extension edu.cmu.aaspe.codegeneration.AadlHelper.mapDataToC
 
 import org.osate.aadl2.EventDataPort
 import org.osate.aadl2.instance.ConnectionInstance
@@ -107,6 +111,8 @@ class CamkesGenerator implements IGenerator {
 		
 		alreadyGenerated.add (typeName)
 		
+		
+		
 		val StringBuffer result = new StringBuffer()
 		
 //		println ("generate type definition for" + classifier.name)
@@ -115,12 +121,27 @@ class CamkesGenerator implements IGenerator {
 		
 		if (sourceName != null)
 		{
-			result.append('''typedef « sourceName» «classifier.name.toCamkesName.toLowerCase»;''')
-			result.append ("\n\n")
+			if (sourceName.contains("["))
+			{
+				val ctype = sourceName.substring(0, sourceName.indexOf('['))
+				val arraysize = sourceName.substring(sourceName.indexOf('['), sourceName.length)
+				result.append('''typedef «ctype» «classifier.name.toCamkesName.toLowerCase»«arraysize»;''')
+				result.append ("\n\n")
+			}
+			else
+			{
+				result.append('''typedef « sourceName» «classifier.name.toCamkesName.toLowerCase»;''')
+				result.append ("\n\n")
+			}
 		}
 		
 		val EnumerationLiteral dataRepresentation = GetProperties.getDataRepresentation (classifier)
 		val List<String> enumerators = GetProperties.getDataEnumerators (classifier)
+		if ((dataRepresentation != null) && (dataRepresentation.name.equalsIgnoreCase("string")))
+		{
+			result.append ("char*");
+		}
+		
 		if ((dataRepresentation != null) && (dataRepresentation.name.equalsIgnoreCase("enum")))
 		{
 			var n = 0
@@ -149,7 +170,7 @@ class CamkesGenerator implements IGenerator {
 			result.append ("\n\n");
 		}
 		
-		if (classifier instanceof DataImplementation)
+		if ( (classifier instanceof DataImplementation) && ((classifier as DataImplementation).allSubcomponents.size() > 0))
 		{
 			val DataImplementation implementation = classifier as DataImplementation
 			
@@ -502,25 +523,7 @@ void post_init ()
 		return res
 	}
 	
-	def static String toCamkesName (String source)
-	{
-		var String dest = source
-		
-		dest = dest.substring(0,1).toUpperCase + dest.substring(1,dest.length())
-		
-		while (dest.indexOf('.') > 0)
-		{
-			val idx = dest.indexOf('.')
-			dest = dest.substring(0,idx) + dest.substring(idx + 1, idx+2).toUpperCase + dest.substring(idx + 2 , dest.length)
-		}
-		
-		while (dest.indexOf('_') > 0)
-		{
-			val idx = dest.indexOf('_')
-			dest = dest.substring(0,idx) + dest.substring(idx + 1, idx+2).toUpperCase + dest.substring(idx + 2 , dest.length)
-		}
-		return dest
-	}
+
 	
 	/**
 	 * Generates the header C file with the types
@@ -666,12 +669,12 @@ assembly {
 
 ««« Configure security aspects, sender
 ««« can write on sharer ports, receiver cannot
-«FOR subComponent : element.componentInstances.filter[category == ComponentCategory.PROCESS]»
-«FOR thread : subComponent.componentInstances.filter[category == ComponentCategory.THREAD]»
-		«subComponent.name.toCamkesName»_«thread.name.toCamkesName»._period = «subComponent.getPartitionPeriodInMillisecond»;
-		«subComponent.name.toCamkesName»_«thread.name.toCamkesName»._budget = «subComponent.getPartitionBudgetInMillisecond»;
-«ENDFOR»		
-«ENDFOR»
+««««FOR subComponent : element.componentInstances.filter[category == ComponentCategory.PROCESS]»
+««««FOR thread : subComponent.componentInstances.filter[category == ComponentCategory.THREAD]»
+«««		«subComponent.name.toCamkesName»_«thread.name.toCamkesName»._period = «subComponent.getPartitionPeriodInMillisecond»;
+«««		«subComponent.name.toCamkesName»_«thread.name.toCamkesName»._budget = «subComponent.getPartitionBudgetInMillisecond»;
+««««ENDFOR»		
+««««ENDFOR»
 
 «FOR connection : element.connectionInstances.filter[((destination as FeatureInstance).category == FeatureCategory.DATA_PORT) && (destination.containingComponentInstance.category == ComponentCategory.THREAD) && (source.containingComponentInstance.category == ComponentCategory.THREAD)]»
 		connection«connIdConfiguration».from_access = "W";
@@ -726,11 +729,11 @@ component «component.componentClassifier.name.toCamkesName»
 ««« If we have an event data port, we will generate extra stuff
 ««« in order to activate the task.
 «FOR dataport : component.featureInstances.filter[(category == FeatureCategory.DATA_PORT) && shouldBeGenerated] »
-	dataport «(dataport.feature as DataPort).classifier.name.toCamkesName.toLowerCase» «dataport.name»;
+	dataport «(dataport.feature as DataPort).classifier.mapDataToCamkes» «dataport.name»;
 «ENDFOR»
 «FOR dataport : component.featureInstances.filter[(category == FeatureCategory.EVENT_DATA_PORT) && shouldBeGenerated] »
-	dataport «(dataport.feature as EventDataPort).classifier.name.toCamkesName.toLowerCase» «dataport.name»;
-«ENDFOR»
+	dataport «(dataport.feature as EventDataPort).classifier.mapDataToCamkes» «dataport.name»;
+«ENDFOR» 
 
 ««« If we have a periodic task, we consume an activator event to activate the task
 « IF component.isPeriodic»
@@ -796,10 +799,10 @@ component «component.componentClassifier.name.toCamkesName»
 ««« If we have an event data port, we will generate extra stuff
 ««« in order to activate the task.
 «FOR dataport : component.featureInstances.filter[(category == FeatureCategory.DATA_PORT) && shouldBeGenerated] »
-	dataport «(dataport.feature as DataPort).classifier.name.toCamkesName.toLowerCase» «dataport.name»;
+	dataport «(dataport.feature as DataPort).classifier.mapDataToCamkes» «dataport.name»;
 «ENDFOR»
 «FOR dataport : component.featureInstances.filter[(category == FeatureCategory.EVENT_DATA_PORT) && shouldBeGenerated] »
-	dataport «(dataport.feature as EventDataPort).classifier.name.toCamkesName.toLowerCase» «dataport.name»;
+	dataport «(dataport.feature as EventDataPort).classifier.mapDataToCamkes» «dataport.name»;
 «ENDFOR»
 
 ««« If we have a periodic task, we consume an activator event to activate the task
@@ -933,22 +936,12 @@ config APP_«instance.camkesApplicationName.toUpperCase»
 					arg += ","
 				}
 				
-				if (dataport.direction == DirectionType.IN)
+				
+				if (instance.featureInstances.findFirst[name.equalsIgnoreCase(dataport.name)].shouldBeGenerated)
 				{
-					if (instance.featureInstances.findFirst[name.equalsIgnoreCase(dataport.name)].shouldBeGenerated)
-					{
-						toAdd = true
-					}
-					arg += "(*" + dataport.name.toLowerCase + ")";
+					toAdd = true
 				}
-				if (dataport.direction == DirectionType.OUT)
-				{
-					arg += "(" + dataport.name.toLowerCase + ")";
-					if (instance.featureInstances.findFirst[name.equalsIgnoreCase(dataport.name)].shouldBeGenerated)
-					{
-						toAdd = true
-					}
-				}
+				arg += "(" + dataport.name.toLowerCase + ")";
 				
 				
 				if (toAdd)
@@ -986,7 +979,7 @@ config APP_«instance.camkesApplicationName.toUpperCase»
 						
 						if (conn.destination.context == call)
 						{
-							arg = "(*"+ conn.source.connectionEnd.name.toLowerCase + ")"
+							arg = "("+ conn.source.connectionEnd.name.toLowerCase + ")"
 							if (instance.featureInstances.filter[name.equalsIgnoreCase(conn.destination.connectionEnd.name)].get(0).shouldBeGenerated)
 							{
 								toAdd = true

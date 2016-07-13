@@ -7,7 +7,7 @@ with data_model;
 data direction_t
 properties
 	data_model::data_representation => enum;
-	data_model::enumerators => ("up", "down", "left", "right");
+	data_model::enumerators => ("up", "down", "left", "right", "none");
 end direction_t;
 
 --
@@ -77,5 +77,32 @@ subcomponents
 	light : data base_types::unsigned_8;
 	sound : data base_types::unsigned_8;
 end application_reply_t.i;
+
+data buffer
+properties
+  source_name => "char[20]";
+  data_size => 20 bytes;
+end buffer;
+
+data implementation buffer.i
+end buffer.i;
+
+data myint
+properties
+  source_name => "int";
+  data_size => 8 bytes;
+end myint;
+
+data implementation myint.i
+end myint.i;
+
+data string
+end string;
+
+data implementation string.i
+subcomponents
+	buf  : data buffer.i;
+	size : data myint;
+end string.i;
 
 end drone::datatypes;

@@ -9,7 +9,7 @@ void user_do_ping_spg (int* val)
 	printf ("Sending %d\n", *val);
 }
 
-void user_ping_spg (int val)
+void user_ping_spg (int* val)
 {
-	printf ("Receiving %d\n", val);
+	printf ("Receiving %d\n", *val);
 }
