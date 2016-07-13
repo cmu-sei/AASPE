@@ -24,7 +24,7 @@ int speedPinB = 10; // Needs to be a PWM pin to be able to control motor speed
 
 void setup() {  // Setup runs once per reset
 // initialize serial communication @ 9600 baud:
-Serial.begin(9600);
+Serial.begin(115200);
 
 //Define L298N Dual H-Bridge Motor Controller Pins
 

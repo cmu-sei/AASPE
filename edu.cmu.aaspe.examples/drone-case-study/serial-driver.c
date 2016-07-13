@@ -38,7 +38,7 @@ void driver (stringi* from_filter, stringi* to_filter)
 
 //        UART_rx (serial_mem, (unsigned char*)dataout, 1);
         UART_tx (serial_mem, (unsigned char*)from_filter->buf, from_filter->size);
-//        printf ("[DRIVER] Sending %d\n", *dataout);
+        printf ("[DRIVER] Sending %s\n", from_filter->buf);
 //        printf ("[DRIVER] Receiving %d\n", *datain);
 }
 
