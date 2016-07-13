@@ -53,10 +53,15 @@ The software architecture of the arduino is very simple and is composed of a sin
 
 The software architecture of the BBB is more complicated. The beaglebone black uses different partitions executed on top of [seL4](http://sel4.systems/), a formally verified operating system. The reason why we are using such an OS is because it provides isolation guarantees and ensures that one partition cannot interfere with another other than with the explicitly configured communication channels.
 
-The overall software architecture of the BeagleBone Black is shown below, as a graphical AADL model. The root system is available in the public AADL model repository and the associated [eclipse project](https://github.com/cmu-sei/AASPE/tree/master/edu.cmu.aaspe.examples). The root system is in the file drone-case-study/missionboard.aadl and is named ```board.debug_beagleboard```
+The overall software architecture of the BeagleBone Black is shown below, as a graphical AADL model. The root system is available in the public AADL model repository and the associated [eclipse project](https://github.com/cmu-sei/AASPE/tree/master/edu.cmu.aaspe.examples). The root system is in the file drone-case-study/missionboard.aadl and is named ```board.debug_beagleboard```.
 
 ![Software Architecture](docs/software-architecture.png)
 
+The system is composed of 4 partitions:
+ * ** *missiondata* ** receives incoming requests to get sensor values from the drone. This partition is not security-critical: the data it handles are not too critical. In addition, a crash of this partition does not impact the correct movement of the vehicle.
+ * ** *controldata* ** controls the drone by sending command to the motors (go left, right, straight, etc.). This partition is critical because it is vital to the correct operation of the drone.
+ * ** *filter* ** sends/receives data to/from the arduino board (through the *serial_driver* partition). It correctly encode/decode the messages from the *serial_driver*. This is this partition that contains data that is critical (from the *controldata* partition) and non-critical (from the *missiondata* partition). It is then crucial to implement this component correctly and ensures correct separation of the different data.
+ * ** *serial_driver* ** receives/sends characters through the serial driver. It accesses a particular memory region in order to control the UART1 of the Beaglebone Black. This component is not responsible to separate the different data classified at various security levels.
 
 ## Serial Protocol
 In order to control the motors, the beaglebone sends data to the arduino. Message are composed like this:
