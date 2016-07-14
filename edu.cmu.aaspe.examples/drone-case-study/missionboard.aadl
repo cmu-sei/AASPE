@@ -332,6 +332,11 @@ public
 	  ) applies to cpu;
 	end board.secure;
 	
+	system implementation board.secure_beagleboard extends board.secure
+	properties
+		sei::platform => "beaglebone" applies to cpu;
+	end board.secure_beagleboard;
+	
 	system implementation board.debug extends board.secure
 	properties
 		period => 100 ms applies to missiondata_partition.thr;
@@ -340,25 +345,25 @@ public
 		period => 220 ms applies to serial_driver;
 	end board.debug;
 	
-	system implementation board.debug_kzm extends board.debug
-	properties
-		sei::platform => "kzm" applies to cpu;
-	end board.debug_kzm;
+--	system implementation board.debug_kzm extends board.debug
+--	properties
+--		sei::platform => "kzm" applies to cpu;
+--	end board.debug_kzm;
 	
 	system implementation board.debug_beagleboard extends board.debug
 	properties
 		sei::platform => "beaglebone" applies to cpu;
 	end board.debug_beagleboard;
 	
-	system implementation board.debug_x86 extends board.debug
-	properties
-		sei::platform => "x86" applies to cpu;
-	end board.debug_x86;	
-
-	system implementation board.debug_tk1 extends board.debug
-	properties
-		sei::platform => "tegrak1" applies to cpu;
-	end board.debug_tk1;		
+--	system implementation board.debug_x86 extends board.debug
+--	properties
+--		sei::platform => "x86" applies to cpu;
+--	end board.debug_x86;	
+--
+--	system implementation board.debug_tk1 extends board.debug
+--	properties
+--		sei::platform => "tegrak1" applies to cpu;
+--	end board.debug_tk1;		
 	 
 	--
 	--  In the insecure version, we put everything on the same runtime. All

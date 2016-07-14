@@ -1,7 +1,9 @@
 Drone case-study
 ================
 
-The drone example
+This case-study aims at producing a drone from models. The drone is composed of several boards, sensors and actuators. In the following document, we explain how to build the hardare and software for the drone. It requires several different boards and generate the code from the AADL model.
+
+The objective is to show that security properties verified at the model level are still enforced in the implementation. In other words, the code generation process preserves the properties of the model while transforming high-level specifications (e.g. models) into code.
 
 # Requirements
 
@@ -81,12 +83,26 @@ For example, the following command ```:U:100:``` will activate both motors to mo
 
 ## Importing the model
 
-## Generating the code
+You can import the project by cloning the [following eclipse project](https://github.com/cmu-sei/AASPE/tree/master/edu.cmu.aaspe.examples/) on github. The model integrates different components, including the Arduino and the BeagleBone Black. It can be used for different security analysis. In the following section we will explain how to use this model to generate the code for the BeagleBone Black system.
 
-## Compiling the code for seL4
+## Generate, Compile & Run the code for the BeagleBone Black
 
-## Running the code on the seL4
+The model for the BeagleBone Black board is inside the ```missionboard.aadl``` file. There are two components you can generate the code from:
+ * ```board.secure_beagleboard``` contains the system without any debug information. It runs at the regular rate.
+ * ```board.debug_beagleboard``` is running slower and contains some debug artifacts.
 
-## Importing the arduino code
+To generate the code, use one of the system mentioned before and generate the code generator. Usage of the code generator and its integration with the seL4 toolchain can be found in the eclipse help system (under the *AASPE* menu) or [directly online in our github repository](https://github.com/cmu-sei/AASPE/blob/master/edu.cmu.aaspe.help/resources/markdown/code-generator/usage.md)
 
-## Running the code on the arduino
+## Importing & Running the arduino code
+
+The arduino code is located [on our github repository](https://github.com/cmu-sei/AASPE/tree/master/edu.cmu.aaspe.examples/drone-case-study/arduino/arduino). You can directly import the code into the arduino development environment, compiles and run it.
+
+Once you import the code, deploy it on the board. The arduino board will then start the software.
+
+
+# Other considerations
+ * You might want to use your arduino without the USB cable. You can power the arduino with a traditional 9V battery [like here](http://www.instructables.com/id/Powering-Arduino-with-a-Battery/)
+
+
+# Contact
+If you have any question or want more details, feel free to contact <jdelange@sei.cmu.edu>
