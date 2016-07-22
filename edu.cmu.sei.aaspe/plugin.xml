@@ -173,5 +173,13 @@
             id="edu.cmu.aaspe.security_properties"
             name="Security Properties">
       </aadlcontribution>
+   </extension>
+   <extension
+         point="org.osate.pluginsupport.aadlcontribution">
+      <aadlcontribution
+            file="resources/security_theorems.aadl"
+            id="edu.cmu.aaspe.security_theorems"
+            name="Security Theorems">
+      </aadlcontribution>
    </extension>   
 </plugin>
