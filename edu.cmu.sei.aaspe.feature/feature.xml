@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="edu.cmu.sei.aaspe.feature"
+      label="AASPE Tools"
+      version="1.0.0.qualifier">
+
+   <description>
+      Automated Assurance of Security Policy Enforcement (AASPE)
+About the tools
+
+The AASPE tools are designed for making secure and safe safety-critical systems. The tools are using AADL and the OSATE toolset. It provides the following features:
+
+    Attack Impact meta-model
+    Attack Impact graphical editor
+    Attack Tree editor meta-model
+    Attack Tree graphical editor
+    Bridge from Attack Impact to Attack Tree
+    Bridge from AADL to Attack Impact
+   </description>
+
+   <copyright>
+      Copyright (c) 2016 Carnegie Mellon University.
+All Rights Reserved.
+   </copyright>
+
+   <license url="">
+      Copyright (c) 2016 Carnegie Mellon University.
+All Rights Reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following acknowledgments and disclaimers.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following acknowledgments and disclaimers in the documentation and/or other materials provided with the distribution.
+3. Products derived from this software may not include “Carnegie Mellon University,” &quot;SEI” and/or “Software Engineering Institute&quot; in the name of such derived product, nor shall “Carnegie Mellon University,” &quot;SEI” and/or “Software Engineering Institute&quot; be used to endorse or promote products derived from this software without prior written permission. For written permission, please contact permission@sei.cmu.edu.
+
+ACKNOWLEDGMENTS AND DISCLAIMERS:
+This material is based upon work funded and supported by the Department of Defense under Contract No. FA8721-05-C-0003 with Carnegie Mellon University for the operation of the Software Engineering Institute, a federally funded research and development center.
+
+Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the United States Department of Defense.
+
+THIS SOFTWARE IS PROVIDED &quot;AS IS,&quot; WITH NO WARRANTIES WHATSOEVER. CARNEGIE MELLON UNIVERSITY EXPRESSLY DISCLAIMS TO THE FULLEST EXTENT PERMITTEDBY LAW ALL EXPRESS, IMPLIED, AND STATUTORY WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT OF PROPRIETARY RIGHTS.
+
+This material was created under project 5-15-0075R; DFARS 252.204-7000 does not apply.
+
+Carnegie Mellon® is registered in the U.S. Patent and Trademark Office by Carnegie Mellon University.
+
+DM-0003520
+   </license>
+
+   <plugin
+         id="attackimpact.design"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="attracktree.design"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.cmu.aaspe.attackimpact"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.cmu.aaspe.attackimpact.actions"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.cmu.aaspe.attackimpact.edit"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.cmu.aaspe.attackimpact.editor"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.cmu.aaspe.attackimpact.wizards"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.cmu.aaspe.attacktree"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.cmu.aaspe.attacktree.edit"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.cmu.aaspe.attacktree.editor"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.cmu.aaspe.attacktree.wizards"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.cmu.aaspe.codegeneration"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.cmu.aaspe.help"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.cmu.sei.aaspe"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>edu.cmu.aaspe</groupId>
+		<artifactId>aaspe.parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	<groupId>edu.cmu.aaspe</groupId>
+	<artifactId>aaspe.modules</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>..</module>
+		<module>../attackimpact.design</module>
+		<module>../attacktree.design</module>
+		<module>../edu.cmu.aaspe.attackimpact</module>
+		<module>../edu.cmu.aaspe.attackimpact.actions</module>
+		<module>../edu.cmu.aaspe.attackimpact.edit</module>
+		<module>../edu.cmu.aaspe.attackimpact.editor</module>
+		<module>../edu.cmu.aaspe.attackimpact.wizards</module>
+		<module>../edu.cmu.aaspe.attacktree</module>
+		<module>../edu.cmu.aaspe.attacktree.edit</module>
+		<module>../edu.cmu.aaspe.attacktree.editor</module>
+		<module>../edu.cmu.aaspe.attacktree.wizards</module>
+		<module>../edu.cmu.aaspe.codegeneration</module>
+		<module>../edu.cmu.aaspe.help</module>
+		<module>../edu.cmu.sei.aaspe</module>
+		<module>../edu.cmu.sei.aaspe.feature</module>
+<!-- 		<module>../edu.cmu.sei.aaspe.tests</module>
+ -->		<module>../aaspe.repository</module>
+	</modules>
+
+</project>

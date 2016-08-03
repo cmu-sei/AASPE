@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="edu.cmu.sei.aaspe.feature">
+      <category name="AASPE"/>
+   </feature>
+   <category-def name="AASPE" label="Automated Assurance of Security Policy Enforcement Tools"/>
+</site>

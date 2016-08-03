@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<artifacts size='1'>
+  <artifact classifier='osgi.bundle' id='edu.cmu.aaspe.help' version='1.0.0.v20160803-1341'>
+    <properties size='5'>
+      <property name='artifact.size' value='1150787'/>
+      <property name='download.size' value='1150787'/>
+      <property name='maven-groupId' value='edu.cmu.aaspe'/>
+      <property name='maven-artifactId' value='edu.cmu.aaspe.help'/>
+      <property name='maven-version' value='1.0.0-SNAPSHOT'/>
+    </properties>
+  </artifact>
+</artifacts>
