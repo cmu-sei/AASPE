@@ -30,8 +30,8 @@
 		<module>../edu.cmu.aaspe.help</module>
 		<module>../edu.cmu.sei.aaspe</module>
 		<module>../edu.cmu.sei.aaspe.feature</module>
-<!-- 		<module>../edu.cmu.sei.aaspe.tests</module>
- -->		<module>../aaspe.repository</module>
+ 		<module>../edu.cmu.sei.aaspe.tests</module>
+		<module>../aaspe.repository</module>
 	</modules>
 
 </project>
