@@ -7,7 +7,7 @@
      <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
-            id="org.osate.analysis.architecture.actionSet"
+            id="edu.cmu.sei.aaspe.actionSet"
             label="%actionSet.label"
             visible="false">
 
@@ -102,7 +102,7 @@
    	   <perspectiveExtension
    		   targetID="org.osate.ui.perspective.AadlPerspective">
    		   <actionSet
-   		 	   id="org.osate.analysis.architecture.actionSet"/>
+   		 	   id="edu.cmu.sei.aaspe.actionSet"/>
    	   </perspectiveExtension>
    </extension>
 
