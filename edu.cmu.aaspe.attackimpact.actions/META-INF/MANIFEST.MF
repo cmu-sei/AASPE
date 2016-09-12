@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.sirius.common,
  org.eclipse.swt,
  org.eclipse.core.resources,
- org.eclipse.sirius
+ org.eclipse.sirius,
+ edu.cmu.sei.aaspe
 Import-Package: edu.cmu.attackimpact,
  edu.cmu.attacktree,
  edu.cmu.sei.aaspe,

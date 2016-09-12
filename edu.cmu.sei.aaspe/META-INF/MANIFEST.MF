@@ -19,9 +19,14 @@ Bundle-Vendor: CMU-SEI
 Bundle-Localization: plugin
 Export-Package: 
  edu.cmu.sei.aaspe,
- edu.cmu.sei.aaspe.actions
+ edu.cmu.sei.aaspe.actions,
+ edu.cmu.sei.aaspe.utils
 Require-Bundle: org.osate.aadl2,
  org.osate.ui,
+ org.eclipse.sirius,
+ org.eclipse.emf.transaction,
+ org.eclipse.sirius.ext.base,
+ org.eclipse.sirius.ui,
  org.osate.xtext.aadl2.properties;bundle-version="1.0.0",
  org.osate.xtext.aadl2;bundle-version="1.0.0",
  edu.cmu.aaspe.attackimpact;bundle-version="0.1.0"

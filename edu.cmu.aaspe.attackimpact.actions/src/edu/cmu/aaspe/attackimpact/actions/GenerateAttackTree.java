@@ -10,12 +10,20 @@ import java.util.Stack;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.edit.provider.StyledString.Style.BorderStyle;
+import org.eclipse.sirius.business.api.session.Session;
 import org.eclipse.sirius.diagram.DDiagram;
 import org.eclipse.sirius.diagram.DDiagramElement;
 import org.eclipse.sirius.diagram.DNode;
@@ -23,19 +31,24 @@ import org.eclipse.sirius.diagram.LineStyle;
 import org.eclipse.sirius.diagram.NodeStyle;
 import org.eclipse.sirius.diagram.business.internal.metamodel.spec.SquareSpec;
 import org.eclipse.sirius.diagram.description.style.SquareDescription;
+import org.eclipse.sirius.ui.business.api.dialect.DialectUIManager;
+import org.eclipse.sirius.viewpoint.DRepresentation;
 import org.eclipse.sirius.viewpoint.RGBValues;
 import org.eclipse.sirius.viewpoint.Style;
 import org.eclipse.sirius.viewpoint.description.ColorDescription;
+import org.eclipse.sirius.viewpoint.description.RepresentationDescription;
 import org.eclipse.sirius.viewpoint.description.SystemColor;
+import org.eclipse.sirius.viewpoint.description.Viewpoint;
 import org.eclipse.sirius.viewpoint.description.style.StyleDescription;
 import org.eclipse.xtext.ui.util.ResourceUtil;
 import org.osate.aadl2.util.OsateDebug;
 
 import edu.cmu.attackimpact.AttackImpactFactory; 
-import edu.cmu.attackimpact.Model;
+
 import edu.cmu.attackimpact.Node;
 import edu.cmu.attackimpact.Propagation;
 import edu.cmu.attackimpact.Vulnerability;
+import edu.cmu.sei.aaspe.utils.SiriusUtil;
 
 
 public class GenerateAttackTree implements org.eclipse.sirius.tools.api.ui.IExternalJavaAction {
@@ -52,7 +65,7 @@ public class GenerateAttackTree implements org.eclipse.sirius.tools.api.ui.IExte
 		at.setName(ai.getName());
 		at.setDescription(ai.getDescription());
 		
-		Model attackImpactModel = (Model) ai.eContainer();
+		edu.cmu.attackimpact.Model attackImpactModel = (edu.cmu.attackimpact.Model) ai.eContainer();
 		
 		for (Vulnerability v : ai.getVulnerabilities())
 		{
@@ -129,10 +142,18 @@ public class GenerateAttackTree implements org.eclipse.sirius.tools.api.ui.IExte
 					OsateDebug.osateDebug("Filename=" + filename);
 				
 //					monitor.subTask("Writing attack model file");
-					serializeAttackTreeModel(attackTreeModel, ResourceUtil.getFile(dnode.eResource())
-							.getProject(), filename);
+//					serializeAttackTreeModel(attackTreeModel, ResourceUtil.getFile(dnode.eResource())
+//							.getProject(), filename);
+					URI aiURI = EcoreUtil.getURI(eo);
+					
+					URI newURI = EcoreUtil.getURI(eo).trimFragment().trimSegments(1).appendSegment("attacktree")
+							.appendSegment("at" + ".attacktree");
+					final IProject currentProject = ResourceUtil.getFile(eo.eResource()).getProject();
+					final URI modelURI = serializeAttackTreeModel(attackTreeModel, newURI, currentProject);
+					autoOpenAttackTreeModel(modelURI, currentProject);
+					
 					long endTime = System.currentTimeMillis();
-//					OsateDebug.osateDebug("Export Attack Impact - finished in " + ((endTime - startTime) / 1000) + " s" );
+					
 					long totalTime = (endTime - startTime) / 1000;
 					
 					System.out.println("[GenerateAttackTree] done in " + totalTime + "s");
@@ -142,26 +163,118 @@ public class GenerateAttackTree implements org.eclipse.sirius.tools.api.ui.IExte
 
 		}
 	}
-	
-	private static void serializeAttackTreeModel(edu.cmu.attacktree.Model attackTreeModel, IProject activeProject, String filename) {
-		IFile newFile = activeProject.getFile(filename);
+
+	public void autoOpenAttackTreeModel(final URI newURI, final IProject activeProject) {
 
 		try {
 
-			ResourceSet set = new ResourceSetImpl();
-			Resource res = set.createResource(URI.createURI(newFile.toString()));
+			Job attackTreeCreationJob = new Job("Creation of Attack Tree Graph") {
 
-			res.getContents().add(attackTreeModel);
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
 
-			FileOutputStream fos = new FileOutputStream(newFile.getRawLocation().toFile());
-			res.save(fos, null); 
-			OsateDebug.osateDebug("[GenerateAttackTree]", "activeproject=" + activeProject.getName());
+					monitor.beginTask("Creation of Attack Impact Graph", 100);
 
-			activeProject.refreshLocal(IResource.DEPTH_INFINITE, null);
+					createAndOpenAttackTree (activeProject, newURI, monitor);
+					try {
+						activeProject.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+					} catch (CoreException e) {
+						// Error while refreshing the project
+					}
+					monitor.done();
+
+					return Status.OK_STATUS;
+				}
+			};
+			attackTreeCreationJob.setUser(true);
+			attackTreeCreationJob.schedule();
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+	}
+	
+
+
+	private void createAndOpenAttackTree(final IProject project, final URI attackTreeURI, IProgressMonitor monitor) {
+		SiriusUtil util = SiriusUtil.INSTANCE;
+		URI attackImpactViewpointURI = URI.createURI("viewpoint:/attracktree.design/AttackTree");
+
+		URI semanticResourceURI = URI.createPlatformResourceURI(attackTreeURI.toPlatformString(true), true);
+		Session existingSession = util.getSessionForProjectAndResource(project, semanticResourceURI, monitor);
+		if (existingSession == null) {
+			// give it a second try. null was returned the first time due to a class cast exception at the end of
+			// setting the Modeling perspective.
+			existingSession = util.getSessionForProjectAndResource(project, semanticResourceURI, monitor);
+		}
+		if (existingSession != null) {
+			util.saveSession(existingSession, monitor);
+			ResourceSetImpl resset = new ResourceSetImpl();
+			edu.cmu.attacktree.Model model = getAttackTreeModelFromSession(existingSession, semanticResourceURI);
+			// XXX this next piece of code tries to compensate for a bug in Sirius where it cannot find the Model
+			// It should be there since the getSessionForProjectandResource would have put it there.
+			if (model == null) {
+				OsateDebug.osateDebug(
+						"Could not find semantic resource Attack Impact in session for URI " + semanticResourceURI.path());
+				EObject res = resset.getEObject(attackTreeURI, true);
+				if (res instanceof edu.cmu.attacktree.Model) {
+					model = (edu.cmu.attacktree.Model) res;
+				}
+			}
+			if (model == null) {
+				OsateDebug.osateDebug("Could not find Attack Impact for URI " + attackTreeURI.path());
+				return;
+			}
+			final Viewpoint attackTreeVP = util.getViewpointFromRegistry(attackImpactViewpointURI);
+			final RepresentationDescription description = util.getRepresentationDescription(attackTreeVP, "AttackTreeDiagram");
+			String representationName = model.getName() + " Graph";
+			final DRepresentation rep = util.findRepresentation(existingSession, attackTreeVP, description,
+					representationName);
+			if (rep != null) {
+				DialectUIManager.INSTANCE.openEditor(existingSession, rep, new NullProgressMonitor());
+			} else {
+				try {
+					util.createAndOpenRepresentation(existingSession, attackTreeVP, description, representationName, model,
+							monitor);
+				} catch (Exception e) {
+					OsateDebug.osateDebug("Could not create and open Attack Tree Model " + model.getName());
+					return;
+				}
+			}
+
+		}
+	}
+	
+	
+	private edu.cmu.attacktree.Model getAttackTreeModelFromSession(Session session, URI uri) {
+		Resource resource = SiriusUtil.INSTANCE.getResourceFromSession(session, uri);
+		if (resource != null) {
+			for (EObject object : resource.getContents()) {
+				if (object instanceof edu.cmu.attacktree.Model) {
+					return (edu.cmu.attacktree.Model) object;
+				}
+			}
+		}
+		return null;
+	}
+	
+	private static URI serializeAttackTreeModel(edu.cmu.attacktree.Model attackTreeModel,  final URI newURI, IProject activeProject) {
+
+		try {
+
+			ResourceSet set = new ResourceSetImpl();
+			Resource res = set.createResource(newURI);
+
+			res.getContents().add(attackTreeModel);
+
+			res.save(null); 
+			activeProject.refreshLocal(IResource.DEPTH_INFINITE, null);
+			return EcoreUtil.getURI(attackTreeModel);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return newURI;
 
 	}
 	
