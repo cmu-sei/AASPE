@@ -32,4 +32,5 @@ Require-Bundle: org.osate.aadl2,
  edu.cmu.aaspe.attackimpact;bundle-version="0.1.0"
 Eclipse-LazyStart: true
 Import-Package: edu.cmu.attackimpact,
+ org.osate.aadl2.instantiation,
  org.osate.contribution.sei.names

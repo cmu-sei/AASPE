@@ -38,8 +38,10 @@ import org.eclipse.sirius.viewpoint.description.RepresentationDescription;
 import org.eclipse.sirius.viewpoint.description.Viewpoint;
 import org.eclipse.xtext.ui.util.ResourceUtil;
 import org.osate.aadl2.Element;
+import org.osate.aadl2.SystemImplementation;
 import org.osate.aadl2.instance.InstanceObject;
 import org.osate.aadl2.instance.SystemInstance;
+import org.osate.aadl2.instantiation.InstantiateModel;
 import org.osate.aadl2.util.OsateDebug;
 import org.osate.ui.actions.AaxlReadOnlyActionAsJob;
 import org.osate.ui.dialogs.Dialog;
@@ -76,13 +78,26 @@ public final class DoExportAttackImpact extends AaxlReadOnlyActionAsJob {
 		monitor.beginTask("Export to Attack Impact Model", IProgressMonitor.UNKNOWN);
 		
 			// Get the system instance (if any)
-		SystemInstance si;
+		SystemInstance si = null;
+		
 		if (obj instanceof InstanceObject) {
 			si = ((InstanceObject) obj).getSystemInstance();
-		} else {
-			si = null;
 		}
-
+		
+		if (obj instanceof SystemImplementation)
+		{
+			try
+			{
+				si = InstantiateModel.buildInstanceModelFile ((SystemImplementation) obj);
+			}
+			catch (Exception e)
+			{
+				si = null;
+			}
+		}
+		
+		
+		
 		if (si != null) {
 			long startTime = System.currentTimeMillis();
 			
@@ -113,7 +128,7 @@ public final class DoExportAttackImpact extends AaxlReadOnlyActionAsJob {
 
 
 		} else {
-			Dialog.showError("System instance selection", "You must select a system instance to continue");
+			Dialog.showError("System instance selection", "You must select a system instance or system implementation to continue");
 		}
 
 		monitor.done();

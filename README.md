@@ -14,12 +14,35 @@ The AASPE tools are designed for making secure and safe safety-critical systems.
 
 # Installing the tools
 
+## Step by step version
+
+### Step 1: Download ans install OSATE
+Go on OSATE [official website](http://www.osate.org) and download it.
+Unzip the product on your laptop.
+
+## Step 2: Start OSATE
+
+Once OSATE is installed, double click on the executable to launch it.
+
+## Step 3: Install the security tools
+
+In the Help menu, select Install New Components, as shown below.
+
+![InstallStep1](edu.cmu.aaspe.help/resources/markdown/imgs/install-step1.png "Installation step1")
+
+
+Select the experimental website http://aadl.info/aadl/osate/experimental/
+Once the list of available components is shown, select the AASPE tools, as below. Accept the license, confirm and restart OSATE.
+
+![InstallStep2](edu.cmu.aaspe.help/resources/markdown/imgs/install-step2.png "Installation step2")
+
+
+## TL;DR version
 To install the tools, you can use the update site
 and select what you want to install in Eclipse.
 
-Use the update site of the [experimental version of osate](http://www.osate.org).
+Use the update site of the [experimental version of osate](http://www.osate.org). The URL of the experimental features is: http://aadl.info/aadl/osate/experimental/
 
-The tool is integrated with the OSATE experimental product. You can download it on [the OSATE official website](http://www.osate.org)
 
 
 # Examples
