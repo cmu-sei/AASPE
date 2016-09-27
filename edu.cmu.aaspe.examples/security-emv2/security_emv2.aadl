@@ -1,0 +1,309 @@
+--
+--  Defines error types for modeling security concerns using emv2
+--  error types. Will use error types and extend them.
+--
+
+package security_emv2
+public
+annex EMV2 {**
+error types 
+	security_errors : type set {security_application_vulnerability,
+		                        authorization_vulnerability,
+		                        resource_vulnerability,
+		                        resource_access_vulnerability,
+		                        validation_vulnerability
+	};
+	
+	--
+	--  First, the typical application vulnerability. They represent
+	--  application security errors that are common when designing
+	--  an embedded system.
+	--
+	security_application_vulnerability : type;
+	
+	
+	--
+	--  not_failing_securely - CWE-636
+	--  When the product encounters an error condition or failure,
+	--  its design requires it to fall back to a state that is less
+	--  secure than other options that are available, such as 
+	--  selecting the weakest encryption algorithm or using the most
+	--  permissive access control restrictions.
+	-- 
+	not_failing_securely : type extends security_application_vulnerability;
+	
+	--
+	--  protection_mechanism_failure - CWE-693
+	--  The product does not use or incorrectly uses a protection 
+	--  mechanism that provides sufficient defense against directed attacks
+	--  against the product
+	--
+	protection_mechanism_failure : type extends security_application_vulnerability;
+	
+	--
+	--  untrusted_input - CWE-807
+	--  The application uses a protection mechanism that relies on
+	--  the existence or values of an input, but the input can be
+	--  modified by an untrusted actor in a way that bypasses the
+	--  protection mechanism.
+	untrusted_inputs : type extends security_application_vulnerability;
+	
+	--
+	--  mixed_security_levels - CWE-349
+	--  Acceptance of Extraneous Untrusted Data With Trusted Data
+	--
+	mixed_security_levels : type extends security_application_vulnerability;
+	
+	--
+	--  privilege_chaining - CWE-268
+	--  Two distinct privileges, roles, capabilities, or rights can
+	--  be combined in a way that allows an entity to perform unsafe
+	--  actions that would not be allowed without that combination.
+	--
+	privilege_chaining : type extends security_application_vulnerability;
+	
+	--
+	--  privilege_context_switching - CWE-270
+	--  The software does not properly manage privileges while it is
+	--  switching between different contexts that have different
+	--  privileges or spheres of control.
+	--
+	privilege_context_switching : type extends security_application_vulnerability;
+	
+	--
+	--  privilege_dropping - CWE-271
+	--  The software does not drop privileges before passing control
+	--  of a resource to an actor that does not have those privileges.
+	--
+	privilege_dropping : type extends security_application_vulnerability;
+	
+	--
+	--  cleartext_storage - CWE-312, CWE-313, CWE-314, CWE-315, CWE-318
+	--                      CWE-317, CWE-316, CWE-319
+	--
+	cleartext_storage : type extends security_application_vulnerability;
+	
+	--
+	--  missing_encryption - CWE-311
+	--
+	missing_encryption : type extends security_application_vulnerability;
+	
+	--
+	--  unprotected_channel - CWE-419
+	--  The software uses a primary channel for administration or
+	--  restricted functionality, but it does not properly protect
+	--  the channel.
+	--
+	unprotected_channel : type extends security_application_vulnerability;
+	
+	--
+	--  unprotected_credentials - CWE-523
+	--  Login pages not using adequate measures to protect the
+	--  user name and password while they are in transit from
+	--  the client to the server.
+	--
+	unprotected_credentials : type extends security_application_vulnerability;
+	
+	-----------------------------------------------------------------
+	-----------------------------------------------------------------
+	-----------------------------------------------------------------
+	-----------------------------------------------------------------
+	
+	--
+	--  authorization_error is a vulnerability that will ultimately
+	--  exploit a weakness to use resources or access data 
+	--  without proper permission. 
+	--
+	authorization_vulnerability : type;
+	
+	--
+	--  improper_access_control - CWE-284
+	--  The software does not restrict or incorrectly restricts
+	--  access to a resource from an unauthorized actor. 
+	--
+	improper_access_control : type extends authorization_vulnerability;
+	
+	--
+	--  improper_authorization - CWE-285
+	--  The software does not perform or incorrectly performs an
+	--  authorization check when an actor attempts to access a
+	--  resource or perform an action.
+	--
+	improper_authorization : type extends authorization_vulnerability;
+	
+	--
+	--  information_exposure - CWE-200
+	--  An information exposure is the intentional or unintentional
+	--  disclosure of information to an actor that is not explicitly
+	--  authorized to have access to that information
+	--
+	information_exposure : type extends authorization_vulnerability;
+	
+	--
+	--  missing_authorization - CWE-862
+	--  The software does not perform an authorization check when
+	--  an actor attempts to access a resource or perform an action.
+	--
+	missing_authorization : type extends authorization_vulnerability;
+
+
+	--
+	--  authentication_vulnerability
+	--  This is a type that is later refined/extended to define all
+	--  authentication vulnerabilities.
+	--
+	authentication_vulnerability : type extends authorization_vulnerability;
+	
+	--
+	--  man_in_the_middle - CWE-300
+	--  channel accessible by non endpoint
+	--
+	man_in_the_middle : type extends authentication_vulnerability;
+	
+	--
+	--  improper_authentication - CWE-287
+	--  When an actor claims to have a given identity, the software 
+	--  does not prove or insufficiently proves that the claim is correct.
+	--
+	improper_authentication : type extends authentication_vulnerability;
+	
+	--
+	--  missing_authentication - CWE-306
+	--
+	missing_authentication : type extends authentication_vulnerability;
+	
+	--
+	--  authentication_bypass - CWE-289 CWE-302 CWE-294 CWE-305 CWE-290
+	--
+	authentication_bypass : type extends authentication_vulnerability;
+	
+	-----------------------------------------------------------------
+	-----------------------------------------------------------------
+	-----------------------------------------------------------------
+	-----------------------------------------------------------------
+	
+	--
+	--  resource_access_vulnerability is a vulnerability that is
+	--  related to all issues when accessing resources and that
+	--  can potentially expose data.
+	--
+	resource_access_vulnerability : type;
+	
+	--
+	--  improper_resource_locking - CWE-413
+	--  The software does not lock or does not correctly lock a
+	--  resource when the software must have exclusive access
+	--  to the resource.
+	--
+	improper_resource_locking : type extends resource_access_vulnerability;
+	
+	--
+	--  inappropriate_operation - CWE-672
+	--
+	inappropriate_operation : type extends resource_access_vulnerability;
+
+
+	
+
+	-----------------------------------------------------------------
+	-----------------------------------------------------------------
+	-----------------------------------------------------------------
+	-----------------------------------------------------------------
+	
+	--
+	--  validation_vulnerability represents all the different errors
+	--  you can have when receiving/sending data.
+	--
+	validation_vulnerability : type;
+	
+	--
+	--  system_event_data_trust - CWE-360
+	--  Security based on event locations are insecure and can be spoofed.
+	--
+	system_event_data_trust : type extends validation_vulnerability;
+	
+	--
+	--  missing_integrity_check - CWE-353
+	--  The software uses a transmission protocol that does not
+	--  include a mechanism for verifying the integrity of the
+	--  data during transmission, such as a checksum.
+	--
+	missing_integrity_check : type extends validation_vulnerability;
+	
+	--
+	--  insufficient_data_authenticity - CWE-345
+	--
+	insufficient_data_authenticity : type extends validation_vulnerability;
+	
+	--
+	--  improper_input_validation - CWE-20
+	--  The product does not validate or incorrectly validates input
+	--  that can affect the control flow or data flow of a program.
+	--
+	improper_input_validation : type extends validation_vulnerability;
+	
+	
+	-----------------------------------------------------------------
+	-----------------------------------------------------------------
+	-----------------------------------------------------------------
+	-----------------------------------------------------------------
+	
+	resource_vulnerability : type;
+	
+	--
+	--  asymmetric_resource_consumption - CWE-405
+	--  Software that does not appropriately monitor or control
+	--  resource consumption can lead to adverse system performance.
+	--
+	asymmetric_resource_consumption : type extends resource_vulnerability;
+	
+	--
+	--  improper_synchronization - CWE-362
+	--  Concurrent Execution using Shared Resource with Improper
+	--  Synchronization ('Race Condition').
+	--
+	improper_synchronization : type extends resource_vulnerability;
+	
+	--
+	--  uncontrolled_resource_consumption - CWE-400
+	--  Uncontrolled Resource Consumption ('Resource Exhaustion')
+	--
+	uncontrolled_resource_consumption : type extends resource_vulnerability;
+	
+	
+	--
+	--  covert_timing - CWE-385
+	--  Covert Timing Channel 
+	--
+	covert_timing : type extends resource_vulnerability;
+	
+	--
+	--  resource_predictability - CWE-340 - CWE-342, CWE-343
+	--  Weaknesses in this category are related to schemes that
+	--  generate numbers or identifiers that are more predictable
+	--  than required by the application.
+	--
+	resource_predictability : type extends resource_vulnerability;
+	
+	--
+	--  algorithmic_complexity - CWE-407
+	--  An algorithm in a product has an inefficient worst-case
+	--  computational complexity that may be detrimental to system
+	--  performance and can be triggered by an attacker, typically
+	--  using crafted manipulations that ensure that the worst case
+	--  is being reached.
+	--
+	algorithmic_complexity : type extends resource_vulnerability;
+	
+	--
+	--  insufficient_resource_pool - CWE-410
+	--  The software's resource pool is not large enough to handle
+	--  peak demand, which allows an attacker to prevent others
+	--  from accessing the resource by using a (relatively) large
+	--  number of requests for resources.
+	--
+	insufficient_resource_pool : type extends resource_vulnerability;
+	
+end types;
+**}; 
+end security_emv2;
