@@ -1,0 +1,41 @@
+package savi::afe62s2::ground
+public
+
+	with savi::afe62s2::library;
+	with savi::afe62s2::datamodel;
+	
+	
+	system operator
+	features
+		adsbin  : in data port savi::afe62s2::datamodel::adsb.i;
+		adsbout : out data port savi::afe62s2::datamodel::adsb.i;
+	flows
+		adsbin_flow  : flow sink adsbin;
+		adsbout_flow : flow source adsbout;
+	end operator;
+	
+	system implementation operator.i
+	end operator.i;
+	
+	system main
+	features
+		radio   : requires bus access savi::afe62s2::library::freq;
+		adsbin  : in data port savi::afe62s2::datamodel::adsb.i;
+		adsbout : out data port savi::afe62s2::datamodel::adsb.i;
+	flows
+		adsbin_flow  : flow sink adsbin;
+		adsbout_flow : flow source adsbout;
+	end main;
+	
+	system implementation main.i
+	subcomponents
+		station_operator : system operator.i;
+	connections
+		c0 : port adsbin -> station_operator.adsbin;
+		c1 : port station_operator.adsbout -> adsbout;
+	flows
+		adsbin_flow  : flow sink adsbin -> c0 -> station_operator.adsbin_flow;
+		adsbout_flow : flow source station_operator.adsbout_flow -> c1 -> adsbout;
+	end main.i;
+
+end savi::afe62s2::ground;

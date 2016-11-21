@@ -1,0 +1,67 @@
+package savi::afe62s2::adsb
+public
+
+	with savi::afe62s2::library;
+	with savi::afe62s2::datamodel;
+	
+	device display
+	features
+		adsbin_external : in data port savi::afe62s2::datamodel::adsb.i;
+		adsbin_internal : in data port savi::afe62s2::datamodel::adsb.i;
+	flows
+		fadsbint : flow sink adsbin_internal;
+		fadsbext : flow sink adsbin_external;
+	end display;
+	
+	device implementation display.i
+	end display.i;
+	
+	system processing
+	features
+		afdx    : requires bus access savi::afe62s2::library::afdx;
+		radio   : requires bus access savi::afe62s2::library::freq.i;
+		eicas   : in data port savi::afe62s2::datamodel::eicas_msg.i;
+		adsbin  : in data port savi::afe62s2::datamodel::adsb.i;
+		adsbout : out data port savi::afe62s2::datamodel::adsb.i;
+	flows
+		feicas0       : flow path eicas -> adsbout;
+		fadsbout_flow : flow source adsbout;
+	end processing;
+	
+	system implementation processing.i
+	end processing.i;
+	
+	system main
+	features
+		afdx : requires bus access savi::afe62s2::library::afdx;
+		radio : requires bus access savi::afe62s2::library::freq.i;
+		eicas : in data port savi::afe62s2::datamodel::eicas_msg.i;
+		adsbin : in data port savi::afe62s2::datamodel::adsb.i;
+		adsbout : out data port savi::afe62s2::datamodel::adsb.i;
+	flows
+		feicas0 : flow path eicas -> adsbout;
+		adsbin_flow : flow sink adsbin;
+		adsbout_flow : flow source adsbout;
+		feicas1 : flow path adsbin -> adsbout;
+	end main;
+	
+	system implementation main.i
+	subcomponents
+		processing : system processing.i;
+		display    : device display.i;
+	connections
+		afdx0 : bus access afdx <-> processing.afdx;
+		radio0 : bus access radio <-> processing.radio;
+		adsbin0 : port adsbin -> processing.adsbin;
+		adsbin1 : port adsbin -> display.adsbin_external;
+		adsbout0 : port processing.adsbout -> adsbout;
+		processing0 : port processing.adsbout -> display.adsbin_internal;
+		eicas0 : port eicas -> processing.eicas;
+	flows
+--		feicas0 : flow path eicas -> processing.feicas0 -> adsbout;
+		adsbin_flow : flow sink adsbin -> adsbin1 -> display.fadsbext;
+		internal_adsb : end to end flow processing.fadsbout_flow -> processing0 -> display.fadsbint;
+		adsbout_flow : flow source processing.fadsbout_flow -> adsbout0 -> adsbout;
+	end main.i;
+
+end savi::afe62s2::adsb;

@@ -1,0 +1,80 @@
+package savi::afe62s2::ife
+public
+	with savi::afe62s2::library;
+	with savi::afe62s2::datamodel;
+	with security_properties;
+	
+	device usb_socket
+	features
+		usb : requires bus access savi::afe62s2::library::usb;
+	properties
+		security_properties::exposure => 100;
+	end usb_socket;
+	
+	system playback
+	features
+		infoin : in data port savi::afe62s2::datamodel::flightinfo.i;
+		afdx : requires bus access savi::afe62s2::library::afdx;
+		eth  : requires bus access savi::afe62s2::library::ethernet.i;
+		usb  : provides bus access savi::afe62s2::library::usb;
+	flows
+		info : flow sink infoin;
+	end playback;
+	
+	system implementation playback.i
+	end playback.i;
+	
+	system entertainment
+	features
+		infoin : in data port savi::afe62s2::datamodel::flightinfo.i;
+		eth  : requires bus access savi::afe62s2::library::ethernet.i;
+		afdx : requires bus access savi::afe62s2::library::afdx;
+	flows
+		finfo : flow sink infoin;
+	end entertainment;
+	
+	system implementation entertainment.i
+	subcomponents
+		playback	  : system playback.i;
+		usbsocket     : device usb_socket;
+	connections
+		usb0 : bus access playback.usb <-> usbsocket.usb;
+		info0 : port infoin -> playback.infoin;
+	flows
+		finfo : flow sink infoin -> info0 -> playback.info;
+	end entertainment.i;
+	
+	system nas
+	features
+		stream : out data port savi::afe62s2::datamodel::stream.i;
+		eth  : requires bus access savi::afe62s2::library::ethernet.i;
+	end nas;
+	
+	system implementation nas.i
+	subcomponents
+		storage : memory;
+	end nas.i;
+	
+	system main
+	features
+		infoin : in data port savi::afe62s2::datamodel::flightinfo.i;
+		afdx : requires bus access savi::afe62s2::library::afdx;
+	flows
+		finfo : flow sink infoin;
+	end main;
+	
+	system implementation main.i
+	subcomponents
+		entertainment : system entertainment.i;
+		nas           : system nas.i;
+		eth           : bus savi::afe62s2::library::ethernet.i;
+	connections
+		afdx0 : bus access entertainment.afdx <-> afdx;
+		nas0 : bus access nas.eth <-> eth;
+		nas1 : bus access entertainment.eth <-> eth;
+		info0 : port infoin -> entertainment.infoin;
+	flows
+		finfo : flow sink infoin -> info0 -> entertainment.finfo;
+	end main.i;
+
+end savi::afe62s2::ife;

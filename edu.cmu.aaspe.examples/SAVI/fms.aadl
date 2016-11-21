@@ -1,0 +1,19 @@
+package savi::afe62s2::fms
+public
+
+	with savi::afe62s2::library;
+	with savi::afe62s2::datamodel;
+	
+	system main
+	features
+		afdx : requires bus access savi::afe62s2::library::afdx;
+		pos   : in data port savi::afe62s2::datamodel::position.gps;
+		temp  : in data port savi::afe62s2::datamodel::temperature.i;
+		eicas : in data port savi::afe62s2::datamodel::eicas_msg.i;
+		adsbin : in data port savi::afe62s2::datamodel::adsb.i;
+	end main;
+	
+	system implementation main.i
+	end main.i;
+
+end savi::afe62s2::fms;

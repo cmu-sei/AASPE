@@ -1,0 +1,83 @@
+package savi::afe62s2::integration
+public
+
+	with savi::afe62s2::ground;
+	with savi::afe62s2::aircraft;
+	with savi::afe62s2::library;
+	with savi::afe62s2::datamodel;
+	with security_properties;
+	
+	--
+	--  Represents an attacker and what he can send/receive
+	--  from the data in the air.
+	--
+	
+	system attacker
+	features
+		radio   : requires bus access savi::afe62s2::library::freq.i;
+		adsbin  : in data port savi::afe62s2::datamodel::adsb.i;
+		adsbout : out data port savi::afe62s2::datamodel::adsb.i;
+	flows
+		flow_adsbin  : flow sink adsbin;
+		flow_adsbout : flow source adsbout;
+	end attacker;
+	
+	system implementation attacker.i
+	end attacker.i;
+	
+	system main
+	end main;
+	
+	system implementation main.i
+	subcomponents
+	
+		--
+		--  The main system with two aircrafts that can communicate
+		--  together and the ground station.
+		--
+		
+		aircraft0 : system savi::afe62s2::aircraft::main.i;
+		aircraft1 : system savi::afe62s2::aircraft::main.i
+			{security_properties::exposure => 0;};
+		station   : system savi::afe62s2::ground::main.i
+			{security_properties::exposure => 0;};
+		
+		--
+		--  We add an attacker that show somebody can
+		--  have access to the radio frequency medium.
+		--
+		
+		attacker : system attacker.i
+			{security_properties::exposure => 0;};
+		
+		frequencies : bus savi::afe62s2::library::freq.i;
+		
+	connections
+		freq0 : bus access frequencies <-> aircraft0.radio;
+		freq1 : bus access frequencies <-> aircraft1.radio;
+		freq2 : bus access frequencies <-> station.radio;
+		freq3 : bus access frequencies <-> attacker.radio;
+		
+		adsb0 : port aircraft0.adsbout -> station.adsbin;
+		adsb1 : port aircraft1.adsbout -> station.adsbin;
+		adsb2 : port station.adsbout -> aircraft0.adsbin;
+		adsb3 : port station.adsbout -> aircraft1.adsbin;
+		adsb4 : port attacker.adsbout -> aircraft0.adsbin;
+		adsb5 : port attacker.adsbout -> aircraft0.adsbin;
+		adsb6 : port attacker.adsbout -> station.adsbin;
+		adsb7 : port station.adsbout -> attacker.adsbin;
+		adsb8 : port aircraft0.adsbout -> attacker.adsbin;
+		adsb9 : port aircraft1.adsbout -> attacker.adsbin;
+	flows
+		station_to_plane0 : end to end flow station.adsbout_flow -> adsb2 -> aircraft0.adsbin_flow;
+		station_to_plane1 : end to end flow station.adsbout_flow -> adsb3 -> aircraft1.adsbin_flow;
+		attacker_to_plane0 : end to end flow attacker.flow_adsbout -> adsb4 -> aircraft0.adsbin_flow;
+		attacker_to_plane1 : end to end flow attacker.flow_adsbout -> adsb5 -> aircraft1.adsbin_flow;
+		attacker_to_station : end to end flow attacker.flow_adsbout -> adsb6 -> station.adsbin_flow;
+		station_to_attacker : end to end flow station.adsbout_flow -> adsb7 -> attacker.flow_adsbin;
+		plane0_to_attacker : end to end flow aircraft0.adsbout_flow -> adsb8 -> attacker.flow_adsbin;
+		plane1_to_attacker : end to end flow aircraft1.adsbout_flow -> adsb9 -> attacker.flow_adsbin;
+	end main.i; 
+
+
+end savi::afe62s2::integration;

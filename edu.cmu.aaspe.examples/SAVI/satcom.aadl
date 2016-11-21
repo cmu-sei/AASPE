@@ -1,0 +1,14 @@
+package savi::afe62s2::satcom
+public
+
+	with savi::afe62s2::library;
+	
+	system main
+	features
+		afdx : requires bus access savi::afe62s2::library::afdx;
+	end main;
+	
+	system implementation main.i
+	end main.i;
+
+end savi::afe62s2::satcom;

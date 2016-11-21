@@ -1,0 +1,89 @@
+package savi::afe62s2::library
+public
+
+	with savi::afe62s2::datamodel;
+	
+	--
+	--  This "virtual bus" represents the radiofrequencies
+	--  available in the air/sky.
+	--
+	
+	bus freq
+	end freq;
+	
+	bus implementation freq.i
+	end freq.i;
+
+	--
+	--  Generic AFDX buses used to interconnect the system components.
+	--
+
+	bus afdx
+	end afdx;
+	
+	bus implementation afdx.i
+	end afdx.i;
+	
+	
+	--
+	--  USB bus used within th eIFE system
+	--
+	
+	bus usb
+	end usb;
+	
+	bus implementation usb.i
+	end usb.i;
+	
+	--
+	--  The ethernet bus is used to interconnect
+	--  the playback system with the video files.
+	--
+	
+	bus ethernet
+	end ethernet;
+	
+	bus implementation ethernet.i
+	end ethernet.i;
+	
+	device sensor
+	features
+		afdx : requires bus access afdx;
+		temp : out data port savi::afe62s2::datamodel::temperature.i;
+	end sensor;
+	
+	device implementation sensor.i
+	end sensor.i;
+	
+	
+	device gps
+	features
+		afdx : requires bus access afdx;
+		pos  : out data port savi::afe62s2::datamodel::position.gps;
+	end gps;
+	
+	device implementation gps.i
+	
+	end gps.i;
+	
+	--
+	--  Network Extension Device
+	--  This device is supposed to provide isolation between the aircraft
+	--  world and the entertainment systems.
+	--
+	
+	system ned
+	features
+		infoin : in data port savi::afe62s2::datamodel::flightinfo.i;
+		infoout : out data port savi::afe62s2::datamodel::flightinfo.i;
+		afdx0   : requires bus access afdx;
+		afdx1 : requires bus access afdx;
+	flows
+		info : flow path infoin -> infoout;
+	end ned;
+
+	system implementation ned.i
+	
+	end ned.i;
+
+end savi::afe62s2::library;

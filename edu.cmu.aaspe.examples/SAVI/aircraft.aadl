@@ -1,0 +1,139 @@
+package savi::afe62s2::aircraft
+public
+	with savi::afe62s2::library;
+	with savi::afe62s2::datamodel;
+	with savi::afe62s2::adsb;
+	with savi::afe62s2::eicas;
+	with savi::afe62s2::fms;
+	with savi::afe62s2::ife;
+	with savi::afe62s2::satcom;
+	with savi::afe62s2::wireless_access;
+	
+	with security_properties;
+
+	with ARINC653;
+
+	--
+	--  In this model, we integrate all the system from the plane.
+	--  Then, the integration.aadl file defines the integration
+	--  of two planes with a ground station.
+	--
+
+	system main
+	features
+		radio   : requires bus access savi::afe62s2::library::freq.i;
+		adsbin  : in data port savi::afe62s2::datamodel::adsb.i;
+		adsbout : out data port savi::afe62s2::datamodel::adsb.i;
+	flows
+		adsbin_flow   : flow sink adsbin;
+		adsbout_flow  : flow source adsbout;
+	end main;
+
+
+	system implementation main.i
+	subcomponents
+		--
+		-- interconnected components
+		--
+		gps : device savi::afe62s2::library::gps.i
+			{security_properties::domains => ("navigation");
+			 security_properties::exposure => 0;
+			};
+		sensor : device savi::afe62s2::library::sensor.i
+			{security_properties::domains => ("navigation");
+			 security_properties::exposure => 0;
+			};
+		eicas : system savi::afe62s2::eicas::main.i
+			{security_properties::domains => ("navigation");
+			 security_properties::exposure => 0;
+			 ARINC653::DAL => LEVEL_A;
+			};
+		fms : system savi::afe62s2::fms::main.i
+			{security_properties::domains => ("navigation");
+			 security_properties::exposure => 0;
+			 ARINC653::DAL => LEVEL_A;	
+			};
+		adsb : system savi::afe62s2::adsb::main.i
+			{security_properties::domains => ("navigation");
+			 security_properties::exposure => 0;
+			 ARINC653::DAL => LEVEL_A;	
+			};
+		ned : system savi::afe62s2::library::ned.i
+			{security_properties::domains => ("navigation", "entertainment");
+			 security_properties::exposure => 0;
+			 security_properties::trust => 100;
+			 ARINC653::DAL => LEVEL_C;	
+			};
+		ife : system savi::afe62s2::ife::main.i
+			{security_properties::domains => ("entertainment");
+			 ARINC653::DAL => LEVEL_E;	
+			};
+		wireless : system savi::afe62s2::wireless_access::main.i
+			{security_properties::domains => ("entertainment");
+			 ARINC653::DAL => LEVEL_E;
+			};
+		satcom : system savi::afe62s2::satcom::main.i
+			{security_properties::domains => ("entertainment");
+			ARINC653::DAL => LEVEL_E;	
+			};
+		
+		--
+		-- buses
+		--
+		
+		afdx0 : bus savi::afe62s2::library::afdx.i
+		   {
+		   	security_properties::exposure => 0;
+		   };
+		afdx1 : bus savi::afe62s2::library::afdx.i
+		   {
+		   	security_properties::exposure => 0;
+		   };
+		afdx2 : bus savi::afe62s2::library::afdx.i
+		   {
+		   	security_properties::exposure => 0;
+		   };
+	
+	connections
+		afdx0_fms : bus access fms.afdx <-> afdx0;
+		afdx0_adsb : bus access adsb.afdx <-> afdx0;
+		afdx0_eicas : bus access eicas.afdx0 <-> afdx0;
+		
+		afdx1_eicas : bus access eicas.afdx1 <-> afdx1;
+		afdx1_sensor : bus access sensor.afdx <-> afdx1;
+		afdx1_gps : bus access gps.afdx <-> afdx1;
+		afdx1_ned : bus access ned.afdx0 <-> afdx1;
+		
+		afdx2_ned : bus access ned.afdx1 <-> afdx2;
+		afdx2_ife : bus access ife.afdx <-> afdx2;
+		afdx2_wireless : bus access wireless.afdx <-> afdx2;
+		afdx2_satcom : bus access satcom.afdx <-> afdx2;
+		
+		radio0 : bus access radio <-> adsb.radio;
+		
+		adsbin0 : port adsbin -> adsb.adsbin;
+		adsbout0 : port adsb.adsbout -> adsbout;
+		adsbout1 : port adsb.adsbout -> fms.adsbin;
+		
+		eicas0 : port eicas.eicas -> fms.eicas;
+		eicas1 : port eicas.info -> ned.infoin;
+		eicas2 : port eicas.eicas -> adsb.eicas;
+		
+		sensor0 : port sensor.temp -> eicas.temp;
+		sensor1 : port sensor.temp -> fms.temp;
+		
+		gps0 : port gps.pos -> eicas.pos;
+		gps1 : port gps.pos -> fms.pos;
+		
+		ned0 : port ned.infoout -> ife.infoin;
+	flows
+		adsbin_flow : flow sink adsbin -> adsbin0 -> adsb.adsbin_flow;
+		adsbout_flow : flow source adsb.adsbout_flow -> adsbout0 -> adsbout;
+	properties
+		security_properties::exposure => 0 applies to
+			gps, sensor, eicas, fms, adsb, ned, wireless,satcom, ife.entertainment.playback, ife.eth, ife.nas ;
+		security_properties::exposure => 50 applies to
+			ife.entertainment.usbsocket;	
+	end main.i;
+
+end savi::afe62s2::aircraft;

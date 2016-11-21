@@ -1,0 +1,71 @@
+package savi::afe62s2::datamodel
+public
+
+	--
+	--  stream represent a data to stream a movie.
+	--
+	
+	data stream
+	end stream;
+	
+	data implementation stream.i
+	end stream.i;
+
+	--
+	--  data transmitted through the ADS-B signal
+	--
+	
+	data adsb
+	end adsb;
+	
+	data implementation adsb.i
+	end adsb.i;
+	
+	--
+	--  data that represents a temperature. Used
+	--  to get the value of the temperature on engines
+	--  (the only sensor used in this system)
+	
+	data temperature
+	end temperature;
+	
+	data implementation temperature.i
+	end temperature.i;
+	
+	
+	--
+	--  position date. The sole implementation is the GPS
+	--  but we can think about another one.
+	--
+	
+	data position
+	end position;
+	
+	data implementation position.gps
+	end position.gps;
+	
+	
+	--
+	--  The flight plan is what is sent to the IFE
+	--  to show the plane position, time to arrival
+	--  gate of arrival and so on. Basically, what
+	--  is shown on your screen when you take a plane.
+	--
+	
+	data flightinfo
+	end flightinfo;
+	
+	data implementation flightinfo.i
+	end flightinfo.i;
+	
+	--
+	--  Full EICAS message with all warnings
+	--
+	
+	data eicas_msg
+	end eicas_msg;
+	
+	data implementation eicas_msg.i
+	end eicas_msg.i;
+
+end savi::afe62s2::datamodel;
