@@ -1,9 +1,10 @@
 package edu.cmu.sei.aaspe.utils;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -13,6 +14,7 @@ import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.sirius.business.api.componentization.ViewpointRegistry;
 import org.eclipse.sirius.business.api.modelingproject.AbstractRepresentationsFileJob;
 import org.eclipse.sirius.business.api.modelingproject.ModelingProject;
+import org.eclipse.sirius.business.api.query.DViewQuery;
 import org.eclipse.sirius.business.api.query.ViewpointQuery;
 import org.eclipse.sirius.business.api.session.Session;
 import org.eclipse.sirius.business.api.session.SessionManager;
@@ -95,7 +97,9 @@ public class SiriusUtil {
 		DAnalysis root = (DAnalysis) existingSession.getSessionResource().getContents().get(0);
 		for (DView dView : root.getOwnedViews()) {
 			if (dView.getViewpoint().getName().equals(viewpoint.getName())) {
-				EList<DRepresentation> myRepresentations = dView.getOwnedRepresentations();
+				DViewQuery q = new DViewQuery(dView);
+				List<DRepresentation> myRepresentations = q.getLoadedRepresentations();
+//				EList<DRepresentation> myRepresentations = dView.getOwnedRepresentations();
 				for (DRepresentation dRepresentation : myRepresentations) {
 					if (representationName.equalsIgnoreCase(dRepresentation.getName())) {
 						return dRepresentation;
