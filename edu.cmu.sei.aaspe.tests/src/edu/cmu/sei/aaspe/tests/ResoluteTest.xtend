@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.Path
 import org.eclipse.emf.common.util.URI
 import org.eclipse.ui.actions.WorkspaceModifyOperation
 import org.eclipse.xtext.junit4.InjectWith
-import org.eclipselabs.xtext.utils.unittesting.XtextRunner2
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,6 +31,7 @@ import org.osate.core.test.OsateTest
 
 import static extension org.junit.Assert.assertEquals
 import static extension org.osate.annexsupport.AnnexUtil.getAllAnnexSubclauses
+import com.itemis.xtext.testing.XtextRunner2
 
 @RunWith(XtextRunner2)
 @InjectWith(Aadl2UiInjectorProvider)
@@ -310,11 +310,11 @@ class ResoluteTest extends OsateTest {
 		suppressSerialization
 		
 		val implementation = (testFile(fileName).resource.contents.head as AadlPackage).publicSection.ownedClassifiers.filter(ComponentImplementation).findFirst[name == implementationName]
-		Assert.assertNotNull('''Could not find implementation «implementationName»''', implementation)
+		Assert.assertNotNull('''Could not find implementation ï¿½implementationNameï¿½''', implementation)
 		val instance = InstantiateModel.buildInstanceModelFile(implementation)
 		val subclauses = implementation.getAllAnnexSubclauses(ResolutePackage.eINSTANCE.resoluteSubclause)
 		val proveStatements = subclauses.map[(it as ResoluteSubclause).proves].flatten.toList
-		Assert.assertFalse('''No prove statements found in «implementationName»''', proveStatements.empty)
+		Assert.assertFalse('''No prove statements found in ï¿½implementationNameï¿½''', proveStatements.empty)
 		
 		val allComponents = (instance.eAllContents.filter(ComponentInstance).toIterable + #[instance]).toList
 		val categorySets = allComponents.groupBy[new BaseType(category).toString].mapValues[
