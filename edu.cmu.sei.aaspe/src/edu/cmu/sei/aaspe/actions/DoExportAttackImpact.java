@@ -158,7 +158,7 @@ public final class DoExportAttackImpact extends AaxlReadOnlyActionAsJob {
 	private void createAndOpenAttackImpact(final IProject project, final URI attackImpactURI,
 			IProgressMonitor monitor) {
 		SiriusUtil util = SiriusUtil.INSTANCE;
-		String attackImpactViewpointName = "AttackImpact";
+		URI attackImpactViewpointURI = URI.createURI("viewpoint:/attackimpact.design/AttackImpact");
 
 		URI semanticResourceURI = URI.createPlatformResourceURI(attackImpactURI.toPlatformString(true), true);
 		Session existingSession = util.getSessionForProjectAndResource(project, semanticResourceURI, monitor);
@@ -185,7 +185,7 @@ public final class DoExportAttackImpact extends AaxlReadOnlyActionAsJob {
 				OsateDebug.osateDebug("Could not find Attack Impact for URI " + attackImpactURI.path());
 				return;
 			}
-			final Viewpoint attackImpactVP = util.getViewpointFromSession(existingSession, attackImpactViewpointName);
+			final Viewpoint attackImpactVP = util.getViewpoint(existingSession, attackImpactViewpointURI, monitor);
 			final RepresentationDescription description = util.getRepresentationDescription(attackImpactVP,
 					"AttackImpactDiagram");
 			String representationName = model.getName() + " Graph";

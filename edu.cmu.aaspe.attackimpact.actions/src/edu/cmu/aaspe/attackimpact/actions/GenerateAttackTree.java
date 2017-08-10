@@ -171,7 +171,7 @@ public class GenerateAttackTree implements org.eclipse.sirius.tools.api.ui.IExte
 
 	private void createAndOpenAttackTree(final IProject project, final URI attackTreeURI, IProgressMonitor monitor) {
 		SiriusUtil util = SiriusUtil.INSTANCE;
-		String attackImpactViewpointName = "AttackTree";
+		URI attackImpactViewpointURI = URI.createURI("viewpoint:/attracktree.design/AttackTree");
 
 		URI semanticResourceURI = URI.createPlatformResourceURI(attackTreeURI.toPlatformString(true), true);
 		Session existingSession = util.getSessionForProjectAndResource(project, semanticResourceURI, monitor);
@@ -198,7 +198,7 @@ public class GenerateAttackTree implements org.eclipse.sirius.tools.api.ui.IExte
 				OsateDebug.osateDebug("Could not find Attack Impact for URI " + attackTreeURI.path());
 				return;
 			}
-			final Viewpoint attackTreeVP = util.getViewpointFromSession(existingSession, attackImpactViewpointName);
+			final Viewpoint attackTreeVP = util.getViewpoint(existingSession, attackImpactViewpointURI, monitor);
 			final RepresentationDescription description = util.getRepresentationDescription(attackTreeVP,
 					"AttackTreeDiagram");
 			String representationName = model.getName() + " Graph";
