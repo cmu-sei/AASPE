@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.Path
 import org.eclipse.emf.common.util.URI
 import org.eclipse.ui.actions.WorkspaceModifyOperation
-import org.eclipse.xtext.junit4.InjectWith
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,13 +26,14 @@ import org.osate.aadl2.instance.ConnectionInstance
 import org.osate.aadl2.instantiation.InstantiateModel
 import org.osate.aadl2.modelsupport.resources.OsateResourceUtil
 import org.osate.core.test.Aadl2UiInjectorProvider
+import org.eclipse.xtext.testing.InjectWith
+import org.eclipse.xtext.testing.XtextRunner;
 import org.osate.core.test.OsateTest
 
 import static extension org.junit.Assert.assertEquals
 import static extension org.osate.annexsupport.AnnexUtil.getAllAnnexSubclauses
-import com.itemis.xtext.testing.XtextRunner2
 
-@RunWith(XtextRunner2)
+@RunWith(XtextRunner)
 @InjectWith(Aadl2UiInjectorProvider)
 class ResoluteTest extends OsateTest {
 	val static NE_COMPARATOR = new NamedElementComparator
