@@ -14,8 +14,6 @@
  */
 package edu.cmu.sei.aaspe.actions;
 
-import java.io.FileOutputStream;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -48,14 +46,11 @@ import org.osate.ui.dialogs.Dialog;
 import org.osgi.framework.Bundle;
 
 import edu.cmu.attackimpact.Model;
-import edu.cmu.sei.aaspe.utils.SiriusUtil;
 import edu.cmu.sei.aaspe.Activator;
 import edu.cmu.sei.aaspe.export.AttackImpactModel;
 import edu.cmu.sei.aaspe.logic.AttackImpact;
 import edu.cmu.sei.aaspe.model.PropagationModel;
-import edu.cmu.sei.aaspe.utils.ComponentUtils;
-import edu.cmu.sei.aaspe.utils.Utils;
-
+import edu.cmu.sei.aaspe.utils.SiriusUtil;
 
 public final class DoExportAttackImpact extends AaxlReadOnlyActionAsJob {
 	@Override
@@ -76,47 +71,41 @@ public final class DoExportAttackImpact extends AaxlReadOnlyActionAsJob {
 		 * units we would effectively have to count everything twice.
 		 */
 		monitor.beginTask("Export to Attack Impact Model", IProgressMonitor.UNKNOWN);
-		
-			// Get the system instance (if any)
+
+		// Get the system instance (if any)
 		SystemInstance si = null;
-		
+
 		if (obj instanceof InstanceObject) {
 			si = ((InstanceObject) obj).getSystemInstance();
 		}
-		
-		if (obj instanceof SystemImplementation)
-		{
-			try
-			{
-				si = InstantiateModel.buildInstanceModelFile ((SystemImplementation) obj);
-			}
-			catch (Exception e)
-			{
+
+		if (obj instanceof SystemImplementation) {
+			try {
+				si = InstantiateModel.buildInstanceModelFile((SystemImplementation) obj);
+			} catch (Exception e) {
 				si = null;
 			}
 		}
-		
-		
-		
+
 		if (si != null) {
 			long startTime = System.currentTimeMillis();
-			
+
 			OsateDebug.osateDebug("Export Attack Impact - starting");
 			PropagationModel.getInstance().reset();
 			AttackImpact ai = new AttackImpact(si, monitor, getErrorManager());
 			ai.defaultTraversal(si);
-			AttackImpactModel export = new AttackImpactModel (ai); 
-			Model attackImpactModel = export.getAttackImpactModel (true);
+			AttackImpactModel export = new AttackImpactModel(ai);
+			Model attackImpactModel = export.getAttackImpactModel(true);
 			IFile ifile = ResourceUtil.getFile(si.eResource());
 			String filename = ifile.getFullPath().removeFirstSegments(1).toString();
-			
+
 //			String filename = ifile.getName();
 			filename = filename.replace("aaxl2", "attackimpact");
 //			OsateDebug.osateDebug("Filename=" + filename);
 //			OsateDebug.osateDebug("s=" + s);
- 
+
 			monitor.subTask("Writing attack model file");
-			
+
 			URI newURI = EcoreUtil.getURI(si).trimFragment().trimSegments(2).appendSegment("attackimpact")
 					.appendSegment("ai" + ".attackimpact");
 			final IProject currentProject = ResourceUtil.getFile(si.eResource()).getProject();
@@ -124,17 +113,17 @@ public final class DoExportAttackImpact extends AaxlReadOnlyActionAsJob {
 			autoOpenAttackImpactModel(modelURI, currentProject);
 //			createAndOpenAttackImpact(currentProject, modelURI, monitor);
 			long endTime = System.currentTimeMillis();
-			OsateDebug.osateDebug("Export Attack Impact - finished in " + ((endTime - startTime) / 1000) + " s" );
-
+			OsateDebug.osateDebug("Export Attack Impact - finished in " + ((endTime - startTime) / 1000) + " s");
 
 		} else {
-			Dialog.showError("System instance selection", "You must select a system instance or system implementation to continue");
+			Dialog.showError("System instance selection",
+					"You must select a system instance or system implementation to continue");
 		}
 
 		monitor.done();
 
 	}
-	
+
 	public void autoOpenAttackImpactModel(final URI newURI, final IProject activeProject) {
 
 		try {
@@ -146,7 +135,7 @@ public final class DoExportAttackImpact extends AaxlReadOnlyActionAsJob {
 
 					monitor.beginTask("Creation of Attack Impact Graph", 100);
 
-					createAndOpenAttackImpact (activeProject, newURI, monitor);
+					createAndOpenAttackImpact(activeProject, newURI, monitor);
 					try {
 						activeProject.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 					} catch (CoreException e) {
@@ -165,12 +154,11 @@ public final class DoExportAttackImpact extends AaxlReadOnlyActionAsJob {
 		}
 
 	}
-	
 
-
-	private void createAndOpenAttackImpact(final IProject project, final URI attackImpactURI, IProgressMonitor monitor) {
+	private void createAndOpenAttackImpact(final IProject project, final URI attackImpactURI,
+			IProgressMonitor monitor) {
 		SiriusUtil util = SiriusUtil.INSTANCE;
-		URI attackImpactViewpointURI = URI.createURI("viewpoint:/attackimpact.design/AttackImpact");
+		String attackImpactViewpointName = "AttackImpact";
 
 		URI semanticResourceURI = URI.createPlatformResourceURI(attackImpactURI.toPlatformString(true), true);
 		Session existingSession = util.getSessionForProjectAndResource(project, semanticResourceURI, monitor);
@@ -186,8 +174,8 @@ public final class DoExportAttackImpact extends AaxlReadOnlyActionAsJob {
 			// XXX this next piece of code tries to compensate for a bug in Sirius where it cannot find the Model
 			// It should be there since the getSessionForProjectandResource would have put it there.
 			if (model == null) {
-				OsateDebug.osateDebug(
-						"Could not find semantic resource Attack Impact in session for URI " + semanticResourceURI.path());
+				OsateDebug.osateDebug("Could not find semantic resource Attack Impact in session for URI "
+						+ semanticResourceURI.path());
 				EObject res = resset.getEObject(attackImpactURI, true);
 				if (res instanceof Model) {
 					model = (Model) res;
@@ -197,8 +185,9 @@ public final class DoExportAttackImpact extends AaxlReadOnlyActionAsJob {
 				OsateDebug.osateDebug("Could not find Attack Impact for URI " + attackImpactURI.path());
 				return;
 			}
-			final Viewpoint attackImpactVP = util.getViewpointFromRegistry(attackImpactViewpointURI);
-			final RepresentationDescription description = util.getRepresentationDescription(attackImpactVP, "AttackImpactDiagram");
+			final Viewpoint attackImpactVP = util.getViewpointFromSession(existingSession, attackImpactViewpointName);
+			final RepresentationDescription description = util.getRepresentationDescription(attackImpactVP,
+					"AttackImpactDiagram");
 			String representationName = model.getName() + " Graph";
 			final DRepresentation rep = util.findRepresentation(existingSession, attackImpactVP, description,
 					representationName);
@@ -206,8 +195,8 @@ public final class DoExportAttackImpact extends AaxlReadOnlyActionAsJob {
 				DialectUIManager.INSTANCE.openEditor(existingSession, rep, new NullProgressMonitor());
 			} else {
 				try {
-					util.createAndOpenRepresentation(existingSession, attackImpactVP, description, representationName, model,
-							monitor);
+					util.createAndOpenRepresentation(existingSession, attackImpactVP, description, representationName,
+							model, monitor);
 				} catch (Exception e) {
 					OsateDebug.osateDebug("Could not create and open Attack Impact Model " + model.getName());
 					return;
@@ -216,7 +205,6 @@ public final class DoExportAttackImpact extends AaxlReadOnlyActionAsJob {
 
 		}
 	}
-
 
 	private Model getAttackImpactModelFromSession(Session session, URI uri) {
 		Resource resource = SiriusUtil.INSTANCE.getResourceFromSession(session, uri);
@@ -230,8 +218,7 @@ public final class DoExportAttackImpact extends AaxlReadOnlyActionAsJob {
 		return null;
 	}
 
-	
-	private static URI serializeAttackImpactModel(Model attackImpactModel,  final URI newURI, IProject activeProject) {
+	private static URI serializeAttackImpactModel(Model attackImpactModel, final URI newURI, IProject activeProject) {
 
 		try {
 
@@ -241,7 +228,7 @@ public final class DoExportAttackImpact extends AaxlReadOnlyActionAsJob {
 			res.getContents().add(attackImpactModel);
 
 //			FileOutputStream fos = new FileOutputStream(newFile.getRawLocation().toFile());
-			res.save(null); 
+			res.save(null);
 			OsateDebug.osateDebug("[AttackImpactModel]", "activeproject=" + activeProject.getName());
 			activeProject.refreshLocal(IResource.DEPTH_INFINITE, null);
 			return EcoreUtil.getURI(attackImpactModel);
