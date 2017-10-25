@@ -54,9 +54,9 @@ class Builder extends IncrementalProjectBuilder {
 	} 
 	
 	override protected build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
-		if (project.name != PredeclaredProperties.PLUGIN_RESOURCES_PROJECT_NAME) {
+//		if (project.name != PredeclaredProperties.PLUGIN_RESOURCES_PROJECT_NAME) {
 			buildIContainer(project, monitor)
-		}
+//		}
 		null
 	}
 	
