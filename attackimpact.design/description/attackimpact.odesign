@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<description:Group xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:description="http://www.eclipse.org/sirius/description/1.1.0" xmlns:description_1="http://www.eclipse.org/sirius/diagram/description/1.1.0" xmlns:style="http://www.eclipse.org/sirius/diagram/description/style/1.1.0" xmlns:tool="http://www.eclipse.org/sirius/diagram/description/tool/1.1.0" xmlns:tool_1="http://www.eclipse.org/sirius/description/tool/1.1.0" name="attackimpact" version="10.1.0.201507271600">
+<description:Group xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:description="http://www.eclipse.org/sirius/description/1.1.0" xmlns:description_1="http://www.eclipse.org/sirius/diagram/description/1.1.0" xmlns:style="http://www.eclipse.org/sirius/diagram/description/style/1.1.0" xmlns:tool="http://www.eclipse.org/sirius/diagram/description/tool/1.1.0" xmlns:tool_1="http://www.eclipse.org/sirius/description/tool/1.1.0" name="attackimpact" version="12.0.0.2017041100">
   <ownedViewpoints name="AttackImpact" label="Attack Impact" modelFileExtension="attackimpact">
     <ownedRepresentations xsi:type="description_1:DiagramDescription" name="AttackImpactDiagram" label="Attack Impact Diagram" domainClass="attackimpact.Model" enablePopupBars="true">
       <defaultLayer name="Default">
-        <nodeMappings name="Node" semanticCandidatesExpression="[eAllContents() /]" doubleClickDescription="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@toolSections.0/@ownedTools[name='DoubleClickNode']" domainClass="attackimpact.Node">
+        <nodeMappings name="Node" semanticCandidatesExpression="aql:self.eAllContents()" doubleClickDescription="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@toolSections.0/@ownedTools[name='DoubleClickNode']" domainClass="attackimpact.Node">
           <style xsi:type="style:SquareDescription" borderSizeComputationExpression="2" labelPosition="node" resizeKind="NSEW" width="10" height="4">
             <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
             <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
             <color xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='white']"/>
           </style>
         </nodeMappings>
-        <nodeMappings name="Vulnerability" semanticCandidatesExpression="[eAllContents()/]" doubleClickDescription="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@toolSections.0/@ownedTools[name='DoubleClickNode']" domainClass="attackimpact.Vulnerability">
+        <nodeMappings name="Vulnerability" semanticCandidatesExpression="aql:self.eAllContents()" doubleClickDescription="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@toolSections.0/@ownedTools[name='DoubleClickNode']" domainClass="attackimpact.Vulnerability">
           <style xsi:type="style:EllipseNodeDescription" borderLineStyle="dot" labelPosition="node" resizeKind="NSEW" horizontalDiameterComputationExpression="10" verticalDiameterComputationExpression="5">
             <borderColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
             <labelColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='black']"/>
@@ -59,7 +59,7 @@
             </style>
           </conditionnalStyles>
         </nodeMappings>
-        <edgeMappings name="MappingNodeToNode" label="Node to Node" sourceMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node']" targetMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node']" targetFinderExpression="[self.destinations /]" sourceFinderExpression="[self.eContainer().eContainer() /]" domainClass="attackimpact.Propagation" useDomainElement="true">
+        <edgeMappings name="MappingNodeToNode" label="Node to Node" sourceMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node']" targetMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node']" targetFinderExpression="aql:self.destinations" sourceFinderExpression="aql:self.eContainer().eContainer() " domainClass="attackimpact.Propagation" useDomainElement="true">
           <style sizeComputationExpression="2">
             <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='red']"/>
             <centerLabelStyleDescription>
@@ -67,7 +67,7 @@
             </centerLabelStyleDescription>
           </style>
         </edgeMappings>
-        <edgeMappings name="VulnerabilityToNode" label="Propagation from Vulnerability to Node" sourceMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Vulnerability']" targetMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node']" targetFinderExpression="[self.eContainer() /]">
+        <edgeMappings name="VulnerabilityToNode" label="Propagation from Vulnerability to Node" sourceMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Vulnerability']" targetMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node']" targetFinderExpression="aql:self.eContainer()">
           <style sizeComputationExpression="2">
             <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='red']"/>
             <centerLabelStyleDescription>
@@ -123,7 +123,7 @@
             </style>
           </conditionnalStyles>
         </edgeMappings>
-        <edgeMappings name="propagationMappingNodeToNode" label="Propagation from Node to Node" sourceMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node'] //@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Vulnerability']" targetMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node']" targetFinderExpression="[self.destinations /]" sourceFinderExpression="[self.eContainer()/]" domainClass="attackimpact.Propagation" useDomainElement="true">
+        <edgeMappings name="propagationMappingNodeToNode" label="Propagation from Node to Node" sourceMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node'] //@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Vulnerability']" targetMapping="//@ownedViewpoints[name='AttackImpact']/@ownedRepresentations[name='AttackImpactDiagram']/@defaultLayer/@nodeMappings[name='Node']" targetFinderExpression="aql:self.destinations" sourceFinderExpression="aql:self.eContainer()" domainClass="attackimpact.Propagation" useDomainElement="true">
           <style lineStyle="dot" sizeComputationExpression="2">
             <strokeColor xsi:type="description:SystemColor" href="environment:/viewpoint#//@systemColors/@entries[name='gray']"/>
             <centerLabelStyleDescription>
