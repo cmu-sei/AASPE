@@ -37,13 +37,15 @@ import static extension edu.cmu.aaspe.codegeneration.sel4.Loader.generateLoaderM
 import static extension edu.cmu.aaspe.codegeneration.sel4.Scheduler.generateSchedulerCode
 import static extension edu.cmu.aaspe.codegeneration.sel4.Scheduler.generateSchedulerMakefile
 import org.eclipse.core.runtime.IStatus
+import org.eclipse.core.runtime.jobs.IJobFunction
+import org.eclipse.core.runtime.IProgressMonitor
 
 class GenerateHandler extends AbstractHandler {
 	override execute(ExecutionEvent event) throws ExecutionException {
 		val selection = event.currentSelection as IStructuredSelection
 		val selectedNode = selection.firstElement as IOutlineNode
 
-		Job.create("Copy Package", [ monitor |
+		Job.create("Copy Package", [IProgressMonitor monitor |
 			selectedNode.readOnly(
 				new IUnitOfWork<IStatus, EObject>() {
 					override IStatus exec(EObject srcImpl) throws Exception {
@@ -85,7 +87,7 @@ class GenerateHandler extends AbstractHandler {
 			} else {
 				Status.OK_STATUS
 			}
-		]).schedule
+		] as IJobFunction).schedule
 		null
 	}
 }
