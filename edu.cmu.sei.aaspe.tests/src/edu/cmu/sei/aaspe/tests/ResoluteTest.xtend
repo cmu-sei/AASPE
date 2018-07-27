@@ -25,17 +25,19 @@ import org.osate.aadl2.instance.ComponentInstance
 import org.osate.aadl2.instance.ConnectionInstance
 import org.osate.aadl2.instantiation.InstantiateModel
 import org.osate.aadl2.modelsupport.resources.OsateResourceUtil
-import org.osate.core.test.Aadl2UiInjectorProvider
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.XtextRunner;
-import org.osate.core.test.OsateTest
 
 import static extension org.junit.Assert.assertEquals
 import static extension org.osate.annexsupport.AnnexUtil.getAllAnnexSubclauses
+import org.osate.testsupport.Aadl2InjectorProvider
+import com.itemis.xtext.testing.XtextTest
+import com.google.inject.Inject
+import org.osate.testsupport.TestHelper
 
 @RunWith(XtextRunner)
-@InjectWith(Aadl2UiInjectorProvider)
-class ResoluteTest extends OsateTest {
+@InjectWith(Aadl2InjectorProvider)
+class ResoluteTest extends XtextTest {
 	val static NE_COMPARATOR = new NamedElementComparator
 	
 	//Test File: resolute/security_cwe131_queues.aadl
@@ -283,33 +285,14 @@ class ResoluteTest extends OsateTest {
 		testResolute("resolute/security_r7.aadl", "integration.fail2", false)
 	}
 	
-	override getProjectName() {
-		"Resolute_Test"
-	}
+	@Inject
+	TestHelper<AadlPackage> testHelper
 	
 	def private testResolute(String fileName, String implementationName, boolean expected) {
-		val project = workspaceRoot.getProject(projectName)
-		([IProgressMonitor monitor |
-			//Create "resolute" directory for security-theorems.aadl
-			project.getFolder("resolute").create(true, true, monitor)
-			//Create necessary directories for the test file
-			val segments = fileName.split("/")
-			segments.take(segments.length - 1).fold(project, [IContainer iResource, segment |
-				(iResource.getFolder(new Path(segment)) => [if (!exists) {
-					create(true, true, monitor)
-				}]) as IContainer
-			])
-		] as WorkspaceModifyOperation).run(null)
 		
-		createFiles(#["security_properties.aadl", "resolute/security-theorems.aadl", fileName].map[
-			val reader = new InputStreamReader(OsateResourceUtil.resourceSet.URIConverter.createInputStream(URI.createPlatformPluginURI("annex-design/" + it, false)))
-			val fileContents = CharStreams.toString(reader)
-			reader.close
-			it -> fileContents
-		])
-		suppressSerialization
+		val testFileResult = issues = testHelper.testFile("edu.cmu.aaspe.examples/"+fileName)
 		
-		val implementation = (testFile(fileName).resource.contents.head as AadlPackage).publicSection.ownedClassifiers.filter(ComponentImplementation).findFirst[name == implementationName]
+		val implementation = (testFileResult.resource.contents.head as AadlPackage).publicSection.ownedClassifiers.filter(ComponentImplementation).findFirst[name == implementationName]
 		Assert.assertNotNull('''Could not find implementation �implementationName�''', implementation)
 		val instance = InstantiateModel.buildInstanceModelFile(implementation)
 		val subclauses = implementation.getAllAnnexSubclauses(ResolutePackage.eINSTANCE.resoluteSubclause)
